@@ -13,10 +13,10 @@ This project integrates **Apostol Apostolov's extensive houserules for Old Schoo
 ![TypeScript](https://img.shields.io/badge/typescript-5.x-3178C6)
 ![React](https://img.shields.io/badge/react-18.x-61DAFB)
 
-## Player Journey (Feature Walkthrough)
+## Features
 
 ### 1) Start & Roll Your Character
-Begin on the Roll Character tab. From here you can roll stats, open sources, and move through the character flow.
+Kick off your character on the Roll Character tab. Roll your stats, glance at your options, and move through the journey at your own pace.
 
 <p align="center">
   <img src="images/SCREENSHOT_01.png" width="32%" />
@@ -24,7 +24,7 @@ Begin on the Roll Character tab. From here you can roll stats, open sources, and
 </p>
 
 ### 2) Manual Scores (DM Approved)
-If your table uses manual scores, a DM approval gate appears before entering values. The manual entry screen includes quick-fill helpers for common formats.
+If your table uses manual scores, a DM approval gate keeps things fair. The entry screen includes quick-fill helpers for common roll styles so you can get going fast.
 
 <p align="center">
   <img src="images/SCREENSHOT_03.png" width="32%" />
@@ -32,14 +32,14 @@ If your table uses manual scores, a DM approval gate appears before entering val
 </p>
 
 ### 3) Choose Content Sources
-Enable third‑party sources to expand available classes, items, and themes. Sources are additive and can be toggled per character.
+Mix in optional source packs to expand classes, items, and themes. You can enable or disable sources per character depending on the campaign vibe.
 
 <p align="center">
   <img src="images/SCREENSHOT_05.png" width="32%" />
 </p>
 
 ### 4) Pick Race & Class
-Races and classes show requirements, modifiers, and eligibility. Detail modals give full rules context before you commit.
+Pick a race and class with clear requirements, modifiers, and eligibility badges. Open the detail panels to see full rules context before locking anything in.
 
 <p align="center">
   <img src="images/SCREENSHOT_06.png" width="32%" />
@@ -48,7 +48,7 @@ Races and classes show requirements, modifiers, and eligibility. Detail modals g
 </p>
 
 ### 5) Manage & Outfit
-Set starting level, roll starting money, then choose a kit or customize your loadout. HP and wealth breakdowns are shown in-line.
+Choose your starting level, roll your wealth, and gear up. Kits get you playing quickly, and you can still customize gear with full HP and money breakdowns along the way.
 
 <p align="center">
   <img src="images/SCREENSHOT_09.png" width="32%" />
@@ -57,53 +57,43 @@ Set starting level, roll starting money, then choose a kit or customize your loa
 </p>
 
 ### 6) Customize Equipment
-Drag items between the catalog and your inventory to fine‑tune gear. Remaining gold and weight update in real time.
+Drag items between the catalog and your inventory to fine‑tune your kit. Gold and encumbrance update live, so you always know where you stand.
 
 <p align="center">
   <img src="images/SCREENSHOT_12.png" width="32%" />
 </p>
 
-### 7) Starting Magic (Spellcasters)
-Pick favorite spells and let the system determine a starting spell, with a choice to keep or replace.
-
-<p align="center">
-  <img src="images/SCREENSHOT_13.png" width="32%" />
-  <img src="images/SCREENSHOT_14.png" width="32%" />
-</p>
-
-### 8) Grog Hireling
-Fragile spellcasters can generate a personal grog with stats, gear, and a portrait for quick table readiness.
+### 7) Starting Magic & Personal Grog
+Spellcasters pick favorites and let fate decide a starting spell. If your class qualifies, you can also generate a personal grog with stats, gear, and a portrait—ready to hit the table.
 
 <p align="center">
   <img src="images/SCREENSHOT_14.png" width="32%" />
 </p>
 
-### 9) Final Touches (AI‑Enhanced)
-Choose world and gender, generate name and traits, then produce a portrait with clear, inspectable prompts.
+### 8) Final Touches (AI‑Enhanced)
+Choose your world and gender, generate a name and traits, then create a portrait. Prompts are visible so you can see exactly what the AI is using.
 
 <p align="center">
   <img src="images/SCREENSHOT_15.png" width="32%" />
   <img src="images/SCREENSHOT_16.png" width="32%" />
 </p>
 
-### 10) Backstory (Two‑Page™)
-Generate a rich, multi‑page backstory with full prompt transparency and a readable output panel.
+### 9) Backstory (Two‑Page™)
+Generate a rich, multi‑page backstory and read it in a clean, scrollable panel built for long text.
 
 <p align="center">
-  <img src="images/SCREENSHOT_17.png" width="32%" />
-  <img src="images/SCREENSHOT_18.png" width="32%" />
   <img src="images/SCREENSHOT_19.png" width="32%" />
 </p>
 
-### 11) Save / Import / Export
-Save slots let you load, update, and export characters. Import JSON to restore a saved character.
+### 10) Save / Import / Export
+Save slots make it easy to update, export, or restore characters. Import a JSON save to bring a character back instantly.
 
 <p align="center">
   <img src="images/SCREENSHOT_20.png" width="32%" />
 </p>
 
-### 12) PDF Export
-Export a complete, print‑ready OSE character sheet with equipment, portrait, and derived stats.
+### 11) PDF Export
+Export a complete, print‑ready OSE character sheet with equipment, portrait, and all the derived stats filled in.
 
 <p align="center">
   <img src="images/SCREENSHOT_21.png" width="32%" />
