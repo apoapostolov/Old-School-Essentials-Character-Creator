@@ -62,4 +62,4 @@ This project includes a full set of integrated houserules authored by Apostol Ap
 
 ## License
 
-Add your license here.
+MIT. See `LICENSE`.
