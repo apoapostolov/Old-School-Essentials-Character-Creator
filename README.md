@@ -5,6 +5,7 @@ A full-featured character generator for Old-School Essentials (OSE). Roll classi
 This project integrates **Apostol Apostolov's extensive houserules for Old School Essentials**. The overhaul focuses on modern clarity and consistency while keeping old‑school tension, resource pressure, and player agency intact. Full rules: [rules/OSE_HOUSE_RULES.md](rules/OSE_HOUSE_RULES.md).
 
 Key additions and changes include:
+
 - **Modernized combat math**: explicit Ascending AC and To‑Hit conversion guidelines.
 - **Score generation with safety valves**: 3d6 in order, shared sets, plus limited post‑roll adjustments.
 - **Tougher early survivability**: racial hit die and max HP at level 1, with rerolls for 1–2 on later HD.
@@ -29,6 +30,7 @@ Key additions and changes include:
 ## Features
 
 ### 1) Choose Your Setting
+
 Load one or more supported source settings to expand the generator with unique mechanics, new steps, classes, equipment, and spells. You can mix sources per character, and more settings will be added over time.
 
 <p align="center">
@@ -36,6 +38,7 @@ Load one or more supported source settings to expand the generator with unique m
 </p>
 
 ### 2) Start & Roll Your Character
+
 Kick off your character on the Roll Character tab. Roll your stats, glance at your options, and move through the journey at your own pace.
 
 <p align="center">
@@ -44,6 +47,7 @@ Kick off your character on the Roll Character tab. Roll your stats, glance at yo
 </p>
 
 ### 3) Manual Scores (DM Approved)
+
 If your table uses manual scores, a DM approval gate keeps things fair. The entry screen includes quick-fill helpers for common roll styles so you can get going fast.
 
 <p align="center">
@@ -52,6 +56,7 @@ If your table uses manual scores, a DM approval gate keeps things fair. The entr
 </p>
 
 ### 4) Pick Race & Class
+
 Pick a race and class with clear requirements, modifiers, and eligibility badges. Open the detail panels to see full rules context before locking anything in.
 
 <p align="center">
@@ -61,7 +66,8 @@ Pick a race and class with clear requirements, modifiers, and eligibility badges
 </p>
 
 ### 5) Manage & Outfit
-Choose your starting level, roll your wealth, and gear up. Kits get you playing quickly, and you can still customize gear with full HP and money breakdowns along the way.
+
+Choose your starting level, roll your wealth, and gear up. Kits get you playing quickly, and you can still customize gear breakdowns along the way.
 
 <p align="center">
   <img src="images/SCREENSHOT_09.png" width="32%" />
@@ -70,6 +76,7 @@ Choose your starting level, roll your wealth, and gear up. Kits get you playing 
 </p>
 
 ### 6) Customize Equipment
+
 Drag items between the catalog and your inventory to fine‑tune your kit. Gold and encumbrance update live, so you always know where you stand.
 
 <p align="center">
@@ -77,6 +84,7 @@ Drag items between the catalog and your inventory to fine‑tune your kit. Gold 
 </p>
 
 ### 7) Starting Magic & Personal Grog
+
 Spellcasters pick favorites and let fate decide a starting spell. If your class qualifies, you can also generate a personal grog with stats, gear, and a portrait—ready to hit the table.
 
 <p align="center">
@@ -84,6 +92,7 @@ Spellcasters pick favorites and let fate decide a starting spell. If your class 
 </p>
 
 ### 8) Final Touches (AI‑Enhanced)
+
 Choose your world and gender, generate a name and traits, then create a portrait. Prompts are visible so you can see exactly what the AI is using.
 
 <p align="center">
@@ -92,6 +101,7 @@ Choose your world and gender, generate a name and traits, then create a portrait
 </p>
 
 ### 9) Backstory (Two‑Page™)
+
 Generate a rich, multi‑page backstory and read it in a clean, scrollable panel built for long text.
 
 <p align="center">
@@ -99,6 +109,7 @@ Generate a rich, multi‑page backstory and read it in a clean, scrollable panel
 </p>
 
 ### 10) Save / Import / Export
+
 Save slots make it easy to update, export, or restore characters. Import a JSON save to bring a character back instantly.
 
 <p align="center">
@@ -106,6 +117,7 @@ Save slots make it easy to update, export, or restore characters. Import a JSON 
 </p>
 
 ### 11) PDF Export
+
 Export a complete, print‑ready OSE character sheet with equipment, portrait, and all the derived stats filled in.
 
 <p align="center">
