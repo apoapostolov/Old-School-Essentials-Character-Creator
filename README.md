@@ -26,7 +26,14 @@ Key additions and changes include:
 
 ## Features
 
-### 1) Start & Roll Your Character
+### 1) Choose Your Setting
+Load one or more supported source settings to expand the generator with unique mechanics, new steps, classes, equipment, and spells. You can mix sources per character, and more settings will be added over time.
+
+<p align="center">
+  <img src="images/SCREENSHOT_05.png" width="32%" />
+</p>
+
+### 2) Start & Roll Your Character
 Kick off your character on the Roll Character tab. Roll your stats, glance at your options, and move through the journey at your own pace.
 
 <p align="center">
@@ -34,19 +41,12 @@ Kick off your character on the Roll Character tab. Roll your stats, glance at yo
   <img src="images/SCREENSHOT_02.png" width="32%" />
 </p>
 
-### 2) Manual Scores (DM Approved)
+### 3) Manual Scores (DM Approved)
 If your table uses manual scores, a DM approval gate keeps things fair. The entry screen includes quick-fill helpers for common roll styles so you can get going fast.
 
 <p align="center">
   <img src="images/SCREENSHOT_03.png" width="32%" />
   <img src="images/SCREENSHOT_04.png" width="32%" />
-</p>
-
-### 3) Choose Content Sources
-Mix in optional source packs to expand classes, items, and themes. You can enable or disable sources per character depending on the campaign vibe.
-
-<p align="center">
-  <img src="images/SCREENSHOT_05.png" width="32%" />
 </p>
 
 ### 4) Pick Race & Class
