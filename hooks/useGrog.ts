@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI, Modality, Type } from '@google/genai';
 import { useCallback, useState } from 'react';
 import { ABILITIES } from '../constants';
 import { ITEMS } from '../item-data';
@@ -6,6 +6,7 @@ import { getGrogDetailsPrompt, getGrogPortraitPrompt } from '../prompt-data';
 import { Ability, type AbilityScores, type Grog, type Theme } from '../types';
 import { getModifier } from '../utils/character';
 import { rollDie } from '../utils/hp';
+import { describeGeminiImageFailure, getGeminiApiKey } from '../utils/gemini';
 
 const rollStat = (): number => {
     return Array.from({ length: 3 }, () => Math.floor(Math.random() * 6) + 1).reduce((a, b) => a + b, 0);
@@ -194,7 +195,7 @@ export const useGrog = (showToast: (msg: string) => void) => {
         setIsGeneratingDetails(true);
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey: getGeminiApiKey() });
 
             // Generate Name, Traits, and Trinkets
             const detailsPrompt = getGrogDetailsPrompt(theme);
@@ -234,12 +235,27 @@ export const useGrog = (showToast: (msg: string) => void) => {
             const imageResponse = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-image',
                 contents: portraitPrompt,
+                config: { responseModalities: [Modality.IMAGE, Modality.TEXT] },
             });
 
-            if (!imageResponse.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data) {
-                throw new Error("The AI did not return an image.");
+            const imagePart = imageResponse.candidates?.[0]?.content?.parts?.find((part: any) => part?.inlineData?.data);
+            let imageData = imagePart?.inlineData?.data;
+
+            if (!imageData) {
+                const fallbackResponse = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash-image-preview',
+                    contents: portraitPrompt,
+                    config: { responseModalities: [Modality.IMAGE, Modality.TEXT] },
+                });
+                const fallbackPart = fallbackResponse.candidates?.[0]?.content?.parts?.find((part: any) => part?.inlineData?.data);
+                imageData = fallbackPart?.inlineData?.data;
+                if (!imageData) {
+                    const details = describeGeminiImageFailure(fallbackResponse);
+                    throw new Error(`The AI did not return an image. ${details}`);
+                }
             }
-            const portrait = `data:image/png;base64,${imageResponse.candidates[0].content.parts[0].inlineData.data}`;
+
+            const portrait = `data:image/png;base64,${imageData}`;
 
             setGrog(prevGrog => prevGrog ? { ...prevGrog, name, traits, portrait, trinkets } : null);
 

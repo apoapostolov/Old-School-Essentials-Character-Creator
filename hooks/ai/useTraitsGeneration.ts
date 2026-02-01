@@ -5,6 +5,7 @@ import { getTraitsPrompt, getLifeStandardPrompt } from '../../prompt-data';
 import { LIFESTYLES } from '../../lifestyle-data';
 import { calculateFinalLifestyle } from '../../lifestyle-simulation';
 import type { AggregatedData } from '../useAggregatedData';
+import { getGeminiApiKey } from '../../utils/gemini';
 
 export const useTraitsGeneration = (
     selectedClass: ClassInfo | null,
@@ -44,7 +45,7 @@ export const useTraitsGeneration = (
             const lifestyleDetails = LIFESTYLES[finalLifestyleKey];
 
             // AI Call to generate the narrative sentence
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey: getGeminiApiKey() });
             const selectedGender = gender ?? (Math.random() > 0.5 ? 'male' : 'female');
             const prompt = getLifeStandardPrompt(selectedClass, scores, selectedGender, theme, secondarySkills, lifestyleDetails, failureEvent);
     
@@ -88,7 +89,7 @@ export const useTraitsGeneration = (
         }
         setIsGeneratingTraits(true);
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey: getGeminiApiKey() });
             const selectedGender = gender ?? (Math.random() > 0.5 ? 'male' : 'female');
             const prompt = getTraitsPrompt(selectedClass, selectedGender, theme, characterTraits.lifeStandard, aggregatedData.THEMES);
     

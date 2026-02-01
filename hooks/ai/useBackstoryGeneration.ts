@@ -3,6 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 import type { ClassInfo, AbilityScores, CharacterTraits, Theme, Item, Lifestyle, Race } from '../../types';
 import { getBackstoryPrompt } from '../../prompt-data';
 import type { AggregatedData } from '../useAggregatedData';
+import { getGeminiApiKey } from '../../utils/gemini';
 
 export const useBackstoryGeneration = (
     selectedClass: ClassInfo | null,
@@ -31,7 +32,7 @@ export const useBackstoryGeneration = (
         setIsGeneratingBackstory(true);
         setBackstory(null);
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey: getGeminiApiKey() });
             const prompt = getBackstoryPrompt(
                 characterName,
                 selectedClass,

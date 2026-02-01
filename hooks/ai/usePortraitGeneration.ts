@@ -4,6 +4,7 @@ import { getDescriptionPrompt, getEmotionalPortraitPrompt, getHeadshotPrompt, ge
 import type { AbilityScores, CharacterTraits, ClassInfo, Emotion, Item, Race, Theme } from '../../types';
 import { cropImage } from '../../utils/image';
 import type { AggregatedData } from '../useAggregatedData';
+import { describeGeminiImageFailure, getGeminiApiKey } from '../../utils/gemini';
 
 export const usePortraitGeneration = (
     selectedClass: ClassInfo | null,
@@ -30,7 +31,7 @@ export const usePortraitGeneration = (
     const generateDescription = useCallback(async (portraitBase64: string, traits: CharacterTraits | null) => {
         if (!selectedClass) return;
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey: getGeminiApiKey() });
             const imagePart = { inlineData: { data: portraitBase64.split(',')[1], mimeType: 'image/png' } };
             const textPrompt = getDescriptionPrompt(traits);
 
@@ -82,17 +83,34 @@ export const usePortraitGeneration = (
         setPortraitView('full');
 
         try {
-          const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+          const ai = new GoogleGenAI({ apiKey: getGeminiApiKey() });
           const lifestyleDetails = traits?.lifestyleKey ? aggregatedData.LIFESTYLES[traits.lifestyleKey] : null;
           const prompt = getPortraitPrompt(selectedClass, scores, gender, theme, traits, level, secondarySkills, equipmentItems, lifeStandard, lifestyleDetails, aggregatedData.THEMES, race);
 
           const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash-image',
             contents: prompt,
+            config: { responseModalities: [Modality.IMAGE, Modality.TEXT] },
           });
 
-          if (!response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data) throw new Error("The AI did not return an image.");
-          const newPortrait = `data:image/png;base64,${response.candidates[0].content.parts[0].inlineData.data}`;
+          const imagePart = response.candidates?.[0]?.content?.parts?.find((part: any) => part?.inlineData?.data);
+          let imageData = imagePart?.inlineData?.data;
+
+          if (!imageData) {
+            const fallbackResponse = await ai.models.generateContent({
+              model: 'gemini-2.5-flash-image-preview',
+              contents: prompt,
+              config: { responseModalities: [Modality.IMAGE, Modality.TEXT] },
+            });
+            const fallbackPart = fallbackResponse.candidates?.[0]?.content?.parts?.find((part: any) => part?.inlineData?.data);
+            imageData = fallbackPart?.inlineData?.data;
+            if (!imageData) {
+              const details = describeGeminiImageFailure(fallbackResponse);
+              throw new Error(`The AI did not return an image. ${details}`);
+            }
+          }
+
+          const newPortrait = `data:image/png;base64,${imageData}`;
           setPortrait(newPortrait);
           setPdfPortraitSrc(newPortrait);
           await generateDescription(newPortrait, traits);
@@ -114,7 +132,7 @@ export const usePortraitGeneration = (
         setIsCroppingHeadshot(true);
         setPortraitError(null);
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey: getGeminiApiKey() });
             const base64ImageData = portrait.split(',')[1];
             const mimeType = portrait.match(/data:(.*);/)?.[1] || 'image/png';
             const prompt = getHeadshotPrompt();
@@ -169,13 +187,13 @@ export const usePortraitGeneration = (
         }
         setGeneratingEmotion(emotion.name);
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey: getGeminiApiKey() });
             const base64ImageData = baseImage.split(',')[1];
             const mimeType = baseImage.match(/data:(.*);/)?.[1] || 'image/png';
             const prompt = getEmotionalPortraitPrompt(emotion);
 
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash-image-preview',
+                model: 'gemini-2.5-flash-image',
                 contents: { parts: [{ inlineData: { data: base64ImageData, mimeType } }, { text: prompt }] },
                 config: { responseModalities: [Modality.IMAGE, Modality.TEXT] },
             });
@@ -188,17 +206,14 @@ export const usePortraitGeneration = (
                 throw new Error("The AI did not return a valid response.");
             }
 
-            let imageFound = false;
-            for (const part of response.candidates[0].content.parts) {
-                if (part.inlineData) {
-                    const newEmotionalPortraitSrc = `data:image/png;base64,${part.inlineData.data}`;
-                    setEmotionalPortraits(prev => ({ ...prev, [emotion.name]: newEmotionalPortraitSrc }));
-                    onSelectPdfPortrait(newEmotionalPortraitSrc);
-                    imageFound = true;
-                    break;
-                }
+            const imagePart = response.candidates?.[0]?.content?.parts?.find((part: any) => part?.inlineData?.data);
+            if (!imagePart?.inlineData?.data) {
+                const details = describeGeminiImageFailure(response);
+                throw new Error(`The AI response did not contain an image. ${details}`);
             }
-            if (!imageFound) throw new Error("The AI response did not contain an image.");
+            const newEmotionalPortraitSrc = `data:image/png;base64,${imagePart.inlineData.data}`;
+            setEmotionalPortraits(prev => ({ ...prev, [emotion.name]: newEmotionalPortraitSrc }));
+            onSelectPdfPortrait(newEmotionalPortraitSrc);
         } catch (e) {
             console.error(`Failed to generate ${emotion.name} portrait:`, e);
             const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
