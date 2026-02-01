@@ -8,6 +8,8 @@ Key additions and changes include:
 - **Modernized combat math**: explicit Ascending AC and To‑Hit conversion guidelines.
 - **Score generation with safety valves**: 3d6 in order, shared sets, plus limited post‑roll adjustments.
 - **Tougher early survivability**: racial hit die and max HP at level 1, with rerolls for 1–2 on later HD.
+- **Class overhaul across the Advanced Player’s Tome**: rebalanced requirements to reflect demographic availability, plus new features so every class feels viable and interesting without trap choices.
+- **Economy & advancement rebalanced**: XP is tuned to silver‑based progression for modern, longer‑term campaigns.
 - **Spell access as a journey**: curated starting spells, random selection with player agency, and research/mentorship for new spells.
 - **Alignment with meaning**: alignment is a roleplay force with real consequences, not just a label.
 - **Encumbrance that actually matters**: clean thresholds, STR modifiers, and distinct carried‑weight states.
