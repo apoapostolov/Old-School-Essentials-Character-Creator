@@ -249,22 +249,22 @@ Attack roll use the formula: **d20 + Attack Bonus + STR (melee) or DEX (ranged) 
 | **Adventurer** | +7                | Cleric, Druid, Drow, Thief, Halfling, Acrobat, Assassin, Bard, Half-Elf    |
 | Sage           | +5                | Magic-User, Gnome, Illusionist, Swirfneblin                                |
 
-| Level | Warrior Group (+9 at 14)<br>Fighter, Dwarf, Elf, Barbarian, Duergar, Half-Orc, Knight, Paladin, Ranger | Adventurer Group (+7 at 14): Cleric, Druid, Drow, Thief, Halfling, Acrobat, Assassin, Bard, Half-Elf | Mage Group (+5 at 14)<br>Magic-User, Gnome, Illusionist, Swirfneblin |
-| ----- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| 1     | +0                                                                                                     | +0                                                                                                   | +0                                                                   |
-| 2     | +0 (Fighter +1)                                                                                        | +0                                                                                                   | +0                                                                   |
-| 3     | +1                                                                                                     | +1                                                                                                   | +0                                                                   |
-| 4     | +2                                                                                                     | +1                                                                                                   | +1                                                                   |
-| 5     | +2 (Fighter +3)                                                                                        | +2                                                                                                   | +1                                                                   |
-| 6     | +3                                                                                                     | +2                                                                                                   | +1                                                                   |
-| 7     | +4                                                                                                     | +3                                                                                                   | +2                                                                   |
-| 8     | +4 (Fighter +5)                                                                                        | +3                                                                                                   | +2                                                                   |
-| 9     | +5                                                                                                     | +4                                                                                                   | +3                                                                   |
-| 10    | +6                                                                                                     | +4                                                                                                   | +3                                                                   |
-| 11    | +6 (Fighter +7)                                                                                        | +5                                                                                                   | +3                                                                   |
-| 12    | +7                                                                                                     | +5                                                                                                   | +4                                                                   |
-| 13    | +8                                                                                                     | +6                                                                                                   | +4                                                                   |
-| 14    | +9                                                                                                     | +7                                                                                                   | +5                                                                   |
+| Level | Warrior Group (+9 at 14) | Adventurer Group (+7 at 14) | Mage Group (+5 at 14) |
+| ----- | ------------------------ | --------------------------- | --------------------- |
+| 1     | +0                       | +0                          | +0                    |
+| 2     | +0 (Fighter +1)          | +0                          | +0                    |
+| 3     | +1                       | +1                          | +0                    |
+| 4     | +2                       | +1                          | +1                    |
+| 5     | +2 (Fighter +3)          | +2                          | +1                    |
+| 6     | +3                       | +2                          | +1                    |
+| 7     | +4                       | +3                          | +2                    |
+| 8     | +4 (Fighter +5)          | +3                          | +2                    |
+| 9     | +5                       | +4                          | +3                    |
+| 10    | +6                       | +4                          | +3                    |
+| 11    | +6 (Fighter +7)          | +5                          | +3                    |
+| 12    | +7                       | +5                          | +4                    |
+| 13    | +8                       | +6                          | +4                    |
+| 14    | +9                       | +7                          | +5                    |
 
 ## Basic Classes
 
