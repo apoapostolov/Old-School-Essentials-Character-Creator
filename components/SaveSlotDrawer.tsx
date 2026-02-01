@@ -452,6 +452,12 @@ export const SaveSlotDrawer: React.FC = () => {
                     pointer-events: none;
                 }
 
+                body.has-modal .save-drawer-handle {
+                    opacity: 0.35;
+                    filter: grayscale(1);
+                    pointer-events: none;
+                }
+
                 .save-drawer {
                     position: fixed;
                     top: 0;

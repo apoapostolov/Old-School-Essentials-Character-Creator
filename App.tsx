@@ -190,6 +190,30 @@ const AppContent: React.FC = () => {
     const demihumanClasses = aggregatedData.CLASSES.filter(c => c.group === 'Demihuman');
     const advancedClasses = aggregatedData.CLASSES.filter(c => c.group === 'Advanced');
 
+    const isAnyModalOpen = Boolean(
+        uiState.isPromptModalVisible ||
+        uiState.isBackstoryPromptModalVisible ||
+        uiState.isNamePromptModalVisible ||
+        uiState.isTraitsPromptModalVisible ||
+        uiState.isLifeStandardPromptModalVisible ||
+        uiState.kitModalData ||
+        uiState.isCustomizingEquipment ||
+        uiState.classInfoModalData ||
+        uiState.raceInfoModalData ||
+        uiState.isSourcesModalVisible ||
+        showManualScoreWarning ||
+        showManualScoreEntry
+    );
+
+    useEffect(() => {
+        if (isAnyModalOpen) {
+            document.body.classList.add('has-modal');
+        } else {
+            document.body.classList.remove('has-modal');
+        }
+        return () => document.body.classList.remove('has-modal');
+    }, [isAnyModalOpen]);
+
     return (
         <CharacterProvider character={character}>
             <div className="min-h-screen bg-gray-900 text-gray-200 font-sans p-4 sm:p-8 bg-cover bg-center" style={{backgroundImage: "url('https://www.transparenttextures.com/patterns/dark-matter.png')"}}>
