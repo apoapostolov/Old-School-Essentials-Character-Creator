@@ -2,7 +2,18 @@
 
 A full-featured character generator for Old-School Essentials (OSE). Roll classic stats, select races and classes, manage gear and encumbrance, and export a print-ready PDF. The app also supports optional AI-powered name, trait, portrait, and backstory generation using Google Gemini.
 
-This project integrates **Apostol Apostolov's extensive houserules for Old School Essentials**. Read the full rules here: [rules/OSE_HOUSE_RULES.md](rules/OSE_HOUSE_RULES.md).
+This project integrates **Apostol Apostolov's extensive houserules for Old School Essentials**. The overhaul focuses on modern clarity and consistency while keeping old‑school tension, resource pressure, and player agency intact. Full rules: [rules/OSE_HOUSE_RULES.md](rules/OSE_HOUSE_RULES.md).
+
+Key additions and changes include:
+- **Modernized combat math**: explicit Ascending AC and To‑Hit conversion guidelines.
+- **Score generation with safety valves**: 3d6 in order, shared sets, plus limited post‑roll adjustments.
+- **Tougher early survivability**: racial hit die and max HP at level 1, with rerolls for 1–2 on later HD.
+- **Spell access as a journey**: curated starting spells, random selection with player agency, and research/mentorship for new spells.
+- **Alignment with meaning**: alignment is a roleplay force with real consequences, not just a label.
+- **Encumbrance that actually matters**: clean thresholds, STR modifiers, and distinct carried‑weight states.
+- **Group‑centric resolution**: X‑in‑6 and skill checks emphasize party effort and shared luck.
+- **Grog hirelings**: a single loyal companion for fragile casters, with clear limits.
+- **Integrated setting depth**: Karameikos social standing, literacy, and background tables for grounded origins.
 
 ## Badges
 
@@ -138,10 +149,6 @@ cp .env.example .env
 - `npm run build` — production build
 - `npm run preview` — preview the production build
 - `npm test` — run tests
-
-## House Rules
-
-This project includes a full set of integrated houserules authored by Apostol Apostolov. See: [rules/OSE_HOUSE_RULES.md](rules/OSE_HOUSE_RULES.md).
 
 ## License
 
