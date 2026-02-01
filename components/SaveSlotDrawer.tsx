@@ -192,12 +192,14 @@ export const SaveSlotDrawer: React.FC = () => {
         });
     };
 
+    const isModalOpen = customNameModalOpen || importModalOpen || !!exportData || exportCurrentModalOpen;
+
     return (
         <>
             {/* Drawer Handle */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="save-drawer-handle"
+                className={`save-drawer-handle ${isModalOpen ? 'dimmed' : ''}`}
                 aria-label={isOpen ? 'Close save menu' : 'Open save menu'}
                 title={isOpen ? 'Close save menu' : 'Open save menu'}
             >
@@ -436,6 +438,18 @@ export const SaveSlotDrawer: React.FC = () => {
 
                 .save-drawer-handle:active {
                     transform: scale(0.95);
+                }
+
+                .save-drawer-handle.dimmed {
+                    opacity: 0.35;
+                    filter: grayscale(1);
+                    pointer-events: none;
+                }
+
+                body:has(.modal-overlay) .save-drawer-handle {
+                    opacity: 0.35;
+                    filter: grayscale(1);
+                    pointer-events: none;
                 }
 
                 .save-drawer {

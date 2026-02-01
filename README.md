@@ -15,7 +15,7 @@ Key additions and changes include:
 - **Encumbrance that actually matters**: clean thresholds, STR modifiers, and distinct carried‑weight states.
 - **Group‑centric resolution**: X‑in‑6 and skill checks emphasize party effort and shared luck.
 - **Grog hirelings**: a single loyal companion for fragile casters, with clear limits.
-- **Integrated setting depth**: Karameikos social standing, literacy, and background tables for grounded origins.
+- **Meaningful downtime**: structured activities like carousing and philanthropy, plus long‑term study and literacy improvement, to make between‑adventure time feel real and consequential.
 
 ## Badges
 
