@@ -1,0 +1,17 @@
+import type { SourceID } from '../../types';
+
+export interface SheetConfig {
+    id: SourceID;
+    defaultSheet: string;
+    spellcasterSheet?: string;
+    spellcasterClasses?: string[];
+}
+
+export const SHEET_CONFIG: SheetConfig = {
+    id: 'northland',
+    // Placeholder - would point to a custom PDF
+    defaultSheet: '/public/sheet/ose_sheet.pdf', 
+    spellcasterSheet: '/public/sheet/ose_sheet_magicuser.pdf',
+    // Thematic spellcasters for this setting
+    spellcasterClasses: ['Seer', 'Rune-Priest'] 
+};

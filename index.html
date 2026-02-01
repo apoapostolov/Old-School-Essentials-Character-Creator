@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced OSE Character Roller</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+      body {
+        background-color: #1a202c; /* A dark slate color similar to tailwind's gray-900 */
+      }
+      @keyframes pulse-glow {
+        0%, 100% {
+          transform: scale(1);
+          box-shadow: none;
+        }
+        5% {
+          transform: scale(1.05);
+          box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+        }
+        10% {
+          transform: scale(1);
+          box-shadow: none;
+        }
+      }
+      .animate-pulse-glow {
+        animation: pulse-glow 12s infinite ease-in-out;
+      }
+      select, option {
+        background-color: #2D3748; /* gray-800 */
+        color: #E2E8F0; /* gray-200 */
+      }
+      select:focus {
+        outline-offset: 2px;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "react-dom/": "https://esm.sh/react-dom@18.2.0/",
+    "react/": "https://esm.sh/react@18.2.0/",
+    "pdf-lib": "https://esm.sh/pdf-lib@1.17.1",
+    "@google/genai": "https://esm.sh/@google/genai"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <div id="tooltip-portal"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

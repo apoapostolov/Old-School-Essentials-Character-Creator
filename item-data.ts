@@ -1,0 +1,75 @@
+import type { Item } from './types';
+
+export const ITEMS: Record<string, Item> = {
+  // Adventuring Gear
+  'backpack': { name: 'Backpack', cost: 5, weight: 0, category: 'Gear', description: "A leather or canvas bag for carrying equipment, worn on the back.", carry_type: 'stowed' },
+  'crowbar': { name: 'Crowbar', cost: 10, weight: 0, category: 'Gear', description: "A heavy iron bar, useful for prying open doors, chests, or other stuck objects.", carry_type: 'stowed' },
+  'garlic': { name: 'Garlic', cost: 5, weight: 0, category: 'Gear', description: "A pungent bulb, often used in cooking but also believed to ward off certain undead creatures.", carry_type: 'stowed' },
+  'grappling-hook': { name: 'Grappling hook', cost: 25, weight: 0, category: 'Gear', description: "A metal hook with multiple prongs, designed to be thrown and anchor a rope for climbing.", carry_type: 'stowed' },
+  'hammer-small': { name: 'Hammer (small)', cost: 2, weight: 0, category: 'Gear', description: "A small hammer, useful for pounding in iron spikes or for minor repairs.", carry_type: 'stowed' },
+  'holy-symbol': { name: 'Holy symbol', cost: 25, weight: 0, category: 'Gear', description: "A divine focus, typically made of silver or wood, representing a character's deity. Required for turning undead.", carry_type: 'worn' },
+  'holy-water': { name: 'Holy water (vial)', cost: 25, weight: 0, category: 'Gear', description: "Water that has been blessed by a cleric. It inflicts damage upon undead creatures.", carry_type: 'stowed' },
+  'iron-spikes-12': { name: 'Iron spikes (12)', cost: 1, weight: 0, category: 'Gear', description: "A dozen pointed iron spikes, useful for wedging doors shut or as improvised climbing aids.", carry_type: 'stowed' },
+  'lantern': { name: 'Lantern', cost: 10, weight: 0, category: 'Gear', description: "A hooded lantern that illuminates a 30' radius. A flask of oil burns for 4 hours (24 turns).", carry_type: 'stowed' },
+  'mirror-steel': { name: 'Mirror (hand-sized, steel)', cost: 5, weight: 0, category: 'Gear', description: "A hand-sized, polished steel mirror, useful for looking around corners or signaling.", carry_type: 'stowed' },
+  'oil-flask': { name: 'Oil (1 flask)', cost: 2, weight: 0, category: 'Gear', description: "A flask containing one pint of flammable oil. Can be used to fuel a lantern or as a thrown weapon to create a pool of fire.", carry_type: 'stowed' },
+  'pole-10ft': { name: 'Pole (10\' long, wooden)', cost: 1, weight: 0, category: 'Gear', description: "A 10-foot long wooden pole, commonly used to check for traps from a safe distance.", carry_type: 'stowed' },
+  'rations-iron': { name: 'Rations (iron, 7 days)', cost: 15, weight: 0, category: 'Gear', description: "Dense, preserved food that provides sustenance for one person for one week. Generally unappetizing.", carry_type: 'stowed' },
+  'rations-standard': { name: 'Rations (standard, 7 days)', cost: 5, weight: 0, category: 'Gear', description: "Dried and preserved food that provides sustenance for one person for one week.", carry_type: 'stowed' },
+  'rope-50ft': { name: 'Rope (50\')', cost: 1, weight: 0, category: 'Gear', description: "A 50-foot coil of sturdy hemp rope, capable of holding the weight of approximately three people.", carry_type: 'stowed' },
+  'sack-large': { name: 'Sack (large)', cost: 2, weight: 0, category: 'Gear', description: "A large, sturdy sack that can hold up to 600 coins.", carry_type: 'stowed' },
+  'sack-small': { name: 'Sack (small)', cost: 1, weight: 0, category: 'Gear', description: "A small sack that can hold up to 200 coins.", carry_type: 'stowed' },
+  'stakes-and-mallet': { name: 'Stakes (3) and mallet', cost: 3, weight: 0, category: 'Gear', description: "Three sharpened wooden stakes and a mallet. Essential for dealing with vampires.", carry_type: 'stowed' },
+  'thieves-tools': { name: 'Thieves\' tools', cost: 25, weight: 0, category: 'Gear', description: "A set of specialized tools, including picks and files, required for picking locks and disabling traps.", carry_type: 'stowed' },
+  'tinder-box': { name: 'Tinder box (flint & steel)', cost: 3, weight: 0, category: 'Gear', description: "A small box containing flint, steel, and tinder, used for starting fires.", carry_type: 'stowed' },
+  'torches-6': { name: 'Torches (6)', cost: 1, weight: 0, category: 'Gear', description: "A bundle of six torches. Each torch illuminates a 30' radius and burns for 1 hour (6 turns).", carry_type: 'stowed' },
+  'waterskin': { name: 'Waterskin', cost: 1, weight: 0, category: 'Gear', description: "A leather container that holds up to 2 pints (1/4 gallon) of water or other liquid.", carry_type: 'worn' },
+  'wine-2-pints': { name: 'Wine (2 pints)', cost: 1, weight: 0, category: 'Gear', description: "A skin containing two pints of common wine. Can serve as a simple offering or a mild antiseptic.", carry_type: 'stowed' },
+  'wolfsbane': { name: 'Wolfsbane (1 bunch)', cost: 10, weight: 0, category: 'Gear', description: "A flowering plant believed to offer protection against werewolves and other lycanthropes.", carry_type: 'stowed' },
+  'component-pouch': { name: 'Component pouch / belt pouch', cost: 1, weight: 0, category: 'Gear', description: "A small leather pouch worn on a belt, containing the common, non-valuable material components for casting spells.", carry_type: 'worn' },
+  'snare-trap': { name: 'Snare trap', cost: 10, weight: 0, category: 'Gear', description: "A simple rope and trigger mechanism for catching small game or unwary humanoids.", carry_type: 'stowed' },
+
+  // Poisons
+  'poison-bloodstream-1': { name: 'Poison (bloodstream, type I)', cost: 10, weight: 10, category: 'Poison', description: "A basic poison that must be introduced to the bloodstream. Effect: 15 hp damage on a failed save (+6). Onset: 1d4+1 rounds.", carry_type: 'stowed' },
+  'poison-bloodstream-2': { name: 'Poison (bloodstream, type II)', cost: 75, weight: 10, category: 'Poison', description: 'A potent poison that must enter the bloodstream. Effect: 25 hp damage on a failed save (+5). Onset: 1d3 rounds.', carry_type: 'stowed' },
+  'poison-bloodstream-3': { name: 'Poison (bloodstream, type III)', cost: 600, weight: 10, category: 'Poison', description: 'A deadly poison that must enter the bloodstream. Effect: 35 hp damage on a failed save (+4). Onset: 1 round.', carry_type: 'stowed' },
+  'poison-bloodstream-4': { name: 'Poison (bloodstream, type IV)', cost: 1500, weight: 10, category: 'Poison', description: 'A lethal poison that must enter the bloodstream. Effect: Death on a failed save (+3). Onset: Instant.', carry_type: 'stowed' },
+  'poison-ingested-1': { name: 'Poison (ingested, type I)', cost: 5, weight: 10, category: 'Poison', description: "A basic poison that must be ingested to take effect. Effect: 10 hp damage on a failed save (+6). Onset: 1d6 turns.", carry_type: 'stowed' },
+  'poison-ingested-2': { name: 'Poison (ingested, type II)', cost: 50, weight: 10, category: 'Poison', description: 'A potent ingested poison. Effect: 20 hp damage on a failed save (+5). Onset: 1d6 turns.', carry_type: 'stowed' },
+  'poison-ingested-3': { name: 'Poison (ingested, type III)', cost: 300, weight: 10, category: 'Poison', description: 'A deadly ingested poison. Effect: 30 hp damage on a failed save (+4). Onset: 1d3 turns.', carry_type: 'stowed' },
+  'poison-ingested-4': { name: 'Poison (ingested, type IV)', cost: 1000, weight: 10, category: 'Poison', description: 'A lethal ingested poison. Effect: Death on a failed save (+3). Onset: 1 turn.', carry_type: 'stowed' },
+
+  // Weapons
+  'battle-axe': { name: 'Battle axe', cost: 7, weight: 50, category: 'Weapon', description: "A large axe designed for combat, usable with one or two hands. (1d8 damage).", damage: '1d8', qualities: ['Slow', 'Two-handed'], isMelee: true, isMissile: false, carry_type: 'worn' },
+  'club': { name: 'Club', cost: 3, weight: 50, category: 'Weapon', description: "A simple but effective bludgeoning weapon. (1d4 damage).", damage: '1d4', qualities: ['Blunt'], isMelee: true, isMissile: false, carry_type: 'worn' },
+  'crossbow': { name: 'Crossbow', cost: 30, weight: 50, category: 'Weapon', description: "A ranged weapon that fires bolts. Slower to load than a bow but powerful. (1d6 damage).", tag: 'ranged', damage: '1d6', qualities: ['Reload', 'Slow', 'Two-handed'], isMelee: false, isMissile: true, ranges: [80, 160, 240], carry_type: 'worn' },
+  'dagger': { name: 'Dagger', cost: 3, weight: 10, category: 'Weapon', description: "A small bladed weapon, easily concealed. Can be used in melee or thrown. (1d4 damage).", damage: '1d4', isMelee: true, isMissile: true, ranges: [10, 20, 30], carry_type: 'worn' },
+  'hand-axe': { name: 'Hand axe', cost: 4, weight: 30, category: 'Weapon', description: "A small, light axe that can be used in one hand or thrown. (1d6 damage).", damage: '1d6', isMelee: true, isMissile: true, ranges: [10, 20, 30], carry_type: 'worn' },
+  'javelin': { name: 'Javelin', cost: 1, weight: 20, category: 'Weapon', description: "A light spear designed to be thrown. (1d4 damage).", damage: '1d4', isMelee: false, isMissile: true, ranges: [30, 60, 90], carry_type: 'worn' },
+  'lance': { name: 'Lance', cost: 5, weight: 120, category: 'Weapon', description: "A long weapon designed for mounted combat, dealing double damage on a successful charge.", damage: '1d6', qualities: ['Charge'], isMelee: true, isMissile: false, carry_type: 'worn' },
+  'long-bow': { name: 'Long bow', cost: 40, weight: 30, category: 'Weapon', description: "A large, powerful bow requiring two hands to use. (1d6 damage).", tag: 'ranged', damage: '1d6', qualities: ['Two-handed'], isMelee: false, isMissile: true, ranges: [70, 140, 210], carry_type: 'worn' },
+  'mace': { name: 'Mace', cost: 5, weight: 30, category: 'Weapon', description: "A bludgeoning weapon with a weighted head, effective against armored foes. (1d6 damage).", damage: '1d6', qualities: ['Blunt'], isMelee: true, isMissile: false, carry_type: 'worn' },
+  'pole-arm': { name: 'Pole arm', cost: 7, weight: 150, category: 'Weapon', description: "A long-hafted weapon like a halberd or glaive, providing extra reach in combat. (1d10 damage).", damage: '1d10', qualities: ['Brace', 'Slow', 'Two-handed'], isMelee: true, isMissile: false, carry_type: 'worn' },
+  'short-bow': { name: 'Short bow', cost: 25, weight: 30, category: 'Weapon', description: "A small bow, easier to use than a long bow. (1d6 damage).", tag: 'ranged', damage: '1d6', qualities: ['Two-handed'], isMelee: false, isMissile: true, ranges: [50, 100, 150], carry_type: 'worn' },
+  'short-sword': { name: 'Short sword', cost: 7, weight: 30, category: 'Weapon', description: "A one-handed, double-edged blade, common among adventurers. (1d6 damage).", damage: '1d6', isMelee: true, isMissile: false, carry_type: 'worn' },
+  'silver-dagger': { name: 'Silver dagger', cost: 30, weight: 10, category: 'Weapon', description: "A dagger with a silvered blade, effective against lycanthropes and some other supernatural creatures. (1d4 damage).", damage: '1d4', isMelee: true, isMissile: true, ranges: [10, 20, 30], carry_type: 'worn' },
+  'sling': { name: 'Sling', cost: 2, weight: 20, category: 'Weapon', description: "A simple ranged weapon for hurling stones or lead bullets. (1d4 damage).", tag: 'ranged', damage: '1d4', qualities: ['Blunt'], isMelee: false, isMissile: true, ranges: [40, 80, 160], carry_type: 'worn' },
+  'spear': { name: 'Spear', cost: 3, weight: 30, category: 'Weapon', description: "A versatile weapon with a pointed head on a long shaft. Can be used in melee or thrown. (1d6 damage).", damage: '1d6', qualities: ['Brace'], isMelee: true, isMissile: true, ranges: [20, 40, 60], carry_type: 'worn' },
+  'staff': { name: 'Staff', cost: 2, weight: 40, category: 'Weapon', description: "A sturdy length of wood, used for walking and as a simple weapon. (1d4 damage).", damage: '1d4', qualities: ['Blunt', 'Slow', 'Two-handed'], isMelee: true, isMissile: false, carry_type: 'worn' },
+  'sword': { name: 'Sword', cost: 10, weight: 60, category: 'Weapon', description: "A classic one-handed, straight-bladed sword, the standard weapon of many warriors. (1d8 damage).", damage: '1d8', isMelee: true, isMissile: false, carry_type: 'worn' },
+  'two-handed-sword': { name: 'Two-handed sword', cost: 15, weight: 150, category: 'Weapon', description: "A massive sword requiring two hands to wield, capable of cleaving through foes. (1d10 damage).", damage: '1d10', qualities: ['Slow', 'Two-handed'], isMelee: true, isMissile: false, carry_type: 'worn' },
+  'war-hammer': { name: 'War hammer', cost: 5, weight: 30, category: 'Weapon', description: "A one-handed hammer designed for combat, with a head designed to punch through armor. (1d6 damage).", damage: '1d6', qualities: ['Blunt'], isMelee: true, isMissile: false, carry_type: 'worn' },
+
+  // Ammunition
+  'arrows-20': { name: 'Arrows (quiver of 20)', cost: 5, weight: 0, category: 'Ammunition', description: "A quiver containing 20 arrows for use with a bow.", carry_type: 'worn' },
+  'crossbow-bolts-30': { name: 'Crossbow bolts (case of 30)', cost: 10, weight: 0, category: 'Ammunition', description: "A case containing 30 bolts for use with a crossbow.", carry_type: 'worn' },
+  'silver-arrow-1': { name: 'Silver tipped arrow (1)', cost: 5, weight: 0, category: 'Ammunition', description: "A single arrow with a silvered tip, for use against creatures vulnerable to silver.", carry_type: 'worn' },
+  'sling-stones': { name: 'Sling stones', cost: 0, weight: 0, category: 'Ammunition', description: "A pouch of smooth stones suitable for a sling. Can often be gathered for free.", carry_type: 'worn' },
+
+  // Armour and Shields
+  'leather-armor': { name: 'Leather', cost: 20, thac0_ac: 7, ascending_ac: 12, weight: 200, category: 'Armor', description: "Armor made from stiff, boiled leather. Offers basic protection.", carry_type: 'worn' },
+  'chainmail': { name: 'Chainmail', cost: 40, thac0_ac: 5, ascending_ac: 14, weight: 400, category: 'Armor', description: "Armor made of interlocking metal rings. Provides good protection but is noisy.", carry_type: 'worn' },
+  'plate-mail': { name: 'Plate mail', cost: 60, thac0_ac: 3, ascending_ac: 16, weight: 500, category: 'Armor', description: "Armor made of shaped and fitted metal plates. Offers the best non-magical protection.", carry_type: 'worn' },
+  'shield': { name: 'Shield', cost: 10, thac0_ac: -1, ascending_ac: 1, weight: 100, category: 'Armor', description: "A personal shield, typically made of wood or metal. Worn on one arm, it improves Armor Class by 1.", carry_type: 'worn' },
+
+};

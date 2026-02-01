@@ -1,0 +1,88 @@
+import { Ability } from './types';
+
+export interface AbilityScoreDescriptor {
+  min: number;
+  max: number;
+  description: string;
+}
+
+export const ABILITY_SCORE_DESCRIPTORS: Record<Ability, AbilityScoreDescriptor[]> = {
+  [Ability.Strength]: [
+    { min: 1, max: 1, description: 'frail, emaciated limbs, collapsed posture' },
+    { min: 2, max: 3, description: 'shaky, thin frame, aided stance' },
+    { min: 4, max: 5, description: 'slender, weak posture, struggling lift' },
+    { min: 6, max: 7, description: 'strained, pushing with effort' },
+    { min: 8, max: 9, description: 'tired arms, hesitant lift' },
+    { min: 10, max: 11, description: 'average build, brief lift, neutral stance' },
+    { min: 12, max: 13, description: 'solid build carrying a heavy load' },
+    { min: 14, max: 15, description: 'toned, single-arm bearing weight' },
+    { min: 16, max: 17, description: 'muscular, ripping wood, strong grip' },
+    { min: 18, max: 19, description: 'burly, powerful, work-animal strength' },
+    { min: 20, max: 20, description: 'colossal, Herculean muscles, heroic lift' },
+  ],
+  [Ability.Dexterity]: [
+    { min: 1, max: 1, description: 'immobile, rigid limbs, unable to move' },
+    { min: 2, max: 3, description: 'slow, pained movements, unsteady gait' },
+    { min: 4, max: 5, description: 'stiff, awkward posture, limited reach' },
+    { min: 6, max: 7, description: 'clumsy, off-balance, fumbling hands' },
+    { min: 8, max: 9, description: 'slight stumble, hesitant step' },
+    { min: 10, max: 11, description: 'nimble enough to catch a small object' },
+    { min: 12, max: 13, description: 'steady aim, poised stance' },
+    { min: 14, max: 15, description: 'agile, ready to dodge, focused eyes' },
+    { min: 16, max: 17, description: 'light-footed, springing motion' },
+    { min: 18, max: 19, description: 'graceful, fluid motion, precise hands' },
+    { min: 20, max: 20, description: 'blur of movement, balletic reflexes' },
+  ],
+  [Ability.Constitution]: [
+    { min: 1, max: 1, description: 'sallow, frail skin, labored breathing' },
+    { min: 2, max: 3, description: 'fragile bones, hunched, vulnerable' },
+    { min: 4, max: 5, description: 'bruised, tender, easily wounded' },
+    { min: 6, max: 7, description: 'pale, sickly, prone to illness' },
+    { min: 8, max: 9, description: 'winded, flushed, breathy' },
+    { min: 10, max: 11, description: 'normal health, occasional cough' },
+    { min: 12, max: 13, description: 'sturdy, quick recovery, resilient' },
+    { min: 14, max: 15, description: 'robust, steady stamina, long-working' },
+    { min: 16, max: 17, description: 'unyielding, sleepless endurance' },
+    { min: 18, max: 19, description: 'hardy, vital, barely fatigued' },
+    { min: 20, max: 20, description: 'indestructible aura, tireless physiology' },
+  ],
+  [Ability.Intelligence]: [
+    { min: 1, max: 1, description: 'animal gaze, instinctive reactions' },
+    { min: 2, max: 3, description: 'distracted, primal expression' },
+    { min: 4, max: 5, description: 'wordless, confused gestures' },
+    { min: 6, max: 7, description: 'foggy thought, lost focus' },
+    { min: 8, max: 9, description: 'puzzled look, mispronouncing words' },
+    { min: 10, max: 11, description: 'practical, observant, plain expression' },
+    { min: 12, max: 13, description: 'thoughtful, attentive, calculating gaze' },
+    { min: 14, max: 15, description: 'quick-witted, curious, focused eyes' },
+    { min: 16, max: 17, description: 'inventive, analytical posture' },
+    { min: 18, max: 19, description: 'scholarly, knowing eyes, book props' },
+    { min: 20, max: 20, description: 'genius aura, visionary stare' },
+  ],
+  [Ability.Wisdom]: [
+    { min: 1, max: 1, description: 'dazed, vacant stare' },
+    { min: 2, max: 3, description: 'oblivious, overlooking details' },
+    { min: 4, max: 5, description: 'absent-minded, impulsive posture' },
+    { min: 6, max: 7, description: 'uncertain, poor-judgment expression' },
+    { min: 8, max: 9, description: 'hesitant, misses context' },
+    { min: 10, max: 11, description: 'calm, reasonable expression' },
+    { min: 12, max: 13, description: 'empathetic, aware of emotions' },
+    { min: 14, max: 15, description: 'perceptive, intuitive posture' },
+    { min: 16, max: 17, description: 'wise demeanor, grounded presence' },
+    { min: 18, max: 19, description: 'seer-like, quietly observant' },
+    { min: 20, max: 20, description: 'near-prescient, contemplative aura' },
+  ],
+  [Ability.Charisma]: [
+    { min: 1, max: 1, description: 'off-putting, alien features, repellent aura' },
+    { min: 2, max: 3, description: 'subdued, indecisive, follower posture' },
+    { min: 4, max: 5, description: 'awkward social posture' },
+    { min: 6, max: 7, description: 'reserved, unengaging expression' },
+    { min: 8, max: 9, description: 'dull smile, awkward presence' },
+    { min: 10, max: 11, description: 'polished, polite smile' },
+    { min: 12, max: 13, description: 'engaging, interesting glint' },
+    { min: 14, max: 15, description: 'confident, commanding presence' },
+    { min: 16, max: 17, description: 'magnetic, eloquent, respected' },
+    { min: 18, max: 19, description: 'charismatic, captivating, crowd-drawing' },
+    { min: 20, max: 20, description: 'radiant, iconic leader, commanding gaze' },
+  ],
+};

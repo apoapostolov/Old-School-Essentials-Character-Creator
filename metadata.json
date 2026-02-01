@@ -1,0 +1,5 @@
+{
+  "name": "Advanced OSE Character Creator",
+  "description": "Generate a complete OSE character from scratch. Roll stats, select from a huge library of classes (including third-party sources), and manage your character's level, equipment, and unique skill systems. Then, bring them to life with AI-powered names, traits, backstories, and stunning portraits. Export your creation to a print-ready PDF character sheet.",
+  "requestFramePermissions": []
+}
