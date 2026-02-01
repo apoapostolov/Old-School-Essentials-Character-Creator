@@ -3,7 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 import type { ClassInfo, AbilityScores, CharacterTraits, Theme, Item, Lifestyle, Race } from '../../types';
 import { getBackstoryPrompt } from '../../prompt-data';
 import type { AggregatedData } from '../useAggregatedData';
-import { getGeminiApiKey } from '../../utils/gemini';
+import { getGeminiApiKey, getGeminiTextModel } from '../../utils/gemini';
 
 export const useBackstoryGeneration = (
     selectedClass: ClassInfo | null,
@@ -50,7 +50,7 @@ export const useBackstoryGeneration = (
             );
             
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: getGeminiTextModel(),
                 contents: prompt,
             });
 

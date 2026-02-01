@@ -4,7 +4,7 @@ import { getNamePrompt } from '../../prompt-data';
 import type { ClassInfo, Theme } from '../../types';
 import type { AggregatedData } from '../useAggregatedData';
 import type { KarameikosState } from '../useKarameikos';
-import { getGeminiApiKey } from '../../utils/gemini';
+import { getGeminiApiKey, getGeminiTextModel } from '../../utils/gemini';
 
 export const useNameGeneration = (
     selectedClass: ClassInfo | null,
@@ -25,7 +25,7 @@ export const useNameGeneration = (
             const prompt = getNamePrompt(selectedGender, selectedClass, theme, aggregatedData.THEMES, ethnos);
 
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: getGeminiTextModel(),
                 contents: prompt,
                 config: {
                     responseMimeType: "application/json",

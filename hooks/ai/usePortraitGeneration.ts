@@ -4,7 +4,7 @@ import { getDescriptionPrompt, getEmotionalPortraitPrompt, getHeadshotPrompt, ge
 import type { AbilityScores, CharacterTraits, ClassInfo, Emotion, Item, Race, Theme } from '../../types';
 import { cropImage } from '../../utils/image';
 import type { AggregatedData } from '../useAggregatedData';
-import { describeGeminiImageFailure, getGeminiApiKey } from '../../utils/gemini';
+import { describeGeminiImageFailure, getGeminiApiKey, getGeminiTextModel } from '../../utils/gemini';
 
 export const usePortraitGeneration = (
     selectedClass: ClassInfo | null,
@@ -36,7 +36,7 @@ export const usePortraitGeneration = (
             const textPrompt = getDescriptionPrompt(traits);
 
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: getGeminiTextModel(),
                 contents: { parts: [imagePart, { text: textPrompt }] },
                 config: {
                     responseMimeType: "application/json",
@@ -138,7 +138,7 @@ export const usePortraitGeneration = (
             const prompt = getHeadshotPrompt();
 
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: getGeminiTextModel(),
                 contents: { parts: [{ inlineData: { data: base64ImageData, mimeType } }, { text: prompt }] },
                 config: {
                     responseMimeType: "application/json",

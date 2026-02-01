@@ -6,7 +6,7 @@ import { getGrogDetailsPrompt, getGrogPortraitPrompt } from '../prompt-data';
 import { Ability, type AbilityScores, type Grog, type Theme } from '../types';
 import { getModifier } from '../utils/character';
 import { rollDie } from '../utils/hp';
-import { describeGeminiImageFailure, getGeminiApiKey } from '../utils/gemini';
+import { describeGeminiImageFailure, getGeminiApiKey, getGeminiTextModel } from '../utils/gemini';
 
 const rollStat = (): number => {
     return Array.from({ length: 3 }, () => Math.floor(Math.random() * 6) + 1).reduce((a, b) => a + b, 0);
@@ -201,7 +201,7 @@ export const useGrog = (showToast: (msg: string) => void) => {
             const detailsPrompt = getGrogDetailsPrompt(theme);
 
             const detailsResponse = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: getGeminiTextModel(),
                 contents: detailsPrompt,
                 config: {
                     responseMimeType: "application/json",

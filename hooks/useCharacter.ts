@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import type { AbilityScores, ClassInfo, Race, CharacterSaveData } from '../types';
 import { Ability } from '../types';
 import type { AggregatedData } from './useAggregatedData';
-import { getGeminiApiKey } from '../utils/gemini';
+import { getGeminiApiKey, getGeminiTextModel } from '../utils/gemini';
 
 import { useAIGeneration } from './useAIGeneration';
 import { useCharacterProgression } from './useCharacterProgression';
@@ -27,7 +27,7 @@ export const useCharacter = (showToast: (msg: string) => void, aggregatedData: A
             const prompt = `Generate a single authentic Slavic fantasy village or homestead name for the Grand Duchy of Karameikos setting (based on Mystara D&D). The character is from a family with ${socialStanding} social standing and ${ethnos} ethnicity. The name should sound like it belongs in Eastern European folklore with Slavic linguistic patterns. Reference the style from Grand Duchy of Karameikos Gazetteer (GAZ1). Return ONLY the village name, nothing else.`;
 
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: getGeminiTextModel(),
                 contents: prompt,
                 config: {
                     responseMimeType: "application/json",

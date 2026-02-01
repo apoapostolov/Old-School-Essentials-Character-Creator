@@ -3,6 +3,11 @@ export const getGeminiApiKey = (): string => {
     return env.VITE_GEMINI_API_KEY || env.GEMINI_API_KEY || env.API_KEY || '';
 };
 
+export const getGeminiTextModel = (): string => {
+    const env = import.meta.env as Record<string, string | undefined>;
+    return env.VITE_GEMINI_TEXT_MODEL || 'gemini-2.5-flash';
+};
+
 export const describeGeminiImageFailure = (response: any): string => {
     const blockReason = response?.promptFeedback?.blockReason;
     const blockMessage = response?.promptFeedback?.blockReasonMessage;

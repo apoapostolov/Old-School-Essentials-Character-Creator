@@ -5,7 +5,7 @@ import { getTraitsPrompt, getLifeStandardPrompt } from '../../prompt-data';
 import { LIFESTYLES } from '../../lifestyle-data';
 import { calculateFinalLifestyle } from '../../lifestyle-simulation';
 import type { AggregatedData } from '../useAggregatedData';
-import { getGeminiApiKey } from '../../utils/gemini';
+import { getGeminiApiKey, getGeminiTextModel } from '../../utils/gemini';
 
 export const useTraitsGeneration = (
     selectedClass: ClassInfo | null,
@@ -50,7 +50,7 @@ export const useTraitsGeneration = (
             const prompt = getLifeStandardPrompt(selectedClass, scores, selectedGender, theme, secondarySkills, lifestyleDetails, failureEvent);
     
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: getGeminiTextModel(),
                 contents: prompt,
                 config: {
                     responseMimeType: "application/json",
@@ -94,7 +94,7 @@ export const useTraitsGeneration = (
             const prompt = getTraitsPrompt(selectedClass, selectedGender, theme, characterTraits.lifeStandard, aggregatedData.THEMES);
     
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: getGeminiTextModel(),
                 contents: prompt,
                 config: {
                     responseMimeType: "application/json",
