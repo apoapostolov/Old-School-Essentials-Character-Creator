@@ -2,7 +2,16 @@
 
 A full-featured character generator for Old-School Essentials (OSE). Roll classic stats, select races and classes, manage gear and encumbrance, and export a print-ready PDF. The app also supports optional AI-powered name, trait, portrait, and backstory generation using Google Gemini.
 
-This project integrates **Apostol Apostolov's extensive houserules for Old School Essentials**. Read the full rules here: `rules/OSE_HOUSE_RULES.md`.
+This project integrates **Apostol Apostolov's extensive houserules for Old School Essentials**. Read the full rules here: [rules/OSE_HOUSE_RULES.md](rules/OSE_HOUSE_RULES.md).
+
+## Badges
+
+![License](https://img.shields.io/badge/license-MIT-green)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Node](https://img.shields.io/badge/node-18%2B-339933)
+![Vite](https://img.shields.io/badge/vite-6.x-646CFF)
+![TypeScript](https://img.shields.io/badge/typescript-5.x-3178C6)
+![React](https://img.shields.io/badge/react-18.x-61DAFB)
 
 ## Features
 
@@ -58,7 +67,7 @@ cp .env.example .env
 
 ## House Rules
 
-This project includes a full set of integrated houserules authored by Apostol Apostolov. See: `rules/OSE_HOUSE_RULES.md`.
+This project includes a full set of integrated houserules authored by Apostol Apostolov. See: [rules/OSE_HOUSE_RULES.md](rules/OSE_HOUSE_RULES.md).
 
 ## License
 
