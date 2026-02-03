@@ -5,6 +5,7 @@ import { getModifierString, getModifier } from '../utils';
 import { ITEMS } from '../item-data';
 import { SpinnerIcon } from './icons/SpinnerIcon';
 import { PortraitIcon } from './icons/PortraitIcon';
+import { DownloadIcon } from './icons/DownloadIcon';
 
 interface GrogManagerProps {
     grog: Grog | null;
@@ -22,6 +23,16 @@ const GrogAbilityScore: React.FC<{ability: string, score: number}> = ({ ability,
         <p className="text-sm font-semibold text-gray-400">{getModifierString(score)}</p>
     </div>
 );
+
+const handleDownloadImage = (base64Image: string, filename: string) => {
+    if (!base64Image) return;
+    const link = document.createElement('a');
+    link.href = base64Image;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
 
 export const GrogManager: React.FC<GrogManagerProps> = ({ grog, isGeneratingDetails, onCreateGrog, onGenerateDetails, theme, stepNumber }) => {
     
@@ -97,6 +108,9 @@ export const GrogManager: React.FC<GrogManagerProps> = ({ grog, isGeneratingDeta
         );
     }
     
+    const safeName = grog?.name?.trim() ? grog.name.replace(/ /g, '_') : 'grog';
+    const grogPortraitFilename = `${safeName}_portrait.png`;
+
     return (
         <div className="bg-gray-800/50 p-6 rounded-lg border-2 border-gray-700/50">
             <h2 className="text-2xl font-bold text-yellow-400 mb-4">Step {stepNumber}: Your Personal Grog</h2>
@@ -149,11 +163,21 @@ export const GrogManager: React.FC<GrogManagerProps> = ({ grog, isGeneratingDeta
                         </>
                     ) : (
                         <div className="text-center w-full">
-                            <div className="w-40 h-40 mx-auto rounded-full overflow-hidden border-4 border-gray-600 mb-4 bg-black">
+                            <div className="relative w-40 h-40 mx-auto rounded-full overflow-hidden border-4 border-gray-600 mb-4 bg-black">
                                 {grog.portrait ? (
                                     <img src={grog.portrait} alt="Grog's portrait" className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-500"><PortraitIcon className="h-16 w-16" /></div>
+                                )}
+                                {grog.portrait && (
+                                    <button
+                                        onClick={() => handleDownloadImage(grog.portrait, grogPortraitFilename)}
+                                        className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 p-2 bg-black/50 rounded-full text-white hover:bg-yellow-500/80 hover:text-gray-900 transition-all duration-200"
+                                        aria-label="Download grog portrait"
+                                        title="Download portrait"
+                                    >
+                                        <DownloadIcon className="h-4 w-4" />
+                                    </button>
                                 )}
                             </div>
                             <h3 className="text-2xl font-bold text-white">{grog.name}</h3>
