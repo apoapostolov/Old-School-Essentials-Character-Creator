@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [0.1.0] - 2026-07-27
+## [1.1.0] - 2026-07-27
 
 Theme: **multi-slot AI** + **performance/context overhaul** + **save/load hardening**
 (parity with CoC 1.1 / Delta Green 1.2).
