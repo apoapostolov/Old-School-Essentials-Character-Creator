@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCharacterContext } from '../../context/CharacterContext';
+import { useCharacterIdentity } from '../../context/CharacterContext';
 import { ADDITIONAL_SCRIPTS } from '../../data/karameikos-data';
 import { Ability } from '../../types';
 
@@ -8,7 +8,7 @@ interface KarameikosBackgroundProps {
 }
 
 export const KarameikosBackground: React.FC<KarameikosBackgroundProps> = ({ stepNumber }) => {
-    const { selectedClass, modifiedScores, karameikos } = useCharacterContext();
+    const { selectedClass, modifiedScores, karameikos } = useCharacterIdentity();
 
     if (!selectedClass || !modifiedScores) {
         return null;

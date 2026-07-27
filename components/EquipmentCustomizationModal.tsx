@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useCharacterContext } from '../context/CharacterContext';
+import { useCharacterGear } from '../context/CharacterContext';
 import { SOURCES } from '../third-party/manifest';
 import type { Item, SourceID } from '../types';
 import { Tooltip } from './Tooltip';
@@ -36,7 +36,7 @@ const DraggableInventoryItem: React.FC<{
 };
 
 export const EquipmentCustomizationModal: React.FC<EquipmentCustomizationModalProps> = ({ onClose }) => {
-    const { equipment, progression, aggregatedData } = useCharacterContext();
+    const { equipment, progression, aggregatedData } = useCharacterGear();
     const {
         customItems, selectedMainKit: mainKit, selectedSpecializedKit: specializedKit,
         handleAddCustomItem, handleRemoveCustomItem, handleRemoveKitItem

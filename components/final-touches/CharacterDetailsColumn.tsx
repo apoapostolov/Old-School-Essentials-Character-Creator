@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCharacterContext } from '../../context/CharacterContext';
+import { useCharacterExtras } from '../../context/CharacterContext';
 import { useSourceContext } from '../../context/SourceContext';
 import { QuestionIcon } from '../icons/QuestionIcon';
 import { SpinnerIcon } from '../icons/SpinnerIcon';
@@ -21,7 +21,7 @@ interface CharacterDetailsColumnProps {
 }
 
 export const CharacterDetailsColumn: React.FC<CharacterDetailsColumnProps> = ({ onShowNamePromptInfo, onShowLifeStandardPromptInfo }) => {
-    const { characterRoll, ai, aggregatedData } = useCharacterContext();
+    const { characterRoll, ai, aggregatedData } = useCharacterExtras();
     const { selectedSources } = useSourceContext();
     const scores = characterRoll.scores!;
 

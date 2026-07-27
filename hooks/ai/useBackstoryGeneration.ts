@@ -1,9 +1,8 @@
-import { useState, useCallback } from 'react';
-import { GoogleGenAI } from '@google/genai';
+import { useCallback, useState } from 'react';
 import type { ClassInfo, AbilityScores, CharacterTraits, Theme, Item, Lifestyle, Race } from '../../types';
 import { getBackstoryPrompt } from '../../prompt-data';
 import type { AggregatedData } from '../useAggregatedData';
-import { getGeminiApiKey, getGeminiTextModel } from '../../utils/gemini';
+import { useAiRuntime } from '../useAiRuntime';
 
 export const useBackstoryGeneration = (
     selectedClass: ClassInfo | null,
@@ -13,6 +12,7 @@ export const useBackstoryGeneration = (
 ) => {
     const [backstory, setBackstory] = useState<string | null>(null);
     const [isGeneratingBackstory, setIsGeneratingBackstory] = useState(false);
+    const { generateText } = useAiRuntime();
 
     const onGenerateBackstory = useCallback(async (
         characterName: string,
@@ -26,13 +26,12 @@ export const useBackstoryGeneration = (
         race: Race | null
     ) => {
         if (!selectedClass || !scores) {
-            showToast("Class and scores must be set to generate a backstory.");
+            showToast('Class and scores must be set to generate a backstory.');
             return;
         }
         setIsGeneratingBackstory(true);
         setBackstory(null);
         try {
-            const ai = new GoogleGenAI({ apiKey: getGeminiApiKey() });
             const prompt = getBackstoryPrompt(
                 characterName,
                 selectedClass,
@@ -48,20 +47,15 @@ export const useBackstoryGeneration = (
                 aggregatedData.THEMES,
                 race
             );
-            
-            const response = await ai.models.generateContent({
-                model: getGeminiTextModel(),
-                contents: prompt,
-            });
-
-            setBackstory(response.text.trim());
+            const text = await generateText({ prompt, purpose: 'creative' });
+            setBackstory(text.trim());
         } catch (e) {
-            console.error("Backstory generation failed:", e);
-            showToast("Could not generate backstory. Please try again.");
+            console.error('Backstory generation failed:', e);
+            showToast('Could not generate backstory. Please try again.');
         } finally {
             setIsGeneratingBackstory(false);
         }
-    }, [selectedClass, scores, showToast, aggregatedData.THEMES]);
+    }, [selectedClass, scores, showToast, aggregatedData.THEMES, generateText]);
 
     const reset = useCallback(() => {
         setBackstory(null);

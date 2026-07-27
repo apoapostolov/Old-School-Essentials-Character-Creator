@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCharacterContext } from '../../context/CharacterContext';
+import { useCharacterProgression } from '../../context/CharacterContext';
 import { CombatVitals } from './CombatVitals';
 
 interface CharacterProgressionProps {
@@ -7,7 +7,7 @@ interface CharacterProgressionProps {
 }
 
 export const CharacterProgression: React.FC<CharacterProgressionProps> = ({ stepNumber }) => {
-    const { progression } = useCharacterContext();
+    const { progression } = useCharacterProgression();
     const { characterLevel: level, handleLevelChange, hpResult, moneyResult } = progression;
 
     const levelOptions = Array.from({ length: 9 }, (_, i) => i + 1);

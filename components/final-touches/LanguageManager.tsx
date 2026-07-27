@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCharacterContext } from '../../context/CharacterContext';
+import { useCharacterExtras } from '../../context/CharacterContext';
 import type { AbilityScores, Language } from '../../types';
 import { getModifier } from '../../utils';
 import { Tooltip } from '../Tooltip';
@@ -35,7 +35,7 @@ export const LanguageManager: React.FC<LanguageManagerProps> = ({
     onCommonLanguageChange,
     racialLanguage,
 }) => {
-    const { aggregatedData } = useCharacterContext();
+    const { aggregatedData } = useCharacterExtras();
     const languageSettingKey = themeToLanguageSettingMap[theme] || 'Generic OSE';
     const languageSetting = aggregatedData.LANGUAGE_SETTINGS[languageSettingKey];
 

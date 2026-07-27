@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCharacterContext } from '../../context/CharacterContext';
+import { useCharacterExtras } from '../../context/CharacterContext';
 import { QuestionIcon } from '../icons/QuestionIcon';
 import { DetailGenerator } from './DetailGenerator';
 import { PortraitStudio } from './PortraitStudio';
@@ -18,7 +18,7 @@ interface CreativeColumnProps {
 }
 
 export const CreativeColumn: React.FC<CreativeColumnProps> = ({ onShowPromptInfo, onShowTraitsPromptInfo, isKarameikos }) => {
-    const { ai } = useCharacterContext();
+    const { ai } = useCharacterExtras();
     const showTraits = ai.characterTraits && (ai.characterTraits.positivePhysical || ai.characterTraits.negative);
     const traitsStep = isKarameikos ? 5 : 6;
     const portraitStep = isKarameikos ? 6 : 7;

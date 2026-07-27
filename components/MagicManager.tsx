@@ -5,7 +5,7 @@ import { getModifier } from '../utils/character';
 import { CheckIcon } from './icons/CheckIcon';
 import { DiceIcon } from './icons/DiceIcon';
 import { EditIcon } from './icons/EditIcon';
-import { useCharacterContext } from '../context/CharacterContext';
+import { useCharacterProgression } from '../context/CharacterContext';
 
 interface SpellCardProps {
     spell: Spell;
@@ -47,7 +47,7 @@ interface MagicManagerProps {
 }
 
 export const MagicManager: React.FC<MagicManagerProps> = ({ casterType, knownSpells, onKnownSpellsChange, scores }) => {
-  const { aggregatedData, selectedClass, progression } = useCharacterContext();
+  const { aggregatedData, selectedClass, progression } = useCharacterProgression();
   const SPELLS = aggregatedData.SPELLS;
   
   const [favoriteSpells, setFavoriteSpells] = useState<Set<string>>(new Set());

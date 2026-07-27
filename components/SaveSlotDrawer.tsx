@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useSaveSystem } from '../hooks/useSaveSystem';
 import { useCharacterContext } from '../context/CharacterContext';
-import type { SaveSlot } from '../types';
 
 export const SaveSlotDrawer: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -51,7 +50,7 @@ export const SaveSlotDrawer: React.FC = () => {
     };
 
     const handleSave = (slotIndex: number) => {
-        const slotName = slots[slotIndex]?.customName || character.ai?.characterName || character.ai?.name || '';
+        const slotName = slots[slotIndex]?.customName || character.ai?.characterName || '';
         if (!slotName && !slots[slotIndex]?.customName) {
             // Open modal to ask for custom name
             setSelectedSlotIndex(slotIndex);
@@ -63,7 +62,7 @@ export const SaveSlotDrawer: React.FC = () => {
 
     const handleSaveWithName = () => {
         if (selectedSlotIndex !== null) {
-            saveCharacter(selectedSlotIndex, customName || character.ai?.characterName || character.ai?.name || `Character ${selectedSlotIndex + 1}`);
+            saveCharacter(selectedSlotIndex, customName || character.ai?.characterName || `Character ${selectedSlotIndex + 1}`);
             setCustomNameModalOpen(false);
             setCustomName('');
             setSelectedSlotIndex(null);
@@ -72,7 +71,12 @@ export const SaveSlotDrawer: React.FC = () => {
 
     const handleLoad = (slotIndex: number) => {
         if (window.confirm('Loading will replace your current character. Continue?')) {
-            loadCharacter(slotIndex);
+            try {
+                loadCharacter(slotIndex);
+                setIsOpen(false);
+            } catch (error) {
+                alert('Failed to load character: ' + (error instanceof Error ? error.message : String(error)));
+            }
         }
     };
 
@@ -172,7 +176,7 @@ export const SaveSlotDrawer: React.FC = () => {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${character.ai?.characterName || character.ai?.name || 'character'}_${Date.now()}.json`;
+            a.download = `${character.ai?.characterName || 'character'}_${Date.now()}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -358,7 +362,7 @@ export const SaveSlotDrawer: React.FC = () => {
                         />
                         <div className="modal-actions">
                             <button onClick={() => setImportModalOpen(false)}>Cancel</button>
-                            <button onClick={handleImportSubmit}>Import</button>
+                            <button onClick={handleImportSubmit} disabled={!importData.trim()}>Import</button>
                         </div>
                     </div>
                 </div>
@@ -380,12 +384,27 @@ export const SaveSlotDrawer: React.FC = () => {
                             <button
                                 onClick={async () => {
                                     const ok = await copyTextToClipboard(exportData);
-                                    if (!ok) {
+                                    if (ok) {
+                                        alert('Copied to clipboard!');
+                                    } else {
                                         alert('Failed to copy to clipboard. Please copy from the text area.');
                                     }
                                 }}
                             >
                                 Copy to Clipboard
+                            </button>
+                            <button
+                                onClick={() => {
+                                    const blob = new Blob([exportData], { type: 'application/json' });
+                                    const url = URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = `${character.ai?.characterName || 'character'}_${Date.now()}.json`;
+                                    a.click();
+                                    URL.revokeObjectURL(url);
+                                }}
+                            >
+                                Download JSON
                             </button>
                         </div>
                     </div>

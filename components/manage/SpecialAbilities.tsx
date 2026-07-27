@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCharacterContext } from '../../context/CharacterContext';
+import { useCharacterProgression } from '../../context/CharacterContext';
 import { AcrobatSkillsManager } from '../AcrobatSkillsManager';
 import { BarbarianSkillsManager } from '../BarbarianSkillsManager';
 import { BardSkillsManager } from '../BardSkillsManager';
@@ -12,7 +12,7 @@ interface SpecialAbilitiesProps {
 }
 
 export const SpecialAbilities: React.FC<SpecialAbilitiesProps> = ({ stepNumber }) => {
-    const { selectedClass, characterRoll, progression } = useCharacterContext();
+    const { selectedClass, characterRoll, progression } = useCharacterProgression();
     const { scores } = characterRoll;
     const { characterLevel: level } = progression;
 

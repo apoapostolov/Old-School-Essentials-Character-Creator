@@ -1,12 +1,20 @@
 
-
-import { PDFDocument } from 'pdf-lib';
 import { useCallback, useState } from 'react';
+import { useSheetContext } from '../context/SheetContext';
 import { getCharacterSheetFields } from '../pdf-form-fields';
 import type { AbilityScores, CalculatedAcrobatSkills, CalculatedBarbarianSkills, CalculatedBardSkills, CalculatedRangerSkills, CalculatedThiefSkills, ClassInfo, FavoredTerrain, Grog, HpCalculationResult, Race, SourceID } from '../types';
 import { getEncumbranceDetails } from '../utils/encumbrance';
 import type { AggregatedData } from './useAggregatedData';
 import type { KarameikosState } from './useKarameikos';
+
+/** Load pdf-lib only when printing — keeps it out of the initial app chunk. */
+let pdfLibModule: typeof import('pdf-lib') | null = null;
+async function getPdfLib() {
+  if (!pdfLibModule) {
+    pdfLibModule = await import('pdf-lib');
+  }
+  return pdfLibModule;
+}
 
 const sanitizeStringForPdf = (value: any): any => {
     if (typeof value === 'string') {
@@ -24,6 +32,7 @@ const sanitizeStringForPdf = (value: any): any => {
 export const usePdfPrinting = (aggregatedData: AggregatedData) => {
     const [isPrinting, setIsPrinting] = useState<boolean>(false);
     const [pdfError, setPdfError] = useState<string | null>(null);
+    const { getSheetPath, sourceType, externalUrls } = useSheetContext();
 
     const printSheet = useCallback(async (data: {
         classInfo: ClassInfo,
@@ -64,13 +73,30 @@ export const usePdfPrinting = (aggregatedData: AggregatedData) => {
                 throw new Error(`PDF configuration for source "${sourceId}" is missing.`);
             }
 
-            const isSpellcaster = sheetConfig.spellcasterClasses?.includes(classInfo.name);
-            const templatePath = isSpellcaster && sheetConfig.spellcasterSheet ? sheetConfig.spellcasterSheet : sheetConfig.defaultSheet;
+            const isSpellcaster = Boolean(sheetConfig.spellcasterClasses?.includes(classInfo.name));
+            const templatePath = getSheetPath(sourceId, isSpellcaster, sheetConfig);
 
-            const existingPdfBytes = await fetch(templatePath).then(res => {
-                if (!res.ok) throw new Error(`Failed to fetch PDF template at ${templatePath}. Status: ${res.statusText}`);
-                return res.arrayBuffer();
-            });
+            let existingPdfBytes: ArrayBuffer;
+            const initialResponse = await fetch(templatePath);
+            if (!initialResponse.ok && sourceType === 'internal') {
+                // Fall back to configured external URL when local public sheet is missing
+                const fallbackUrl = isSpellcaster
+                    ? (externalUrls[sourceId]?.spellcasterSheet || externalUrls[sourceId]?.defaultSheet)
+                    : externalUrls[sourceId]?.defaultSheet;
+                if (!fallbackUrl) {
+                    throw new Error(`Failed to fetch PDF template at ${templatePath}. Status: ${initialResponse.statusText}`);
+                }
+                const fallbackResponse = await fetch(fallbackUrl);
+                if (!fallbackResponse.ok) {
+                    throw new Error(`Failed to fetch PDF template at ${fallbackUrl}. Status: ${fallbackResponse.statusText}`);
+                }
+                existingPdfBytes = await fallbackResponse.arrayBuffer();
+            } else if (!initialResponse.ok) {
+                throw new Error(`Failed to fetch PDF template at ${templatePath}. Status: ${initialResponse.statusText}`);
+            } else {
+                existingPdfBytes = await initialResponse.arrayBuffer();
+            }
+            const { PDFDocument } = await getPdfLib();
             const pdfDoc = await PDFDocument.load(existingPdfBytes);
             const form = pdfDoc.getForm();
 
@@ -142,7 +168,7 @@ export const usePdfPrinting = (aggregatedData: AggregatedData) => {
         } finally {
             setIsPrinting(false);
         }
-    }, [aggregatedData]);
+    }, [aggregatedData, getSheetPath, sourceType, externalUrls]);
 
     return { isPrinting, pdfError, setPdfError, printSheet };
 };

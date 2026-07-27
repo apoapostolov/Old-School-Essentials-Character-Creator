@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useCharacterContext } from '../../context/CharacterContext';
+import { useCharacterGear } from '../../context/CharacterContext';
 import { getEncumbranceDetails, roundToNearest5 } from '../../utils/encumbrance';
 
 const EncumbranceMeter: React.FC<{
@@ -26,7 +26,7 @@ interface EncumbranceDisplayProps {
 }
 
 export const EncumbranceDisplay: React.FC<EncumbranceDisplayProps> = ({ stepNumber }) => {
-    const { equipment, characterRoll, aggregatedData } = useCharacterContext();
+    const { equipment, characterRoll, aggregatedData } = useCharacterGear();
     const { equipmentWeight: totalCarriedWeight, allItemKeys } = equipment;
     const { scores } = characterRoll;
 

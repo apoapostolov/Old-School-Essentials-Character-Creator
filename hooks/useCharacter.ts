@@ -1,9 +1,9 @@
-import { GoogleGenAI, Type } from '@google/genai';
 import { useCallback, useMemo, useState } from 'react';
 import type { AbilityScores, ClassInfo, Race, CharacterSaveData } from '../types';
-import { Ability } from '../types';
+import { parseJsonLike } from '../lib/ai/json';
+import { applyRaceModifiers } from '../domain/race-modifiers';
 import type { AggregatedData } from './useAggregatedData';
-import { getGeminiApiKey, getGeminiTextModel } from '../utils/gemini';
+import { useAiRuntime } from './useAiRuntime';
 
 import { useAIGeneration } from './useAIGeneration';
 import { useCharacterProgression } from './useCharacterProgression';
@@ -19,33 +19,21 @@ import { useKarameikos } from './useKarameikos';
 export const useCharacter = (showToast: (msg: string) => void, aggregatedData: AggregatedData) => {
     const [selectedClass, setSelectedClass] = useState<ClassInfo | null>(null);
     const [selectedRace, setSelectedRace] = useState<Race | null>(null);
+    const { generateText } = useAiRuntime();
 
     // Function to generate village/homestead names using AI
     const generateVillageName = useCallback(async (socialStanding: string, ethnos: string): Promise<string> => {
         try {
-            const ai = new GoogleGenAI({ apiKey: getGeminiApiKey() });
-            const prompt = `Generate a single authentic Slavic fantasy village or homestead name for the Grand Duchy of Karameikos setting (based on Mystara D&D). The character is from a family with ${socialStanding} social standing and ${ethnos} ethnicity. The name should sound like it belongs in Eastern European folklore with Slavic linguistic patterns. Reference the style from Grand Duchy of Karameikos Gazetteer (GAZ1). Return ONLY the village name, nothing else.`;
-
-            const response = await ai.models.generateContent({
-                model: getGeminiTextModel(),
-                contents: prompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: Type.OBJECT,
-                        properties: {
-                            villageName: { type: Type.STRING }
-                        }
-                    },
-                },
-            });
-            const result = JSON.parse(response.text.trim());
+            const prompt = `Generate a single authentic Slavic fantasy village or homestead name for the Grand Duchy of Karameikos setting (based on Mystara D&D). The character is from a family with ${socialStanding} social standing and ${ethnos} ethnicity. The name should sound like it belongs in Eastern European folklore with Slavic linguistic patterns. Reference the style from Grand Duchy of Karameikos Gazetteer (GAZ1). Return ONLY the village name as JSON: {"villageName":"..."}`;
+            const raw = await generateText({ prompt, json: true, purpose: 'simple' });
+            const result = parseJsonLike(raw) as { villageName?: string };
+            if (!result?.villageName) throw new Error('No village name returned');
             return result.villageName;
         } catch (error) {
-            console.error("Village name generation failed:", error);
+            console.error('Village name generation failed:', error);
             throw error;
         }
-    }, []);
+    }, [generateText]);
 
     // Compose the individual hooks
     const characterRoll = useCharacterRoll();
@@ -57,20 +45,7 @@ export const useCharacter = (showToast: (msg: string) => void, aggregatedData: A
 
     const modifiedScores = useMemo<AbilityScores | null>(() => {
         if (!characterRoll.scores) return null;
-        if (!selectedRace) return characterRoll.scores;
-
-        const newScores = { ...characterRoll.scores };
-        for (const [key, mod] of Object.entries(selectedRace.ability_modifiers)) {
-            const abilityMap: Record<string, Ability> = {
-                str: Ability.Strength, dex: Ability.Dexterity, con: Ability.Constitution,
-                int: Ability.Intelligence, wis: Ability.Wisdom, cha: Ability.Charisma,
-            };
-            const ability = abilityMap[key];
-            if (ability && mod) {
-                newScores[ability] = Math.max(1, Math.min(20, newScores[ability] + mod));
-            }
-        }
-        return newScores;
+        return applyRaceModifiers(characterRoll.scores, selectedRace);
     }, [characterRoll.scores, selectedRace]);
 
     /**
@@ -164,7 +139,7 @@ export const useCharacter = (showToast: (msg: string) => void, aggregatedData: A
         }
     }, [characterRoll, progression, equipment, ai, grog, karameikos]);
 
-    return {
+    return useMemo(() => ({
         selectedClass, selectClass,
         selectedRace, selectRace,
         modifiedScores,
@@ -178,5 +153,19 @@ export const useCharacter = (showToast: (msg: string) => void, aggregatedData: A
         restoreRollAndCharacter,
         loadFromSave,
         aggregatedData,
-    };
+    }), [
+        selectedClass, selectClass,
+        selectedRace, selectRace,
+        modifiedScores,
+        characterRoll,
+        progression,
+        equipment,
+        ai,
+        grog,
+        karameikos,
+        resetRollAndCharacter,
+        restoreRollAndCharacter,
+        loadFromSave,
+        aggregatedData,
+    ]);
 };

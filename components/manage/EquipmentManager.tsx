@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCharacterContext } from '../../context/CharacterContext';
+import { useCharacterGear } from '../../context/CharacterContext';
 import type { EquipmentKit, SelectedKit } from '../../types';
 import { EquipmentKitCard } from '../EquipmentKitCard';
 import { EditIcon } from '../icons/EditIcon';
@@ -27,7 +27,7 @@ export const EquipmentManager: React.FC<EquipmentManagerProps> = ({
     onShowKitInfo,
     onCustomizeEquipment,
 }) => {
-    const { aggregatedData } = useCharacterContext();
+    const { aggregatedData } = useCharacterGear();
 
     const mainKits = aggregatedData.EQUIPMENT_KITS.filter(k => k.type === 'Martial');
     const specializedKits = aggregatedData.EQUIPMENT_KITS.filter(k => k.type === 'Specialized')

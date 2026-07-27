@@ -1,7 +1,7 @@
 import React from 'react';
 import type { EquipmentKit } from '../types';
 import { NameWithSource } from './NameWithSource';
-import { useCharacterContext } from '../context/CharacterContext';
+import { useCharacterGear } from '../context/CharacterContext';
 
 interface EquipmentKitModalProps {
   kit: EquipmentKit;
@@ -9,7 +9,7 @@ interface EquipmentKitModalProps {
 }
 
 export const EquipmentKitModal: React.FC<EquipmentKitModalProps> = ({ kit, onClose }) => {
-  const { aggregatedData } = useCharacterContext();
+  const { aggregatedData } = useCharacterGear();
   const { ITEMS } = aggregatedData;
 
   return (

@@ -35,6 +35,31 @@
       select:focus {
         outline-offset: 2px;
       }
+
+      /* Dark-theme scrollbars (Firefox + Chromium/WebKit) */
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: #4a5568 #1a202c; /* gray-600 thumb, gray-900 track */
+      }
+      *::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      *::-webkit-scrollbar-track {
+        background: #1a202c;
+        border-radius: 8px;
+      }
+      *::-webkit-scrollbar-thumb {
+        background: #4a5568;
+        border-radius: 8px;
+        border: 2px solid #1a202c;
+      }
+      *::-webkit-scrollbar-thumb:hover {
+        background: #d69e2e; /* yellow-600 — OSE accent */
+      }
+      *::-webkit-scrollbar-corner {
+        background: #1a202c;
+      }
     </style>
   <script type="importmap">
 {

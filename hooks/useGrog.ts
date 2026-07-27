@@ -1,12 +1,12 @@
-import { GoogleGenAI, Modality, Type } from '@google/genai';
 import { useCallback, useState } from 'react';
 import { ABILITIES } from '../constants';
 import { ITEMS } from '../item-data';
 import { getGrogDetailsPrompt, getGrogPortraitPrompt } from '../prompt-data';
 import { Ability, type AbilityScores, type Grog, type Theme } from '../types';
+import { parseJsonLike } from '../lib/ai/json';
 import { getModifier } from '../utils/character';
 import { rollDie } from '../utils/hp';
-import { describeGeminiImageFailure, getGeminiApiKey, getGeminiTextModel } from '../utils/gemini';
+import { useAiRuntime } from './useAiRuntime';
 
 const rollStat = (): number => {
     return Array.from({ length: 3 }, () => Math.floor(Math.random() * 6) + 1).reduce((a, b) => a + b, 0);
@@ -93,6 +93,7 @@ const getStrengthBasedRandomWeaponKey = (weaponKeys: string[], strength: number)
 export const useGrog = (showToast: (msg: string) => void) => {
     const [grog, setGrog] = useState<Grog | null>(null);
     const [isGeneratingDetails, setIsGeneratingDetails] = useState(false);
+    const { generateText, generateImage } = useAiRuntime();
 
     const createGrog = useCallback(() => {
         const scores: AbilityScores = ABILITIES.reduce((acc, ability) => {
@@ -195,82 +196,38 @@ export const useGrog = (showToast: (msg: string) => void) => {
         setIsGeneratingDetails(true);
 
         try {
-            const ai = new GoogleGenAI({ apiKey: getGeminiApiKey() });
-
-            // Generate Name, Traits, and Trinkets
             const detailsPrompt = getGrogDetailsPrompt(theme);
+            const raw = await generateText({ prompt: detailsPrompt, json: true, purpose: 'simple' });
+            const parsed = parseJsonLike(raw) as {
+                name?: string;
+                traits?: { positivePhysical?: string; positiveMental?: string; negative?: string };
+                trinkets?: string;
+            };
+            const name = parsed.name || 'Unnamed Grog';
+            const traits = {
+                positivePhysical: parsed.traits?.positivePhysical || '',
+                positiveMental: parsed.traits?.positiveMental || '',
+                negative: parsed.traits?.negative || '',
+            };
+            const trinkets = parsed.trinkets || '';
 
-            const detailsResponse = await ai.models.generateContent({
-                model: getGeminiTextModel(),
-                contents: detailsPrompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: Type.OBJECT,
-                        properties: {
-                            name: { type: Type.STRING },
-                            traits: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    positivePhysical: { type: Type.STRING },
-                                    positiveMental: { type: Type.STRING },
-                                    negative: { type: Type.STRING },
-                                },
-                                required: ["positivePhysical", "positiveMental", "negative"],
-                            },
-                            trinkets: { type: Type.STRING, description: "A short, comma-separated list of 2-3 personal belongings or trinkets." }
-                        },
-                        required: ["name", "traits", "trinkets"]
-                    },
-                },
-            });
-            const { name, traits, trinkets } = JSON.parse(detailsResponse.text.trim());
-
-            // Add a 1-second delay to avoid hitting API rate limits.
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // Generate Portrait using the new details (Nano Banana)
             const portraitPrompt = getGrogPortraitPrompt(name, traits, theme);
-
-            const imageResponse = await ai.models.generateContent({
-                model: 'gemini-2.5-flash-image',
-                contents: portraitPrompt,
-                config: { responseModalities: [Modality.IMAGE, Modality.TEXT] },
-            });
-
-            const imagePart = imageResponse.candidates?.[0]?.content?.parts?.find((part: any) => part?.inlineData?.data);
-            let imageData = imagePart?.inlineData?.data;
-
-            if (!imageData) {
-                const fallbackResponse = await ai.models.generateContent({
-                    model: 'gemini-2.5-flash-image-preview',
-                    contents: portraitPrompt,
-                    config: { responseModalities: [Modality.IMAGE, Modality.TEXT] },
-                });
-                const fallbackPart = fallbackResponse.candidates?.[0]?.content?.parts?.find((part: any) => part?.inlineData?.data);
-                imageData = fallbackPart?.inlineData?.data;
-                if (!imageData) {
-                    const details = describeGeminiImageFailure(fallbackResponse);
-                    throw new Error(`The AI did not return an image. ${details}`);
-                }
-            }
-
-            const portrait = `data:image/png;base64,${imageData}`;
+            const portrait = await generateImage({ prompt: portraitPrompt, aspectRatio: '1:1' });
 
             setGrog(prevGrog => prevGrog ? { ...prevGrog, name, traits, portrait, trinkets } : null);
-
         } catch (e) {
-            console.error("Grog detail generation failed:", e);
-            let errorMessage = "Could not generate grog details. Please try again.";
-            // Provide a more specific error message for quota issues.
+            console.error('Grog detail generation failed:', e);
+            let errorMessage = 'Could not generate grog details. Please try again.';
             if (e instanceof Error && (e.message.toLowerCase().includes('quota') || e.message.toLowerCase().includes('resource_exhausted'))) {
-                errorMessage = "API quota exceeded. Please check your plan and billing details.";
+                errorMessage = 'API quota exceeded. Please check your plan and billing details.';
             }
             showToast(errorMessage);
         } finally {
             setIsGeneratingDetails(false);
         }
-    }, [grog, showToast]);
+    }, [grog, showToast, generateText, generateImage]);
 
     const reset = useCallback(() => {
         setGrog(null);

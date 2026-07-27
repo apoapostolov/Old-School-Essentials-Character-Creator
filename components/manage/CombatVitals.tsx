@@ -1,12 +1,12 @@
 
 import React, { useMemo } from 'react';
-import { useCharacterContext } from '../../context/CharacterContext';
+import { useCharacterProgression } from '../../context/CharacterContext';
 import type { Item } from '../../types';
 import { getAttackValuesForLevel, getModifier } from '../../utils/character';
 import { ShieldIcon } from '../icons/ShieldIcon';
 
 export const CombatVitals: React.FC = () => {
-    const { selectedClass, characterRoll, progression, equipment, aggregatedData } = useCharacterContext();
+    const { selectedClass, characterRoll, progression, equipment, aggregatedData } = useCharacterProgression();
     const { scores } = characterRoll;
     const { characterLevel: level } = progression;
     const { allItemKeys } = equipment;

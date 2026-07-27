@@ -2,7 +2,7 @@
 // This eliminates the need to pass down numerous props from App.tsx, resolving the TypeScript error
 // related to missing properties. The component now fetches character data directly from the context.
 import React from 'react';
-import { useCharacterContext } from '../context/CharacterContext';
+import { useCharacterExtras } from '../context/CharacterContext';
 import { useSourceContext } from '../context/SourceContext';
 import { BackstoryGenerator } from './final-touches/BackstoryGenerator';
 import { CharacterDetailsColumn } from './final-touches/CharacterDetailsColumn';
@@ -18,7 +18,7 @@ interface FinalTouchesTabProps {
 }
 
 export const FinalTouchesTab: React.FC<FinalTouchesTabProps> = ({ onShowPromptInfo, onShowBackstoryPromptInfo, onShowNamePromptInfo, onShowTraitsPromptInfo, onShowLifeStandardPromptInfo }) => {
-    const { selectedClass, ai } = useCharacterContext();
+    const { selectedClass, ai } = useCharacterExtras();
     const { selectedSources } = useSourceContext();
 
     if (!selectedClass) return null; // Should not happen if tab is active, but good practice

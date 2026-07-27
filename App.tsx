@@ -1,29 +1,22 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import { AbilityScoreDisplay } from './components/AbilityScoreDisplay';
 import { ClassCard } from './components/ClassCard';
-import { ClassInfoModal } from './components/ClassInfoModal';
-import { EquipmentCustomizationModal } from './components/EquipmentCustomizationModal';
-import { EquipmentKitModal } from './components/EquipmentKitModal';
-import { FinalTouchesTab } from './components/FinalTouchesTab';
 import { CheckIcon } from './components/icons/CheckIcon';
 import { DiceIcon } from './components/icons/DiceIcon';
 import { EditIcon } from './components/icons/EditIcon';
+import { GearIcon } from './components/icons/GearIcon';
 import { OseLogo } from './components/icons/OseLogo';
 import { PrintIcon } from './components/icons/PrintIcon';
 import { SpinnerIcon } from './components/icons/SpinnerIcon';
-import { ManualAbilityScoreEntryModal } from './components/ManualAbilityScoreEntryModal';
-import { ManualAbilityScoreWarningModal } from './components/ManualAbilityScoreWarningModal';
-import { PromptInfoModal } from './components/PromptInfoModal';
 import { RaceCard } from './components/RaceCard';
-import { RaceInfoModal } from './components/RaceInfoModal';
 import { RollHistoryCard } from './components/RollHistoryCard';
 import { SaveSlotDrawer } from './components/SaveSlotDrawer';
-import { SourcesModal } from './components/SourcesModal';
 import { Toast } from './components/Toast';
-import { ManageTab } from './ManageTab';
 import type { AbilityScores, ClassInfo } from './types';
 
+import { AiSettingsProvider } from './context/AiSettingsContext';
 import { CharacterProvider } from './context/CharacterContext';
+import { SheetProvider } from './context/SheetContext';
 import { SourceProvider, useSourceContext } from './context/SourceContext';
 import { useAggregatedData } from './hooks/useAggregatedData';
 import { useCharacter } from './hooks/useCharacter';
@@ -33,6 +26,25 @@ import { useUIState } from './hooks/useUIState';
 import { ABILITIES } from './constants';
 import { getBackstoryPrompt, getLifeStandardPrompt, getNamePrompt, getPortraitPrompt, getTraitsPrompt } from './prompt-data';
 import { calculateAcrobatSkills, calculateBarbarianSkills, calculateBardSkills, calculateRangerSkills, calculateThiefSkills } from './utils/skills';
+
+// Lazy-load tabs/modals not needed for first paint on Roll Character.
+const ManageTab = lazy(() => import('./components/ManageTab').then(m => ({ default: m.ManageTab })));
+const FinalTouchesTab = lazy(() => import('./components/FinalTouchesTab').then(m => ({ default: m.FinalTouchesTab })));
+const SettingsModal = lazy(() => import('./components/SettingsModal').then(m => ({ default: m.SettingsModal })));
+const SourcesModal = lazy(() => import('./components/SourcesModal').then(m => ({ default: m.SourcesModal })));
+const PromptInfoModal = lazy(() => import('./components/PromptInfoModal').then(m => ({ default: m.PromptInfoModal })));
+const ClassInfoModal = lazy(() => import('./components/ClassInfoModal').then(m => ({ default: m.ClassInfoModal })));
+const RaceInfoModal = lazy(() => import('./components/RaceInfoModal').then(m => ({ default: m.RaceInfoModal })));
+const EquipmentKitModal = lazy(() => import('./components/EquipmentKitModal').then(m => ({ default: m.EquipmentKitModal })));
+const EquipmentCustomizationModal = lazy(() => import('./components/EquipmentCustomizationModal').then(m => ({ default: m.EquipmentCustomizationModal })));
+const ManualAbilityScoreEntryModal = lazy(() => import('./components/ManualAbilityScoreEntryModal').then(m => ({ default: m.ManualAbilityScoreEntryModal })));
+const ManualAbilityScoreWarningModal = lazy(() => import('./components/ManualAbilityScoreWarningModal').then(m => ({ default: m.ManualAbilityScoreWarningModal })));
+
+const TabSuspenseFallback: React.FC = () => (
+    <div className="max-w-4xl mx-auto bg-gray-800/60 p-8 rounded-lg border border-gray-700 text-center text-gray-400">
+        Loading…
+    </div>
+);
 
 interface TabButtonProps {
     isActive: boolean; isCompleted: boolean; onClick: () => void; children: React.ReactNode;
@@ -68,6 +80,7 @@ const AppContent: React.FC = () => {
     const [showRaces, setShowRaces] = useState(false);
     const [showManualScoreWarning, setShowManualScoreWarning] = useState(false);
     const [showManualScoreEntry, setShowManualScoreEntry] = useState(false);
+    const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
 
     const handleSelectClass = useCallback((classInfo: ClassInfo) => {
         selectClass(classInfo);
@@ -201,6 +214,7 @@ const AppContent: React.FC = () => {
         uiState.classInfoModalData ||
         uiState.raceInfoModalData ||
         uiState.isSourcesModalVisible ||
+        isSettingsModalVisible ||
         showManualScoreWarning ||
         showManualScoreEntry
     );
@@ -218,18 +232,21 @@ const AppContent: React.FC = () => {
         <CharacterProvider character={character}>
             <div className="min-h-screen bg-gray-900 text-gray-200 font-sans p-4 sm:p-8 bg-cover bg-center" style={{backgroundImage: "url('https://www.transparenttextures.com/patterns/dark-matter.png')"}}>
                 <Toast message={uiState.toastMessage} onDismiss={() => uiState.setToastMessage(null)} />
-                {uiState.isPromptModalVisible && <PromptInfoModal title="Full Portrait AI Prompt" prompt={generateFullPortraitPrompt()} onClose={() => uiState.setIsPromptModalVisible(false)} />}
-                {uiState.isBackstoryPromptModalVisible && <PromptInfoModal title="The Two-Page™ Backstory AI Prompt" prompt={generateBackstoryPrompt()} onClose={() => uiState.setIsBackstoryPromptModalVisible(false)} />}
-                {uiState.isNamePromptModalVisible && <PromptInfoModal title="Name Generation AI Prompt" prompt={generateNamePrompt()} onClose={() => uiState.setIsNamePromptModalVisible(false)} />}
-                {uiState.isTraitsPromptModalVisible && <PromptInfoModal title="Character Traits AI Prompt" prompt={generateTraitsPrompt()} onClose={() => uiState.setIsTraitsPromptModalVisible(false)} />}
-                {uiState.isLifeStandardPromptModalVisible && <PromptInfoModal title="Life Before Adventuring AI Prompt" prompt={generateLifeStandardPrompt()} onClose={() => uiState.setIsLifeStandardPromptModalVisible(false)} />}
-                {uiState.kitModalData && <EquipmentKitModal kit={uiState.kitModalData} onClose={() => uiState.setKitModalData(null)} />}
-                {uiState.isCustomizingEquipment && <EquipmentCustomizationModal onClose={() => uiState.setIsCustomizingEquipment(false)} />}
-                {uiState.classInfoModalData && <ClassInfoModal classInfo={uiState.classInfoModalData} onClose={() => uiState.setClassInfoModalData(null)} selectedRace={selectedRace} />}
-                {uiState.raceInfoModalData && <RaceInfoModal race={uiState.raceInfoModalData} onClose={() => uiState.setRaceInfoModalData(null)} />}
-                {uiState.isSourcesModalVisible && <SourcesModal onClose={() => uiState.setIsSourcesModalVisible(false)} />}
-                {showManualScoreWarning && <ManualAbilityScoreWarningModal onProceed={handleManualScoreWarningProceed} onClose={() => setShowManualScoreWarning(false)} />}
-                {showManualScoreEntry && <ManualAbilityScoreEntryModal currentScores={characterRoll.scores} onApply={handleManualScoreApply} onClose={() => setShowManualScoreEntry(false)} />}
+                <Suspense fallback={null}>
+                    {uiState.isPromptModalVisible && <PromptInfoModal title="Full Portrait AI Prompt" prompt={generateFullPortraitPrompt()} onClose={() => uiState.setIsPromptModalVisible(false)} />}
+                    {uiState.isBackstoryPromptModalVisible && <PromptInfoModal title="The Two-Page™ Backstory AI Prompt" prompt={generateBackstoryPrompt()} onClose={() => uiState.setIsBackstoryPromptModalVisible(false)} />}
+                    {uiState.isNamePromptModalVisible && <PromptInfoModal title="Name Generation AI Prompt" prompt={generateNamePrompt()} onClose={() => uiState.setIsNamePromptModalVisible(false)} />}
+                    {uiState.isTraitsPromptModalVisible && <PromptInfoModal title="Character Traits AI Prompt" prompt={generateTraitsPrompt()} onClose={() => uiState.setIsTraitsPromptModalVisible(false)} />}
+                    {uiState.isLifeStandardPromptModalVisible && <PromptInfoModal title="Life Before Adventuring AI Prompt" prompt={generateLifeStandardPrompt()} onClose={() => uiState.setIsLifeStandardPromptModalVisible(false)} />}
+                    {uiState.kitModalData && <EquipmentKitModal kit={uiState.kitModalData} onClose={() => uiState.setKitModalData(null)} />}
+                    {uiState.isCustomizingEquipment && <EquipmentCustomizationModal onClose={() => uiState.setIsCustomizingEquipment(false)} />}
+                    {uiState.classInfoModalData && <ClassInfoModal classInfo={uiState.classInfoModalData} onClose={() => uiState.setClassInfoModalData(null)} selectedRace={selectedRace} />}
+                    {uiState.raceInfoModalData && <RaceInfoModal race={uiState.raceInfoModalData} onClose={() => uiState.setRaceInfoModalData(null)} />}
+                    {uiState.isSourcesModalVisible && <SourcesModal onClose={() => uiState.setIsSourcesModalVisible(false)} />}
+                    {isSettingsModalVisible && <SettingsModal onClose={() => setIsSettingsModalVisible(false)} />}
+                    {showManualScoreWarning && <ManualAbilityScoreWarningModal onProceed={handleManualScoreWarningProceed} onClose={() => setShowManualScoreWarning(false)} />}
+                    {showManualScoreEntry && <ManualAbilityScoreEntryModal currentScores={characterRoll.scores} onApply={handleManualScoreApply} onClose={() => setShowManualScoreEntry(false)} />}
+                </Suspense>
                 {pdf.pdfError && <div className="fixed bottom-4 right-4 bg-red-800 border border-red-600 text-white px-4 py-3 rounded-lg shadow-xl z-50"><div className="flex items-start justify-between"><div><strong className="font-bold">PDF Issue!</strong><span className="block text-sm mt-1">{pdf.pdfError}</span></div><button onClick={() => pdf.setPdfError(null)} className="ml-4 -mr-1 p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-white"><svg className="fill-current h-6 w-6 text-red-200" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg></button></div></div>}
 
                 <div className="max-w-7xl mx-auto">
@@ -248,9 +265,22 @@ const AppContent: React.FC = () => {
                             {pdf.isPrinting ? <SpinnerIcon className="h-5 w-5" /> : <PrintIcon className="h-5 w-5" />}
                             <span className="hidden sm:inline ml-2">PRINT</span>
                         </button>
+                        <button
+                            onClick={() => setIsSettingsModalVisible(true)}
+                            className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            aria-label="Configure Settings"
+                        >
+                            <GearIcon className="h-5 w-5" />
+                        </button>
                     </div>
 
                     <main>
+                        {aggregatedData.isLoading && aggregatedData.CLASSES.length === 0 && (
+                            <div className="max-w-4xl mx-auto bg-gray-800/60 p-8 rounded-lg border border-gray-700 text-center text-gray-400 mb-6">
+                                Loading content packs…
+                                {aggregatedData.loadError && <p className="text-red-400 text-sm mt-2">{aggregatedData.loadError}</p>}
+                            </div>
+                        )}
                         {uiState.activeTab === 'roll' && (
                             <>
                                 <div className="text-center mb-8"><button onClick={resetRollAndCharacter} disabled={characterRoll.isRolling} className="bg-yellow-600 hover:bg-yellow-500 disabled:bg-gray-600 text-gray-900 font-bold py-3 px-8 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 ease-in-out flex items-center justify-center mx-auto"><DiceIcon className="mr-2 h-6 w-6"/>{characterRoll.isRolling ? 'Rolling...' : (characterRoll.scores ? 'Roll Again' : 'Roll Stats')}</button></div>
@@ -325,9 +355,10 @@ const AppContent: React.FC = () => {
                                 {characterRoll.rollHistory.length > 0 && (<div className="mt-12"><h2 className="text-2xl font-semibold text-center mb-4 text-gray-300">Roll History</h2><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{characterRoll.rollHistory.map((roll, index) => (<RollHistoryCard key={index} roll={roll} onRestore={() => restoreRollAndCharacter(roll)} />))}</div></div>)}
                             </>
                         )}
-                        {uiState.activeTab === 'manage' && (selectedClass && modifiedScores ? <ManageTab onShowKitInfo={uiState.setKitModalData} onCustomizeEquipment={() => uiState.setIsCustomizingEquipment(true)} isGrogEligible={isGrogEligible} /> : <PlaceholderContent title="Manage & Outfit">Select a class on the "Roll Character" tab to begin managing your character.</PlaceholderContent>)}
-                        {/* FIX: Corrected the event handler to set modal visibility to 'true' instead of 'false', enabling the backstory prompt modal to open as intended. */}
-                        {uiState.activeTab === 'final' && (selectedClass && modifiedScores ? (<FinalTouchesTab onShowPromptInfo={() => uiState.setIsPromptModalVisible(true)} onShowBackstoryPromptInfo={() => uiState.setIsBackstoryPromptModalVisible(true)} onShowNamePromptInfo={() => uiState.setIsNamePromptModalVisible(true)} onShowTraitsPromptInfo={() => uiState.setIsTraitsPromptModalVisible(true)} onShowLifeStandardPromptInfo={() => uiState.setIsLifeStandardPromptModalVisible(true)} />) : (<PlaceholderContent title="Select a Class First">Please go back to the "Roll Character" tab and select a class for your character before generating a portrait.</PlaceholderContent>))}
+                        <Suspense fallback={<TabSuspenseFallback />}>
+                            {uiState.activeTab === 'manage' && (selectedClass && modifiedScores ? <ManageTab onShowKitInfo={uiState.setKitModalData} onCustomizeEquipment={() => uiState.setIsCustomizingEquipment(true)} isGrogEligible={isGrogEligible} /> : <PlaceholderContent title="Manage & Outfit">Select a class on the "Roll Character" tab to begin managing your character.</PlaceholderContent>)}
+                            {uiState.activeTab === 'final' && (selectedClass && modifiedScores ? (<FinalTouchesTab onShowPromptInfo={() => uiState.setIsPromptModalVisible(true)} onShowBackstoryPromptInfo={() => uiState.setIsBackstoryPromptModalVisible(true)} onShowNamePromptInfo={() => uiState.setIsNamePromptModalVisible(true)} onShowTraitsPromptInfo={() => uiState.setIsTraitsPromptModalVisible(true)} onShowLifeStandardPromptInfo={() => uiState.setIsLifeStandardPromptModalVisible(true)} />) : (<PlaceholderContent title="Select a Class First">Please go back to the "Roll Character" tab and select a class for your character before generating a portrait.</PlaceholderContent>))}
+                        </Suspense>
                     </main>
                     <footer className="text-center mt-12 text-gray-600 text-sm"><p><a href="./OSE_HOUSE_RULES.md" target="_blank" rel="noopener noreferrer" className="hover:text-gray-400 underline transition-colors duration-200">Based on the Advanced OSE Ruleset, Homebrew by Apostol Apostolov</a></p></footer>
                     <SaveSlotDrawer />
@@ -339,7 +370,11 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => (
     <SourceProvider>
-        <AppContent />
+        <SheetProvider>
+            <AiSettingsProvider>
+                <AppContent />
+            </AiSettingsProvider>
+        </SheetProvider>
     </SourceProvider>
 );
 
