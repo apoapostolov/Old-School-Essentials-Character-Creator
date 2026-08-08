@@ -164,6 +164,20 @@ cp .env.example .env
 - `npm run preview` — preview the production build
 - `npm test` — run tests
 
+## The OSE family
+
+The OSE support projects by Apostol Apostolov work together. Pick the one
+that matches the task: read the rules, run them in Foundry VTT, or
+generate a character.
+
+| Repository | What it is |
+| --- | --- |
+| [Old-School-Essentials-Reforged-Rules](https://github.com/apoapostolov/Old-School-Essentials-Reforged-Rules) | The ruleset: the full Reforged house rules as Markdown, for reading and table reference |
+| [OSE-Reforged-Rules-for-Foundry-VTT](https://github.com/apoapostolov/OSE-Reforged-Rules-for-Foundry-VTT) | Foundry module: every Reforged class ability in a compendium with dice automation |
+| [OSE-Combat-Improvements-for-Foundry-VTT](https://github.com/apoapostolov/OSE-Combat-Improvements-for-Foundry-VTT) | Foundry module: combat tracker, injury tracking, and secret death saves |
+| [OSE-Statblock-Importer-for-Foundry-VTT](https://github.com/apoapostolov/OSE-Statblock-Importer-for-Foundry-VTT) | Foundry module: paste OSE statblocks and import complete actors |
+| [Old-School-Essentials-Character-Creator](https://github.com/apoapostolov/Old-School-Essentials-Character-Creator) | Web app: roll a character, pick class and gear, export a print-ready PDF |
+
 ## License
 
 MIT. See `LICENSE`.
