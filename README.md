@@ -1,3 +1,10 @@
+<div align="center">
+  <a href="https://github.com/apoapostolov/Old-School-Essentials-Character-Creator">
+    <img src="images/hero.png" width="100%"
+      alt="Old-School Essentials Character Creator: roll stats, build characters,
+      manage gear, and export print-ready PDFs with houserules integration"></a>
+</div>
+
 # Old-School Essentials Character Creator
 
 A full-featured character generator for Old-School Essentials (OSE). Roll classic stats, select races and classes, manage gear and encumbrance, and export a print-ready PDF. The app also supports optional AI-powered name, trait, portrait, and backstory generation using Google Gemini.
