@@ -1,190 +1,110 @@
+<!-- markdownlint-disable MD013 -->
+
 <div align="center">
   <a href="https://github.com/apoapostolov/Old-School-Essentials-Character-Creator">
-    <img src="images/hero.png" width="100%"
-      alt="Old-School Essentials Character Creator: roll stats, build characters,
-      manage gear, and export print-ready PDFs with houserules integration"></a>
+    <img src="images/hero.png" width="100%" alt="Old-School Essentials Character Creator hero with a character sheet, equipment, and an adventurer">
+  </a>
 </div>
 
 # Old-School Essentials Character Creator
 
-A full-featured character generator for Old-School Essentials (OSE). Roll classic stats, select races and classes, manage gear and encumbrance, and export a print-ready PDF. The app also supports optional AI-powered name, trait, portrait, and backstory generation using Google Gemini.
+Build an OSE character from first roll to print-ready sheet, with source packs, house rules, equipment, saves, and optional AI details.
 
-This project integrates **Apostol Apostolov's extensive houserules for Old School Essentials**. The overhaul focuses on modern clarity and consistency while keeping old‑school tension, resource pressure, and player agency intact. Full rules: [rules/OSE_HOUSE_RULES.md](rules/OSE_HOUSE_RULES.md).
-
-Key additions and changes include:
-
-- **Modernized combat math**: explicit Ascending AC and To‑Hit conversion guidelines.
-- **Score generation with safety valves**: 3d6 in order, shared sets, plus limited post‑roll adjustments.
-- **Tougher early survivability**: racial hit die and max HP at level 1, with rerolls for 1–2 on later HD.
-- **Class overhaul across the Advanced Player’s Tome**: rebalanced requirements to reflect demographic availability, plus new features so every class feels viable and interesting without trap choices.
-- **Economy & advancement rebalanced**: XP is tuned to silver‑based progression for modern, longer‑term campaigns.
-- **Spell access as a journey**: curated starting spells, random selection with player agency, and research/mentorship for new spells.
-- **Alignment with meaning**: alignment is a roleplay force with real consequences, not just a label.
-- **Encumbrance that actually matters**: clean thresholds, STR modifiers, and distinct carried‑weight states.
-- **Group‑centric resolution**: X‑in‑6 and skill checks emphasize party effort and shared luck.
-- **Grog hirelings**: a single loyal companion for fragile casters, with clear limits.
-- **Meaningful downtime**: structured activities like carousing and philanthropy, plus long‑term study and literacy improvement, to make between‑adventure time feel real and consequential.
-
-## Badges
-
-![License](https://img.shields.io/badge/license-MIT-green)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.0-blue)
 ![Node](https://img.shields.io/badge/node-18%2B-339933)
+![React](https://img.shields.io/badge/react-18.2-61DAFB)
 ![Vite](https://img.shields.io/badge/vite-6.x-646CFF)
-![TypeScript](https://img.shields.io/badge/typescript-5.x-3178C6)
-![React](https://img.shields.io/badge/react-18.x-61DAFB)
+![TypeScript](https://img.shields.io/badge/typescript-5.8-3178C6)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-## Features
+This browser-based creator keeps the full character-building journey in one guided workspace. Roll or enter abilities, choose a race and class, manage progression and equipment, add final details, save the result, and print a filled OSE sheet. The default rules follow this project's OSE Reforged house rules, while optional source packs can expand the available content.
 
-### 1) Choose Your Setting
+![Old-School Essentials Character Creator interface with character saves, final details, and portrait controls](images/SCREENSHOT_20.png)
 
-Load one or more supported source settings to expand the generator with unique mechanics, new steps, classes, equipment, and spells. You can mix sources per character, and more settings will be added over time.
+## What's New in v1.1.0
 
-<p align="center">
-  <img src="images/SCREENSHOT_05.png" width="32%" />
-</p>
+- Assign separate providers and models to creative writing, short text, vision, and image generation.
+- Use OpenAI, Anthropic, Gemini, OpenRouter, xAI, Z.ai, DeepSeek, or OpenCode Go, including xAI device-code sign-in.
+- Open heavy catalogs and print tooling only when needed, reducing the production entry chunk from roughly 1.2 MB to 0.5 MB.
+- Import, copy, download, and restore character JSON with clearer save and load errors.
 
-### 2) Start & Roll Your Character
+See the full [v1.1.0 changelog](CHANGELOG.md#110---2026-07-27).
 
-Kick off your character on the Roll Character tab. Roll your stats, glance at your options, and move through the journey at your own pace.
+## What You Can Do
 
-<p align="center">
-  <img src="images/SCREENSHOT_01.png" width="32%" />
-  <img src="images/SCREENSHOT_02.png" width="32%" />
-</p>
+- **Build a complete OSE character.** Move through rolling, race and class selection, progression, equipment, final details, and printing without rebuilding derived values by hand.
+- **Combine supported source packs.** Start with Advanced OSE/D&D 1e, then mix in The Shrike, Dolmenwood, Gods of the Forbidden North, Mystara, or The Complete Northland Saga.
+- **Use the project's Reforged rules.** Ability adjustments, racial hit dice, class data, silver-based advancement, encumbrance, magic, and downtime follow the maintained house-rules reference.
+- **Outfit the character with live totals.** Apply equipment kits or customize individual items while money, carried weight, movement, combat values, and class requirements update.
+- **Handle class-specific choices.** Manage spell selection, specialist skill progressions, favored terrain, and eligible caster grogs in the same character record.
+- **Add optional generated details.** Create names, traits, professions, portraits, and long-form backstories with a provider and model chosen for each task.
+- **Keep and move characters.** Store five browser-local save slots, restore them later, or import and export JSON through files or the clipboard.
+- **Print the finished sheet.** Export a filled OSE PDF with derived statistics, equipment, languages, abilities, portrait, and other supported character details.
 
-### 3) Manual Scores (DM Approved)
+## From Roll to Sheet
 
-If your table uses manual scores, a DM approval gate keeps things fair. The entry screen includes quick-fill helpers for common roll styles so you can get going fast.
+1. Open **Sources** and choose the content packs for this character.
+2. Roll abilities, or use the clearly marked manual-entry path when your table approves custom scores. Pick a race and class after reviewing their requirements and rules.
+3. Set level, hit points, wealth, equipment, magic, and specialist choices. Add final details if wanted, save the character, then select **Print**.
 
-<p align="center">
-  <img src="images/SCREENSHOT_03.png" width="32%" />
-  <img src="images/SCREENSHOT_04.png" width="32%" />
-</p>
+The app can be used without AI. Generated names, text, and images remain optional additions to the core OSE workflow.
 
-### 4) Pick Race & Class
+## Installation
 
-Pick a race and class with clear requirements, modifiers, and eligibility badges. Open the detail panels to see full rules context before locking anything in.
+### Requirements
 
-<p align="center">
-  <img src="images/SCREENSHOT_06.png" width="32%" />
-  <img src="images/SCREENSHOT_07.png" width="32%" />
-  <img src="images/SCREENSHOT_08.png" width="32%" />
-</p>
-
-### 5) Manage & Outfit
-
-Choose your starting level, roll your wealth, and gear up. Kits get you playing quickly, and you can still customize gear breakdowns along the way.
-
-<p align="center">
-  <img src="images/SCREENSHOT_09.png" width="32%" />
-  <img src="images/SCREENSHOT_10.png" width="32%" />
-  <img src="images/SCREENSHOT_11.png" width="32%" />
-</p>
-
-### 6) Customize Equipment
-
-Drag items between the catalog and your inventory to fine‑tune your kit. Gold and encumbrance update live, so you always know where you stand.
-
-<p align="center">
-  <img src="images/SCREENSHOT_12.png" width="32%" />
-</p>
-
-### 7) Starting Magic & Personal Grog
-
-Spellcasters pick favorites and let fate decide a starting spell. If your class qualifies, you can also generate a personal grog with stats, gear, and a portrait—ready to hit the table.
-
-<p align="center">
-  <img src="images/SCREENSHOT_14.png" width="32%" />
-</p>
-
-### 8) Final Touches (AI‑Enhanced)
-
-Choose your world and gender, generate a name and traits, then create a portrait. Prompts are visible so you can see exactly what the AI is using.
-
-<p align="center">
-  <img src="images/SCREENSHOT_15.png" width="32%" />
-  <img src="images/SCREENSHOT_16.png" width="32%" />
-</p>
-
-### 9) Backstory (Two‑Page™)
-
-Generate a rich, multi‑page backstory and read it in a clean, scrollable panel built for long text.
-
-<p align="center">
-  <img src="images/SCREENSHOT_19.png" width="32%" />
-</p>
-
-### 10) Save / Import / Export
-
-Save slots make it easy to update, export, or restore characters. Import a JSON save to bring a character back instantly.
-
-<p align="center">
-  <img src="images/SCREENSHOT_20.png" width="32%" />
-</p>
-
-### 11) PDF Export
-
-Export a complete, print‑ready OSE character sheet with equipment, portrait, and all the derived stats filled in.
-
-<p align="center">
-  <img src="images/SCREENSHOT_21.png" width="32%" />
-</p>
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
+- Node.js 18 or later
 - npm
 
-### Install & Run (Dev)
-
 ```bash
+git clone https://github.com/apoapostolov/Old-School-Essentials-Character-Creator.git
+cd Old-School-Essentials-Character-Creator
 npm install
 npm run dev
 ```
 
-### Build (Production)
+Vite prints the local address when the development server starts.
+
+For a production preview:
 
 ```bash
-npm install
 npm run build
 npm run preview
 ```
 
-## Environment Variables
+## Optional AI Setup and Privacy
 
-AI features require a Google Gemini API key.
+Open the in-app **Settings** panel to choose a provider, key, and model for each AI task. Provider keys entered there are remembered in browser storage. Build-time environment keys are also supported; see the provider names and variables in [the AI provider notes](docs/SHARED_AI_PROVIDERS_ZHIPU_GROK.md).
 
-- Copy `.env.example` to `.env`
-- Set `VITE_GEMINI_API_KEY` to your key
+AI requests leave the browser and go to the provider selected for that task. Review the generated prompt before sending sensitive character or campaign material. xAI SuperGrok sign-in uses a device-code flow and needs the Vite OAuth proxy supplied by `npm run dev`; a static host must provide an equivalent proxy.
+
+The character saves and selected source list use browser `localStorage`. Export JSON if you want a portable backup before clearing site data.
+
+## Rules and Content
+
+The maintained rules reference is [rules/OSE_HOUSE_RULES.md](rules/OSE_HOUSE_RULES.md). It covers the project's combat math, score generation, survivability, classes, advancement, spell access, alignment, encumbrance, group checks, grogs, and downtime procedures.
+
+Optional source packs are loaded from `third-party/`. Their names and publishers remain visible in the source picker so users can tell which material is active.
+
+## Development
 
 ```bash
-cp .env.example .env
+npm test
+npm run typecheck
+npm run build
 ```
 
-## Scripts
+The React entry point is `index.tsx`; `App.tsx` coordinates the three main tabs. Rules and catalogs live in the root data files and `third-party/`, while PDF generation is handled through `hooks/usePdfPrinting.ts` and source-specific field maps.
 
-- `npm run dev` — start Vite dev server
-- `npm run build` — production build
-- `npm run preview` — preview the production build
-- `npm test` — run tests
+## The OSE Family
 
-## The OSE family
-
-The OSE support projects by Apostol Apostolov work together. Pick the one
-that matches the task: read the rules, run them in Foundry VTT, or
-generate a character.
-
-| Repository | What it is |
+| Project | Use it for |
 | --- | --- |
-| [Old-School-Essentials-Reforged-Rules](https://github.com/apoapostolov/Old-School-Essentials-Reforged-Rules) | The ruleset: the full Reforged house rules as Markdown, for reading and table reference |
-| [OSE-Reforged-Rules-for-Foundry-VTT](https://github.com/apoapostolov/OSE-Reforged-Rules-for-Foundry-VTT) | Foundry module: every Reforged class ability in a compendium with dice automation |
-| [OSE-Combat-Improvements-for-Foundry-VTT](https://github.com/apoapostolov/OSE-Combat-Improvements-for-Foundry-VTT) | Foundry module: combat tracker, injury tracking, and secret death saves |
-| [OSE-Statblock-Importer-for-Foundry-VTT](https://github.com/apoapostolov/OSE-Statblock-Importer-for-Foundry-VTT) | Foundry module: paste OSE statblocks and import complete actors |
-| [Old-School-Essentials-Character-Creator](https://github.com/apoapostolov/Old-School-Essentials-Character-Creator) | Web app: roll a character, pick class and gear, export a print-ready PDF |
+| [Old-School Essentials Reforged Rules](https://github.com/apoapostolov/Old-School-Essentials-Reforged-Rules) | Read the full ruleset in Markdown. |
+| [OSE Reforged Rules for Foundry VTT](https://github.com/apoapostolov/OSE-Reforged-Rules-for-Foundry-VTT) | Add Reforged class abilities and automation to Foundry. |
+| [OSE Combat Improvements for Foundry VTT](https://github.com/apoapostolov/OSE-Combat-Improvements-for-Foundry-VTT) | Extend combat tracking, injuries, and secret death saves. |
+| [OSE Statblock Importer for Foundry VTT](https://github.com/apoapostolov/OSE-Statblock-Importer-for-Foundry-VTT) | Turn pasted OSE statblocks into actors. |
 
 ## License
 
-MIT. See `LICENSE`.
+Released under the [MIT License](LICENSE).
