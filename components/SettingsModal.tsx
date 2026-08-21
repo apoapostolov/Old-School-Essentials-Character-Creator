@@ -208,9 +208,17 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
         disconnectXaiOauth,
         pasteXaiOauthToken,
         xaiOauthConnected,
+        codexOauthDevice,
+        startCodexOauthDeviceFlow,
+        openCodexOauthBrowser,
+        cancelCodexOauthDeviceFlow,
+        disconnectCodexOauth,
+        pasteCodexOauthToken,
+        codexOauthConnected,
     } = useAiSettings();
     const view = slots[slot];
     const isOauth = view.provider === 'xai-oauth';
+    const isCodexOauth = view.provider === 'openai-codex';
     const [showAdvancedPaste, setShowAdvancedPaste] = useState(false);
     const [pasteToken, setPasteToken] = useState('');
     const modelOptions = useMemo(
@@ -221,6 +229,37 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
         xaiOauthDevice.status === 'pending' || xaiOauthDevice.status === 'polling'
             ? xaiOauthDevice.pending
             : null;
+    const codexDevicePending =
+        codexOauthDevice.status === 'pending' || codexOauthDevice.status === 'polling'
+            ? codexOauthDevice.pending
+            : null;
+
+    // Shared OAuth panel props: one button interface for both OAuth providers.
+    const oauthPanel = isCodexOauth
+        ? {
+            hint: 'OpenAI Codex / ChatGPT OAuth — no API key. Authorize in the browser with a device code. Requires the Vite dev server (or a reverse proxy for /__codex_oauth).',
+            connected: codexOauthConnected || codexOauthDevice.status === 'connected',
+            device: codexOauthDevice,
+            devicePending: codexDevicePending,
+            start: startCodexOauthDeviceFlow,
+            openBrowser: openCodexOauthBrowser,
+            cancel: cancelCodexOauthDeviceFlow,
+            disconnect: disconnectCodexOauth,
+            paste: pasteCodexOauthToken,
+            codeLabel: 'OpenAI device code',
+        }
+        : {
+            hint: 'SuperGrok / X Premium OAuth — no API key. Authorize in the browser with a device code. Requires the Vite dev server (or a reverse proxy for /__xai_oauth).',
+            connected: xaiOauthConnected || xaiOauthDevice.status === 'connected',
+            device: xaiOauthDevice,
+            devicePending: devicePending,
+            start: startXaiOauthDeviceFlow,
+            openBrowser: openXaiOauthBrowser,
+            cancel: cancelXaiOauthDeviceFlow,
+            disconnect: disconnectXaiOauth,
+            paste: pasteXaiOauthToken,
+            codeLabel: 'xAI device code',
+        };
 
     return (
         <section className="space-y-3 bg-gray-900/70 p-4 rounded-lg border border-gray-700">
@@ -240,35 +279,34 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
                 }))}
             />
 
-            {isOauth ? (
+            {isOauth || isCodexOauth ? (
                 <div className="space-y-3 rounded-md border border-gray-600 bg-gray-800/80 p-3">
                     <p className="text-sm text-gray-400">
-                        SuperGrok / X Premium OAuth — no API key. Authorize in the browser with a device code.
-                        Requires the Vite dev server (or a reverse proxy for <code className="text-yellow-300">/__xai_oauth</code>).
+                        {oauthPanel.hint}
                     </p>
                     <p className="text-sm font-semibold text-gray-200">
                         Status:{' '}
-                        {xaiOauthConnected || xaiOauthDevice.status === 'connected'
+                        {oauthPanel.connected
                             ? 'Connected'
-                            : xaiOauthDevice.status === 'starting'
+                            : oauthPanel.device.status === 'starting'
                                 ? 'Starting…'
-                                : xaiOauthDevice.status === 'pending' || xaiOauthDevice.status === 'polling'
+                                : oauthPanel.device.status === 'pending' || oauthPanel.device.status === 'polling'
                                     ? 'Waiting for browser approval…'
-                                    : xaiOauthDevice.status === 'error'
-                                        ? `Error — ${xaiOauthDevice.message}`
+                                    : oauthPanel.device.status === 'error'
+                                        ? `Error — ${(oauthPanel.device as { message?: string }).message}`
                                         : 'Not connected'}
                     </p>
-                    {devicePending && (
+                    {oauthPanel.devicePending && (
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-400">Device code</label>
+                            <label className="block text-sm font-medium text-gray-400">{oauthPanel.codeLabel}</label>
                             <input
                                 readOnly
-                                value={devicePending.userCode}
+                                value={oauthPanel.devicePending.userCode}
                                 className="w-full bg-gray-900 border-2 border-yellow-500/50 rounded-md p-3 mt-1 text-center text-2xl font-mono font-bold tracking-widest text-yellow-300"
-                                aria-label="xAI device code"
+                                aria-label={oauthPanel.codeLabel}
                             />
                             <p className="text-xs text-gray-500 break-all">
-                                Open: {devicePending.verificationUriComplete || devicePending.verificationUri}
+                                Open: {oauthPanel.devicePending.verificationUri}
                             </p>
                         </div>
                     )}
@@ -276,33 +314,33 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
                         <button
                             type="button"
                             className="bg-yellow-600 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-3 rounded-md text-sm"
-                            onClick={() => void startXaiOauthDeviceFlow()}
-                            disabled={xaiOauthDevice.status === 'starting' || xaiOauthDevice.status === 'polling'}
+                            onClick={() => void oauthPanel.start()}
+                            disabled={oauthPanel.device.status === 'starting' || oauthPanel.device.status === 'polling'}
                         >
-                            {devicePending ? 'Restart device login' : 'Start device login'}
+                            {oauthPanel.devicePending ? 'Restart device login' : 'Start device login'}
                         </button>
                         <button
                             type="button"
                             className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-md text-sm"
-                            onClick={() => openXaiOauthBrowser()}
-                            disabled={!devicePending}
+                            onClick={() => oauthPanel.openBrowser()}
+                            disabled={!oauthPanel.devicePending}
                         >
                             Open browser to authorize
                         </button>
-                        {devicePending && (
+                        {oauthPanel.devicePending && (
                             <button
                                 type="button"
                                 className="border border-gray-600 font-bold py-2 px-3 rounded-md text-sm text-gray-300"
-                                onClick={() => cancelXaiOauthDeviceFlow()}
+                                onClick={() => oauthPanel.cancel()}
                             >
                                 Cancel
                             </button>
                         )}
-                        {(xaiOauthConnected || xaiOauthDevice.status === 'connected') && (
+                        {oauthPanel.connected && (
                             <button
                                 type="button"
                                 className="border border-red-800 font-bold py-2 px-3 rounded-md text-sm text-red-300"
-                                onClick={() => disconnectXaiOauth()}
+                                onClick={() => oauthPanel.disconnect()}
                             >
                                 Disconnect
                             </button>
@@ -325,7 +363,7 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
                                 type="button"
                                 className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-md text-sm"
                                 onClick={() => {
-                                    pasteXaiOauthToken(pasteToken);
+                                    oauthPanel.paste(pasteToken);
                                     setPasteToken('');
                                     setShowAdvancedPaste(false);
                                 }}

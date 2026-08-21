@@ -20,6 +20,22 @@ export default defineConfig(({ mode }) => {
             rewrite: (p: string) => p.replace(/^\/__xai_oauth/, ''),
         },
     };
+    const codexOauthProxy = {
+        '/__codex_oauth': {
+            target: 'https://auth.openai.com',
+            changeOrigin: true,
+            secure: true,
+            rewrite: (p: string) => p.replace(/^\/__codex_oauth/, ''),
+        },
+    };
+    const codexApiProxy = {
+        '/__codex_api': {
+            target: 'https://chatgpt.com',
+            changeOrigin: true,
+            secure: true,
+            rewrite: (p: string) => p.replace(/^\/__codex_api/, ''),
+        },
+    };
     return {
         server: {
             port: 3003,
@@ -32,10 +48,18 @@ export default defineConfig(({ mode }) => {
             hmr: {
                 overlay: true,
             },
-            proxy: xaiOauthProxy,
+            proxy: {
+                ...xaiOauthProxy,
+                ...codexOauthProxy,
+                ...codexApiProxy,
+            },
         },
         preview: {
-            proxy: xaiOauthProxy,
+            proxy: {
+                ...xaiOauthProxy,
+                ...codexOauthProxy,
+                ...codexApiProxy,
+            },
         },
         plugins: [react()],
         define: {

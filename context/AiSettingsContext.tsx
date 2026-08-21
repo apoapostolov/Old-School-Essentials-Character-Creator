@@ -29,6 +29,17 @@ import {
   type XaiOauthDevicePending,
   type XaiOauthDeviceState,
 } from '../lib/ai/xai-oauth';
+import {
+  clearCodexOauthSession,
+  connectCodexOauthWithPastedToken,
+  getValidCodexOauthAccessToken,
+  getCodexOauthSession,
+  openCodexOauthVerificationPage,
+  pollCodexOauthDeviceToken,
+  startCodexOauthDeviceFlow,
+  type CodexOauthDevicePending,
+  type CodexOauthDeviceState,
+} from '../lib/ai/codex-oauth';
 
 export type { AiProviderId };
 export type { AiModelSlot };
@@ -62,6 +73,15 @@ export interface AiSettingsContextType {
   /** Advanced: paste a bearer access token if device flow is unavailable. */
   pasteXaiOauthToken: (accessToken: string) => void;
   xaiOauthConnected: boolean;
+  /** OpenAI Codex OAuth device flow (no API key UI). */
+  codexOauthDevice: CodexOauthDeviceState;
+  startCodexOauthDeviceFlow: () => Promise<void>;
+  openCodexOauthBrowser: () => void;
+  cancelCodexOauthDeviceFlow: () => void;
+  disconnectCodexOauth: () => void;
+  /** Advanced: paste a Codex bearer access token. */
+  pasteCodexOauthToken: (accessToken: string) => void;
+  codexOauthConnected: boolean;
   /**
    * Resolve credential for a provider (API key vault or OAuth bearer).
    * Used by runtime + refresh.
@@ -128,16 +148,29 @@ export const AiSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingRef = useRef<XaiOauthDevicePending | null>(null);
 
+  const [codexOauthDevice, setCodexOauthDevice] = useState<CodexOauthDeviceState>({ status: 'idle' });
+  const [codexOauthConnected, setCodexOauthConnected] = useState(() => Boolean(getCodexOauthSession()?.accessToken));
+  const codexPollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const codexPendingRef = useRef<CodexOauthDevicePending | null>(null);
+
   const clearPoll = () => {
     if (pollTimerRef.current) {
       clearTimeout(pollTimerRef.current);
       pollTimerRef.current = null;
+    }
+    if (codexPollTimerRef.current) {
+      clearTimeout(codexPollTimerRef.current);
+      codexPollTimerRef.current = null;
     }
   };
 
   const resolveProviderCredential = useCallback(async (provider: AiProviderId) => {
     if (provider === 'xai-oauth') {
       const token = await getValidXaiOauthAccessToken();
+      return token || '';
+    }
+    if (provider === 'openai-codex') {
+      const token = await getValidCodexOauthAccessToken();
       return token || '';
     }
     return (keyVault[provider] || getBuildTimeApiKeyForProvider(provider) || '').trim();
@@ -198,14 +231,14 @@ export const AiSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, []);
 
   const setProviderApiKey = useCallback((provider: AiProviderId, apiKey: string) => {
-    if (provider === 'xai-oauth') return;
+    if (provider === 'xai-oauth' || provider === 'openai-codex') return;
     const trimmed = apiKey.trim();
     setKeyVault(prev => ({ ...prev, [provider]: trimmed }));
     writeStoredProviderKey(provider, trimmed);
   }, []);
 
   const getProviderApiKey = useCallback((provider: AiProviderId) => {
-    if (provider === 'xai-oauth') return '';
+    if (provider === 'xai-oauth' || provider === 'openai-codex') return '';
     return keyVault[provider] || '';
   }, [keyVault]);
 
@@ -304,6 +337,100 @@ export const AiSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   }, [ensureCatalog]);
 
+  // — OpenAI Codex OAuth device flow —
+
+  const clearCodexPoll = () => {
+    if (codexPollTimerRef.current) {
+      clearTimeout(codexPollTimerRef.current);
+      codexPollTimerRef.current = null;
+    }
+  };
+
+  const cancelCodexOauthDeviceFlow = useCallback(() => {
+    clearCodexPoll();
+    codexPendingRef.current = null;
+    setCodexOauthDevice(getCodexOauthSession()?.accessToken ? { status: 'connected' } : { status: 'idle' });
+  }, []);
+
+  const disconnectCodexOauth = useCallback(() => {
+    clearCodexPoll();
+    codexPendingRef.current = null;
+    clearCodexOauthSession();
+    setCodexOauthConnected(false);
+    setCodexOauthDevice({ status: 'idle' });
+  }, []);
+
+  const scheduleCodexPoll = useCallback((pending: CodexOauthDevicePending, intervalSeconds: number) => {
+    clearCodexPoll();
+    codexPollTimerRef.current = setTimeout(async () => {
+      const result = await pollCodexOauthDeviceToken(pending);
+      if (result.status === 'success') {
+        codexPendingRef.current = null;
+        setCodexOauthConnected(true);
+        setCodexOauthDevice({ status: 'connected' });
+        void ensureCatalog('openai-codex', true);
+        return;
+      }
+      if (result.status === 'pending') {
+        setCodexOauthDevice({ status: 'polling', pending });
+        scheduleCodexPoll(pending, pending.intervalSeconds);
+        return;
+      }
+      if (result.status === 'expired') {
+        codexPendingRef.current = null;
+        setCodexOauthDevice({ status: 'error', message: 'Device code expired. Start again.' });
+        return;
+      }
+      // denied | error
+      codexPendingRef.current = null;
+      setCodexOauthDevice({
+        status: 'error',
+        message: (result as { message?: string }).message || 'Codex login failed',
+      });
+    }, Math.max(3, intervalSeconds) * 1000);
+  }, [ensureCatalog]);
+
+  const startCodexOauthDeviceFlowUi = useCallback(async () => {
+    clearCodexPoll();
+    setCodexOauthDevice({ status: 'starting' });
+    try {
+      const pending = await startCodexOauthDeviceFlow();
+      codexPendingRef.current = pending;
+      setCodexOauthDevice({ status: 'pending', pending });
+      openCodexOauthVerificationPage(pending);
+      scheduleCodexPoll(pending, pending.intervalSeconds);
+    } catch (err) {
+      setCodexOauthDevice({
+        status: 'error',
+        message: err instanceof Error ? err.message : 'Failed to start Codex OAuth',
+      });
+    }
+  }, [scheduleCodexPoll]);
+
+  const openCodexOauthBrowser = useCallback(() => {
+    const pending = codexPendingRef.current
+      || (codexOauthDevice.status === 'pending' || codexOauthDevice.status === 'polling'
+        ? codexOauthDevice.pending
+        : null);
+    if (pending) openCodexOauthVerificationPage(pending);
+  }, [codexOauthDevice]);
+
+  const pasteCodexOauthToken = useCallback((accessToken: string) => {
+    try {
+      connectCodexOauthWithPastedToken({ accessToken, persistLocally: true });
+      clearCodexPoll();
+      codexPendingRef.current = null;
+      setCodexOauthConnected(true);
+      setCodexOauthDevice({ status: 'connected' });
+      void ensureCatalog('openai-codex', true);
+    } catch (err) {
+      setCodexOauthDevice({
+        status: 'error',
+        message: err instanceof Error ? err.message : 'Invalid token',
+      });
+    }
+  }, [ensureCatalog]);
+
   useEffect(() => () => clearPoll(), []);
 
   const slots = useMemo(() => {
@@ -324,7 +451,7 @@ export const AiSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         slot,
         provider,
         modelId,
-        apiKey: provider === 'xai-oauth' ? '' : (keyVault[provider] || ''),
+        apiKey: (provider === 'xai-oauth' || provider === 'openai-codex') ? '' : (keyVault[provider] || ''),
         models: filtered,
         catalogState: cat.state,
         catalogError: cat.error,
@@ -336,7 +463,9 @@ export const AiSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // Legacy single-provider surface (maps to creative slot for "active" provider)
   const provider = slots.creative.provider;
   const setProvider = useCallback((p: AiProviderId) => setSlotProvider('creative', p), [setSlotProvider]);
-  const providerApiKey = provider === 'xai-oauth' ? (xaiOauthConnected ? 'oauth-session' : '') : (keyVault[provider] || '');
+  const providerApiKey = (provider === 'xai-oauth' || provider === 'openai-codex')
+    ? ((provider === 'xai-oauth' ? xaiOauthConnected : codexOauthConnected) ? 'oauth-session' : '')
+    : (keyVault[provider] || '');
 
   const value = useMemo<AiSettingsContextType>(() => ({
     slots,
@@ -352,6 +481,13 @@ export const AiSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     disconnectXaiOauth,
     pasteXaiOauthToken,
     xaiOauthConnected,
+    codexOauthDevice,
+    startCodexOauthDeviceFlow: startCodexOauthDeviceFlowUi,
+    openCodexOauthBrowser,
+    cancelCodexOauthDeviceFlow,
+    disconnectCodexOauth,
+    pasteCodexOauthToken,
+    codexOauthConnected,
     resolveProviderCredential,
     // legacy
     provider,
@@ -385,6 +521,13 @@ export const AiSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     disconnectXaiOauth,
     pasteXaiOauthToken,
     xaiOauthConnected,
+    codexOauthDevice,
+    startCodexOauthDeviceFlowUi,
+    openCodexOauthBrowser,
+    cancelCodexOauthDeviceFlow,
+    disconnectCodexOauth,
+    pasteCodexOauthToken,
+    codexOauthConnected,
     resolveProviderCredential,
     provider,
     setProvider,

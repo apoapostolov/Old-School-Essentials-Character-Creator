@@ -5,6 +5,7 @@ describe('provider options', () => {
     it('registers multi-provider list including zhipu and xAI OAuth', () => {
         expect(AI_PROVIDER_OPTIONS.map(option => option.value)).toEqual([
             'openai',
+            'openai-codex',
             'anthropic',
             'gemini',
             'openrouter',
@@ -16,5 +17,6 @@ describe('provider options', () => {
         ]);
         expect(isAiProviderId('xai-oauth')).toBe(true);
         expect(isAiProviderId('zhipu')).toBe(true);
+        expect(isAiProviderId('openai-codex')).toBe(true);
     });
 });

@@ -73,7 +73,9 @@ export const useAiRuntime = () => {
       throw new Error(
         cfg.provider === 'xai-oauth'
           ? 'Connect SuperGrok OAuth in Settings (device code + browser).'
-          : `Add an API key for ${cfg.provider} in the ${slot} slot Settings.`,
+          : cfg.provider === 'openai-codex'
+            ? 'Connect OpenAI Codex OAuth in Settings (device code + browser).'
+            : `Add an API key for ${cfg.provider} in the ${slot} slot Settings.`,
       );
     }
     return { ...cfg, credential };
@@ -152,6 +154,17 @@ export const useAiRuntime = () => {
         config,
       });
       return extractText(response);
+    }
+
+    if (provider === 'openai-codex') {
+      const { fetchCodexChatCompletion } = await import('../lib/ai/codex');
+      const text = await fetchCodexChatCompletion({
+        token: credential,
+        model: selectedModel,
+        messages,
+        json: params.json,
+      });
+      return text;
     }
 
     // OpenAI-compatible family
@@ -241,6 +254,20 @@ export const useAiRuntime = () => {
         throw new Error('The AI did not return an image.');
       }
       return `data:image/png;base64,${response.generatedImages[0].image.imageBytes}`;
+    }
+
+    if (provider === 'openai-codex') {
+      const { fetchCodexImage } = await import('../lib/ai/codex');
+      const [w, h] = (params.aspectRatio || '1:1').split(':').map(Number);
+      const image = await fetchCodexImage({
+        token: credential,
+        prompt: params.prompt,
+        model: selectedModel,
+        width: Number.isFinite(w) ? w : 1024,
+        height: Number.isFinite(h) ? h : 1024,
+        referenceImageDataUrl: params.referenceImageDataUrl,
+      });
+      return image;
     }
 
     throw new Error(`Image generation is not available with the ${provider} provider in this app yet. Use Gemini or OpenRouter on the Image slot.`);
