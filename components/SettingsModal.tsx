@@ -325,7 +325,7 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
                             onClick={() => oauthPanel.openBrowser()}
                             disabled={!oauthPanel.devicePending}
                         >
-                            Open browser to authorize
+                            Open Browser
                         </button>
                         {oauthPanel.devicePending && (
                             <button
@@ -339,7 +339,7 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
                         {oauthPanel.connected && (
                             <button
                                 type="button"
-                                className="border border-red-800 font-bold py-2 px-3 rounded-md text-sm text-red-300"
+                                className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-md text-sm"
                                 onClick={() => oauthPanel.disconnect()}
                             >
                                 Disconnect
@@ -350,7 +350,7 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
                             className="border border-gray-600 font-bold py-2 px-3 rounded-md text-sm text-gray-400"
                             onClick={() => setShowAdvancedPaste(v => !v)}
                         >
-                            {showAdvancedPaste ? 'Hide advanced paste' : 'Advanced: paste token'}
+                            {showAdvancedPaste ? 'Hide' : '...or Paste Token'}
                         </button>
                     </div>
                     {showAdvancedPaste && (
