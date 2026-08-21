@@ -1,7 +1,7 @@
 
-import type { ThiefSkillIncreases, CalculatedThiefSkills, AcrobatSkillIncreases, CalculatedAcrobatSkills, BarbarianSkillIncreases, CalculatedBarbarianSkills, RangerSkillIncreases, CalculatedRangerSkills, BardSkillIncreases, CalculatedBardSkills } from '../types';
-import { ThiefSkill, AcrobatSkill, BarbarianSkill, RangerSkill, BardSkill } from '../types';
-import { THIEF_SKILLS_ORDER, ACROBAT_SKILLS_ORDER, BARBARIAN_SKILLS_ORDER, RANGER_SKILLS_ORDER, BARD_SKILLS_ORDER } from '../constants';
+import type { ThiefSkillIncreases, CalculatedThiefSkills, AcrobatSkillIncreases, CalculatedAcrobatSkills, BarbarianSkillIncreases, CalculatedBarbarianSkills, RangerSkillIncreases, CalculatedRangerSkills, BardSkillIncreases, CalculatedBardSkills, SageSkillIncreases, CalculatedSageSkills } from '../types';
+import { ThiefSkill, AcrobatSkill, BarbarianSkill, RangerSkill, BardSkill, SageSkill } from '../types';
+import { THIEF_SKILLS_ORDER, ACROBAT_SKILLS_ORDER, BARBARIAN_SKILLS_ORDER, RANGER_SKILLS_ORDER, BARD_SKILLS_ORDER, SAGE_SKILLS_ORDER } from '../constants';
 
 export const calculateThiefSkills = (
   level: number,
@@ -175,4 +175,42 @@ export const calculateBardSkills = (
   });
 
   return finalSkills as CalculatedBardSkills;
+};
+
+// Sage percentile skills (OSE Reforged, new class).
+// Bases: Lore 25, Observation 20, Medicine 20, Appraisal 10, Craft 10.
+// Level 1: 4 increases (+15% each, max 2 per skill). Each level: 2 increases
+// (max 1 per skill per level). Caps at 85% (reached after 5 increases).
+export const calculateSageSkills = (
+  level: number,
+  increases: SageSkillIncreases
+): CalculatedSageSkills => {
+  const totalIncreases: Partial<Record<SageSkill, number>> = {};
+
+  for (let i = 1; i <= level; i++) {
+    const levelIncreases = increases[i] || {};
+    for (const skill of Object.keys(levelIncreases)) {
+      totalIncreases[skill as SageSkill] = (totalIncreases[skill as SageSkill] || 0) + levelIncreases[skill as SageSkill]!;
+    }
+  }
+
+  const finalSkills: Partial<CalculatedSageSkills> = {};
+
+  SAGE_SKILLS_ORDER.forEach(skill => {
+    const numIncreases = totalIncreases[skill] || 0;
+
+    const base: Record<SageSkill, number> = {
+      [SageSkill.Lore]: 25,
+      [SageSkill.Observation]: 20,
+      [SageSkill.Medicine]: 20,
+      [SageSkill.Appraisal]: 10,
+      [SageSkill.Craft]: 10,
+    };
+
+    const totalIncreasesCapped = Math.min(5, numIncreases);
+    const value = Math.min(85, base[skill] + (totalIncreasesCapped * 15));
+    finalSkills[skill] = { value, display: `${value}%` };
+  });
+
+  return finalSkills as CalculatedSageSkills;
 };

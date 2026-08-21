@@ -2,7 +2,7 @@
 import { useCallback, useState } from 'react';
 import { useSheetContext } from '../context/SheetContext';
 import { getCharacterSheetFields } from '../pdf-form-fields';
-import type { AbilityScores, CalculatedAcrobatSkills, CalculatedBarbarianSkills, CalculatedBardSkills, CalculatedRangerSkills, CalculatedThiefSkills, ClassInfo, FavoredTerrain, Grog, HpCalculationResult, Race, SourceID } from '../types';
+import type { AbilityScores, CalculatedAcrobatSkills, CalculatedBarbarianSkills, CalculatedBardSkills, CalculatedRangerSkills, CalculatedSageSkills, CalculatedThiefSkills, ClassInfo, FavoredTerrain, Grog, HpCalculationResult, Race, SourceID } from '../types';
 import { getEncumbranceDetails } from '../utils/encumbrance';
 import type { AggregatedData } from './useAggregatedData';
 import type { KarameikosState } from './useKarameikos';
@@ -47,6 +47,7 @@ export const usePdfPrinting = (aggregatedData: AggregatedData) => {
         calculatedBarbarianSkills: CalculatedBarbarianSkills | null,
         calculatedRangerSkills: CalculatedRangerSkills | null,
         calculatedBardSkills: CalculatedBardSkills | null,
+        calculatedSageSkills: CalculatedSageSkills | null,
         favoredTerrain: FavoredTerrain | null,
         pdfPortrait: string | null,
         finalMoney: number,
@@ -59,7 +60,7 @@ export const usePdfPrinting = (aggregatedData: AggregatedData) => {
         race: Race | null,
         karameikos: KarameikosState | null,
     }) => {
-        const { classInfo, scores, characterName, level, hpResult, allItemKeys, equipmentWeight, calculatedThiefSkills, calculatedAcrobatSkills, calculatedBarbarianSkills, calculatedRangerSkills, calculatedBardSkills, favoredTerrain, pdfPortrait, finalMoney, characterDescription, knownSpells, grog, languages, secondarySkills, lifeStandard, race, karameikos } = data;
+        const { classInfo, scores, characterName, level, hpResult, allItemKeys, equipmentWeight, calculatedThiefSkills, calculatedAcrobatSkills, calculatedBarbarianSkills, calculatedRangerSkills, calculatedBardSkills, calculatedSageSkills, favoredTerrain, pdfPortrait, finalMoney, characterDescription, knownSpells, grog, languages, secondarySkills, lifeStandard, race, karameikos } = data;
         if (!scores || !hpResult) return;
         setIsPrinting(true);
         setPdfError(null);
@@ -121,7 +122,7 @@ export const usePdfPrinting = (aggregatedData: AggregatedData) => {
             const { speedValue: movementSpeed } = getEncumbranceDetails(equipmentWeight, scores.Strength);
             const fieldsToFill = getCharacterSheetFields({
                 classInfo, scores, characterName, characterLevel: level, hpResult, allItemKeys, equipmentWeight, movementSpeed,
-                calculatedThiefSkills, calculatedAcrobatSkills, calculatedBarbarianSkills, calculatedRangerSkills, calculatedBardSkills,
+                calculatedThiefSkills, calculatedAcrobatSkills, calculatedBarbarianSkills, calculatedRangerSkills, calculatedBardSkills, calculatedSageSkills,
                 favoredTerrain, finalMoney, characterDescription, knownSpells, grog, languages, secondarySkills, lifeStandard,
                 PDF_FIELD_MAP,
                 aggregatedItems: aggregatedData.ITEMS,

@@ -454,5 +454,30 @@ export const CLASS_FEATURES_DATA: ClassFeatureData[] = [
       {"name": "Vigilant Guide", "level": 1, "desc": "Idle watch lowers party surprise to 1-in-6; prepared hideout raises enemy surprise to 3-in-6.", "homebrew": true},
       {"name": "Rough Company", "level": 1, "desc": "-2 Morale to recruit/keep non-animal or out-of-terrain humanoids; +2 with local animals.", "homebrew": true},
     ]
+  },
+
+  {
+    "name": "Sage",
+    "category": "New",
+    "requirements": {"INT": 15, "WIS": 11},
+    "prime_requisites": ["INT", "WIS"],
+    "alignment": "Any (predominantly Neutral)",
+    "hit_die": "1d6",
+    "max_level": 14,
+    "armor_allowed": "Leather armor only; no shields",
+    "weapons_allowed": "Staff, dagger, sling",
+    "spellcasting": null,
+    "skill_type": "sage",
+    "abilities": [
+      {"name": "Precise Strikes", "level": 1, "desc": "Apply INT modifier to attack and damage rolls with proficient weapons (anatomical or mechanical knowledge).", "homebrew": true},
+      {"name": "Sage Skills", "level": 1, "desc": "Percentile skills: Lore 25%, Observation 20%, Medicine 20%, Appraisal 10%, Craft 10%. Level 1: 4 increases (+15% each, max 2 per skill); each level: 2 more (max 1 per skill); all cap at 85%.", "homebrew": true, "hide_from_list": true},
+      {"name": "Keen Observation", "level": 1, "desc": "Standard action: study a foe. INT check (d20 <= INT + foe rank modifier) reveals a weakness: allies +1 to hit for 1 round/level. 5th: +1 dmg, 2 foes; 9th: +2 dmg, group, plus free passive observation 1/turn.", "homebrew": true},
+      {"name": "Erudite Sense", "level": 1, "desc": "1 turn concentration on a held item or 30' area; roll Lore for non-magical history, properties, construction, and a hint toward a minor exploit.", "homebrew": true},
+      {"name": "Medical Prowess", "level": 1, "desc": "Stabilize the dying: roll Medicine. Success grants +1 (+2 at 5th, +3 at 9th) to the target's CON check vs death, halves CON recovery time, restores 1d3 hp. Once per day per creature.", "homebrew": true},
+      {"name": "Broad Knowledge", "level": 1, "desc": "Standard blank skill slots plus bonus lore-only skill slots every 2 levels (levels 2, 4, 6, 8, 10, 12, 14); knowledge-based RC skills only.", "homebrew": true},
+      {"name": "Research", "level": 1, "desc": "Downtime in a settlement with libraries: 1 week + 100 gp per level; roll Lore to uncover secrets, rumors, or maps plus an exploit hook.", "homebrew": true},
+      {"name": "Workshop", "level": 1, "desc": "Downtime with tools and materials: 1 week + 500 gp per level to craft a gadget (caltrops, smoke vial, reinforced rope); roll Craft. 5th: reliable on standard items.", "homebrew": true},
+      {"name": "Savant", "level": 9, "desc": "Once per encounter, rally allies: +1 to saving throws and Morale checks for 1d6 rounds.", "homebrew": true}
+    ]
   }
 ]

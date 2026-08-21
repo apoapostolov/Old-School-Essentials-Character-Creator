@@ -43,6 +43,7 @@ const groupColorStyles: Record<ClassInfo['group'], string> = {
     Basic: 'border-slate-500/50',
     Demihuman: 'border-teal-500/50',
     Advanced: 'border-indigo-500/50',
+    New: 'border-purple-500/50',
 };
 
 export const ClassCard: React.FC<ClassCardProps> = ({ classInfo, scores, onSelect, isSelected, onShowInfo, selectedRace }) => {

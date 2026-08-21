@@ -1,5 +1,5 @@
 import type { KarameikosState } from './hooks/useKarameikos';
-import type { AbilityScores, CalculatedAcrobatSkills, CalculatedBarbarianSkills, CalculatedBardSkills, CalculatedRangerSkills, CalculatedThiefSkills, ClassInfo, FavoredTerrain, Grog, HpCalculationResult, Item, Race, Spell } from './types';
+import type { AbilityScores, CalculatedAcrobatSkills, CalculatedBarbarianSkills, CalculatedBardSkills, CalculatedRangerSkills, CalculatedSageSkills, CalculatedThiefSkills, ClassInfo, FavoredTerrain, Grog, HpCalculationResult, Item, Race, Spell } from './types';
 import { getAttackValuesForLevel, getFindRoomTrapChance, getFindSecretDoorChance, getListenAtDoorsChance, getModifier, getModifierString, getOpenDoorsChance, getSavingThrowsForLevel, getStartingXPForLevel, getTitleForLevel, getXPForNextLevel, getXPModifierString } from './utils/character';
 import { getEncumbranceDetails, roundToNearest5 } from './utils/encumbrance';
 import { getBonusSpellSlots } from './utils/spells';
@@ -19,6 +19,7 @@ interface CharacterSheetData {
     calculatedBarbarianSkills: CalculatedBarbarianSkills | null;
     calculatedRangerSkills: CalculatedRangerSkills | null;
     calculatedBardSkills: CalculatedBardSkills | null;
+    calculatedSageSkills: CalculatedSageSkills | null;
     favoredTerrain: FavoredTerrain | null;
     finalMoney: number;
     characterDescription: { line1: string; line2: string } | null;
@@ -38,7 +39,7 @@ export const getCharacterSheetFields = (data: CharacterSheetData): { [key: strin
   const {
     classInfo, scores, characterName, characterLevel, hpResult, allItemKeys,
     equipmentWeight, movementSpeed, calculatedThiefSkills, calculatedAcrobatSkills,
-    calculatedBarbarianSkills, calculatedRangerSkills, calculatedBardSkills,
+    calculatedBarbarianSkills, calculatedRangerSkills, calculatedBardSkills, calculatedSageSkills,
     favoredTerrain, finalMoney, characterDescription, knownSpells, grog,
     languages, secondarySkills, lifeStandard, PDF_FIELD_MAP, aggregatedItems,
         aggregatedSpells, race, karameikos
@@ -229,6 +230,7 @@ export const getCharacterSheetFields = (data: CharacterSheetData): { [key: strin
   if (calculatedThiefSkills) listen = calculatedThiefSkills['Hear Noise'].value;
   if (calculatedRangerSkills) listen = calculatedRangerSkills['Hear Noise'].value;
   if (calculatedBardSkills) listen = calculatedBardSkills['Hear Noise'].value;
+  if (calculatedSageSkills) listen = calculatedSageSkills['Observation'].value;
 
   fields[PDF_FIELD_MAP.listenAtDoor] = listen.toString();
   fields[PDF_FIELD_MAP.openStuckDoor] = openDoors.toString();
@@ -283,7 +285,7 @@ export const getCharacterSheetFields = (data: CharacterSheetData): { [key: strin
 
   if (favoredTerrain) abilitiesSections.push(`FAVORED TERRAIN: ${favoredTerrain}`);
 
-  type AnyCalculatedSkills = CalculatedThiefSkills | CalculatedAcrobatSkills | CalculatedBarbarianSkills | CalculatedRangerSkills | CalculatedBardSkills;
+  type AnyCalculatedSkills = CalculatedThiefSkills | CalculatedAcrobatSkills | CalculatedBarbarianSkills | CalculatedRangerSkills | CalculatedBardSkills | CalculatedSageSkills;
   const formatSkills = (skills: AnyCalculatedSkills): string => {
     return Object.entries(skills).map(([skill, data]) => `${skill} ${data.display}`).join(', ');
   };
@@ -294,6 +296,7 @@ export const getCharacterSheetFields = (data: CharacterSheetData): { [key: strin
   if (calculatedBarbarianSkills) skillLines.push(`WILDERNESS SKILLS: ${formatSkills(calculatedBarbarianSkills)}`);
   if (calculatedRangerSkills && favoredTerrain) skillLines.push(`RANGER SKILLS (in ${favoredTerrain}): ${formatSkills(calculatedRangerSkills)}`);
   if (calculatedBardSkills) skillLines.push(`BARD SKILLS: ${formatSkills(calculatedBardSkills)}`);
+  if (calculatedSageSkills) skillLines.push(`SAGE SKILLS: ${formatSkills(calculatedSageSkills)}`);
 
   const skillsBlock = skillLines.join('\n\n');
   if (skillsBlock) abilitiesSections.push(skillsBlock);

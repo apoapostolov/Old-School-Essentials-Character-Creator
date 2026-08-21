@@ -3,6 +3,7 @@ import { useCharacterProgression } from '../../context/CharacterContext';
 import { AcrobatSkillsManager } from '../AcrobatSkillsManager';
 import { BarbarianSkillsManager } from '../BarbarianSkillsManager';
 import { BardSkillsManager } from '../BardSkillsManager';
+import { SageSkillsManager } from '../SageSkillsManager';
 import { MagicManager } from '../MagicManager';
 import { RangerSkillsManager } from '../RangerSkillsManager';
 import { ThiefSkillsManager } from '../ThiefSkillsManager';
@@ -70,6 +71,14 @@ export const SpecialAbilities: React.FC<SpecialAbilitiesProps> = ({ stepNumber }
                         <h2 className="text-2xl font-bold text-yellow-400 mb-1">Step {stepNumber}: Develop Bard Skills</h2>
                         <p className="text-gray-400 mb-6">Allocate points to improve your subtle abilities based on your character level.</p>
                         <BardSkillsManager level={level} increases={progression.bardSkillIncreases} onIncreasesChange={progression.setBardSkillIncreases} />
+                    </div>
+                );
+            case 'sage':
+                return (
+                    <div className="bg-gray-800/50 p-6 rounded-lg border-2 border-gray-700/50">
+                        <h2 className="text-2xl font-bold text-yellow-400 mb-1">Step {stepNumber}: Develop Sage Skills</h2>
+                        <p className="text-gray-400 mb-6">Allocate points to improve your scholarly abilities based on your character level.</p>
+                        <SageSkillsManager level={level} increases={progression.sageSkillIncreases} onIncreasesChange={progression.setSageSkillIncreases} />
                     </div>
                 );
             default:

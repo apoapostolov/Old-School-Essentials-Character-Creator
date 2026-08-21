@@ -1,6 +1,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { AbilityScores, AcrobatSkillIncreases, BarbarianSkillIncreases, BardSkillIncreases, ClassInfo, FavoredTerrain, HpCalculationResult, HpRollResult, MoneyCalculationResult, Race, RangerSkillIncreases, ThiefSkillIncreases } from '../types';
+import type { AbilityScores, AcrobatSkillIncreases, BarbarianSkillIncreases, BardSkillIncreases, SageSkillIncreases, ClassInfo, FavoredTerrain, HpCalculationResult, HpRollResult, MoneyCalculationResult, Race, RangerSkillIncreases, ThiefSkillIncreases } from '../types';
 import { calculateHP, generateHpRollForLevel, rollDie } from '../utils/hp';
 import { calculateMoney, generateRawMoneyRollsForLevel } from '../utils/money';
 
@@ -16,6 +16,7 @@ export const useCharacterProgression = (selectedClass: ClassInfo | null, selecte
     const [barbarianSkillIncreases, setBarbarianSkillIncreases] = useState<BarbarianSkillIncreases>({});
     const [rangerSkillIncreases, setRangerSkillIncreases] = useState<RangerSkillIncreases>({});
     const [bardSkillIncreases, setBardSkillIncreases] = useState<BardSkillIncreases>({});
+    const [sageSkillIncreases, setSageSkillIncreases] = useState<SageSkillIncreases>({});
     const [favoredTerrain, setFavoredTerrain] = useState<FavoredTerrain | null>(null);
     const [selectedSpellList, setSelectedSpellList] = useState<'Magic-User' | 'Illusionist' | null>(null);
 
@@ -78,6 +79,7 @@ export const useCharacterProgression = (selectedClass: ClassInfo | null, selecte
         setBarbarianSkillIncreases({});
         setRangerSkillIncreases({});
         setBardSkillIncreases({});
+        setSageSkillIncreases({});
         setFavoredTerrain(null);
         setSelectedSpellList(null);
     }, []);
@@ -94,6 +96,7 @@ export const useCharacterProgression = (selectedClass: ClassInfo | null, selecte
         barbarianSkillIncreases?: BarbarianSkillIncreases;
         rangerSkillIncreases?: RangerSkillIncreases;
         bardSkillIncreases?: BardSkillIncreases;
+        sageSkillIncreases?: SageSkillIncreases;
         favoredTerrain?: FavoredTerrain | null;
         selectedSpellList?: 'Magic-User' | 'Illusionist' | null;
     }) => {
@@ -108,6 +111,7 @@ export const useCharacterProgression = (selectedClass: ClassInfo | null, selecte
         setBarbarianSkillIncreases(state.barbarianSkillIncreases ?? {});
         setRangerSkillIncreases(state.rangerSkillIncreases ?? {});
         setBardSkillIncreases(state.bardSkillIncreases ?? {});
+        setSageSkillIncreases(state.sageSkillIncreases ?? {});
         setFavoredTerrain(state.favoredTerrain ?? null);
         setSelectedSpellList(state.selectedSpellList ?? null);
     }, []);
@@ -129,6 +133,7 @@ export const useCharacterProgression = (selectedClass: ClassInfo | null, selecte
         barbarianSkillIncreases, setBarbarianSkillIncreases,
         rangerSkillIncreases, setRangerSkillIncreases,
         bardSkillIncreases, setBardSkillIncreases,
+        sageSkillIncreases, setSageSkillIncreases,
         favoredTerrain, setFavoredTerrain,
         selectedSpellList, setSelectedSpellList,
         reset,

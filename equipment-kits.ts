@@ -116,6 +116,16 @@ export const EQUIPMENT_KITS: EquipmentKit[] = [
     ]
   },
   
+  {
+    id: 'sages-kit',
+    name: "Sage's Kit",
+    type: 'Martial',
+    description: 'The field gear of a traveling scholar: leather armor, a sturdy staff, a sling, and the tools of study.',
+    variants: [
+      { name: 'Normal', cost: 55, items: ['leather-armor', 'staff', 'dagger', 'sling', 'sling-stones', 'backpack', 'rations-standard', 'torches-6', 'waterskin'] }
+    ]
+  },
+
   // --- Specialized Adventuring Gear Kits ---
   {
     id: 'dungeon-delvers-pack',

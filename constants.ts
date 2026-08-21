@@ -1,4 +1,4 @@
-import { Ability, ThiefSkill, AcrobatSkill, BarbarianSkill, RangerSkill, BardSkill, FavoredTerrain } from './types';
+import { Ability, ThiefSkill, AcrobatSkill, BarbarianSkill, RangerSkill, BardSkill, SageSkill, FavoredTerrain } from './types';
 
 export const ABILITIES: Ability[] = [
   Ability.Strength,
@@ -81,6 +81,22 @@ export const BARD_SKILL_DESCRIPTIONS: Record<BardSkill, string> = {
     [BardSkill.MoveSilently]: 'Move without making noise.',
     [BardSkill.HideInShadows]: 'Blend into darkness.',
     [BardSkill.PickPockets]: 'Steal from others unnoticed.',
+};
+
+export const SAGE_SKILLS_ORDER: SageSkill[] = [
+    SageSkill.Lore,
+    SageSkill.Observation,
+    SageSkill.Medicine,
+    SageSkill.Appraisal,
+    SageSkill.Craft,
+];
+
+export const SAGE_SKILL_DESCRIPTIONS: Record<SageSkill, string> = {
+    [SageSkill.Lore]: 'Identify monsters, items, or terrain; reveal history, properties, and a minor exploit (+1 to one check, attack, or save).',
+    [SageSkill.Observation]: 'In combat, study a foe to reveal a weakness: allies gain bonus to hit and damage vs that target (Keen Observation).',
+    [SageSkill.Medicine]: 'Treat wounds or stabilize the dying with surgical precision (Medical Prowess).',
+    [SageSkill.Appraisal]: 'Value gems, art, or gear; detect forgeries or non-magical traps; notice hidden compartments.',
+    [SageSkill.Craft]: 'Build or repair tools and gadgets (Workshop downtime ability).',
 };
 
 

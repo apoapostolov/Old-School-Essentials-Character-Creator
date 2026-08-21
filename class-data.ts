@@ -24,7 +24,8 @@ export const CLASS_TITLES: Record<string, string[]> = {
   "Paladin": ["Gallant", "Keeper", "Protector", "Defender", "Champion", "Justicar", "Crusader", "Paladin", "Holy Knight"],
   "Ranger": ["Runner", "Strider", "Scout", "Courser", "Tracker", "Pathfinder", "Guide", "Warden", "Ranger Lord/Lady"],
   "Svirfneblin": ["Svirfneblin Skulk", "Svirfneblin Prowler", "Svirfneblin Scavenger", "Svirfneblin Warden", "Svirfneblin Mentalist", "Svirfneblin Kineticist", "Svirfneblin Vanisher", "Svirfneblin Champion", "Svirfneblin Lord/Lady"],
-  "Thief": ["Apprentice", "Footpad", "Robber", "Burglar", "Cutpurse", "Sharper", "Pilferer", "Thief", "Master Thief"],
+  "Thief": [ "Apprentice", "Footpad", "Robber", "Burglar", "Cutpurse", "Sharper", "Pilferer", "Thief", "Master Thief" ],
+  "Sage": ["Novice", "Scholar", "Antiquarian", "Savant-in-Training", "Lorekeeper", "Historian", "Sage", "Master Scholar", "Savant"],
 };
 
 export const SPELL_SLOTS_DATA = {
@@ -65,6 +66,7 @@ export const XP_DATA: Record<string, { xp_to_level: (number | null)[]; per_level
     "Drow": { "xp_to_level": [0,3000,6000,12000,24000,50000,100000,200000,300000,450000,600000,750000,900000,1050000], "per_level_after_9": null },
     "Duergar": { "xp_to_level": [0,2800,5600,11200,23000,46000,100000,200000,300000,400000,500000,600000,700000,800000], "per_level_after_9": null },
     "Svirfneblin": { "xp_to_level": [0,2400,4800,10000,20000,40000,80000,160000], "per_level_after_9": null },
+    "Sage": { "xp_to_level": [0,1200,2400,4800,9600,20000,40000,80000,160000,280000,400000,520000,640000,760000], "per_level_after_9": null },
 };
 
 export type SaveData = { saves_by_level_ranges: SavingThrowRange[] } | { alias_of: string };
@@ -81,6 +83,7 @@ export const SAVING_THROWS_DATA: Record<string, SaveData> = {
     "Svirfneblin": { "saves_by_level_ranges": [ {"levels": "1-3", "D": 8,  "W": 9,  "P": 10, "B": 14, "S": 11}, {"levels": "4-6", "D": 6,  "W": 7,  "P": 8,  "B": 11, "S": 9}, {"levels": "7-8", "D": 4,  "W": 5,  "P": 6,  "B": 9,  "S": 7} ] },
     "Elf": { "saves_by_level_ranges": [ {"levels": "1-3", "D": 12, "W": 13, "P": 13, "B": 15, "S": 15}, {"levels": "4-6", "D": 10, "W": 11, "P": 11, "B": 13, "S": 12}, {"levels": "7-9", "D": 8,  "W": 9,  "P": 9,  "B": 10, "S": 10}, {"levels": "10",  "D": 6,  "W": 7,  "P": 8,  "B": 8,  "S": 8} ] },
     "Bard": { "alias_of": "Thief" }, "Druid": { "alias_of": "Cleric" }, "Illusionist": { "alias_of": "Magic-User" }, "Knight": { "alias_of": "Fighter" }, "Paladin": { "alias_of": "Cleric" }, "Ranger": { "alias_of": "Fighter" }, "Half-Orc": { "alias_of": "Fighter" }, "Drow": { "alias_of": "Elf" }, "Duergar": { "alias_of": "Dwarf" },
+    "Sage": { "saves_by_level_ranges": [ {"levels": "1-3", "D": 11, "W": 12, "P": 14, "B": 15, "S": 12}, {"levels": "4-6", "D": 10, "W": 11, "P": 13, "B": 14, "S": 11}, {"levels": "7-9", "D": 9, "W": 10, "P": 12, "B": 13, "S": 10}, {"levels": "10-12", "D": 8, "W": 9, "P": 11, "B": 12, "S": 9}, {"levels": "13-14", "D": 7, "W": 8, "P": 10, "B": 11, "S": 8} ] },
 };
 
 export const ATTACK_DATA: {
@@ -94,11 +97,11 @@ export const ATTACK_DATA: {
     "Mage": [ {"levels": "1-3",  "THAC0": 19, "attack_bonus": 0}, {"levels": "4-6",  "THAC0": 18, "attack_bonus": 1}, {"levels": "7-8",  "THAC0": 17, "attack_bonus": 2}, {"levels": "9-11", "THAC0": 16, "attack_bonus": 3}, {"levels": "12-13","THAC0": 15, "attack_bonus": 4}, {"levels": "14","THAC0": 14, "attack_bonus": 5} ]
   },
   "classes": {
-    "Fighter": "WarriorFighter", "Barbarian": "Warrior", "Dwarf": "Warrior", "Elf": "Warrior", "Duergar": "Warrior", "Half-Orc": "Warrior", "Knight": "Warrior", "Paladin": "Warrior", "Ranger": "Warrior", "Cleric": "Adventurer", "Druid": "Adventurer", "Drow": "Adventurer", "Thief": "Adventurer", "Halfling": "Adventurer", "Acrobat": "Adventurer", "Assassin": "Adventurer", "Bard": "Adventurer", "Half-Elf": "Adventurer", "Magic-User": "Mage", "Gnome": "Mage", "Illusionist": "Mage", "Svirfneblin": "Mage",
+    "Fighter": "WarriorFighter", "Barbarian": "Warrior", "Dwarf": "Warrior", "Elf": "Warrior", "Duergar": "Warrior", "Half-Orc": "Warrior", "Knight": "Warrior", "Paladin": "Warrior", "Ranger": "Warrior", "Cleric": "Adventurer", "Druid": "Adventurer", "Drow": "Adventurer", "Thief": "Adventurer", "Halfling": "Adventurer", "Acrobat": "Adventurer", "Assassin": "Adventurer", "Bard": "Adventurer", "Half-Elf": "Adventurer", "Magic-User": "Mage", "Gnome": "Mage", "Illusionist": "Mage", "Svirfneblin": "Mage", "Sage": "Mage",
   }
-};
+ };
 
-export const ATTACK_PROGRESSIONS = ATTACK_DATA.progressions;
+ export const ATTACK_PROGRESSIONS = ATTACK_DATA.progressions;
 
 // Data not present in the new class-features.ts file
 export const SUPPLEMENTAL_CLASS_DATA: Record<string, {
@@ -128,4 +131,5 @@ export const SUPPLEMENTAL_CLASS_DATA: Record<string, {
   'Knight': { startingWealth: '6d4 * 10', moneyGroup: 'Prestige Martial' },
   'Paladin': { startingWealth: '3d6 * 10', moneyGroup: 'Prestige Martial' },
   'Ranger': { startingWealth: '5d4 * 10', moneyGroup: 'Prestige Martial' },
+  'Sage': { startingWealth: '3d6 * 10', moneyGroup: 'Skill' },
 };

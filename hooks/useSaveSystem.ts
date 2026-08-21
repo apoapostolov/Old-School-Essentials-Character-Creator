@@ -73,6 +73,7 @@ export const useSaveSystem = () => {
                     barbarianSkillIncreases: prog.barbarianSkillIncreases,
                     rangerSkillIncreases: prog.rangerSkillIncreases,
                     bardSkillIncreases: prog.bardSkillIncreases,
+                    sageSkillIncreases: prog.sageSkillIncreases,
                     favoredTerrain: prog.favoredTerrain,
                     selectedSpellList: prog.selectedSpellList,
                 }),

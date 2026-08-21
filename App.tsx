@@ -25,7 +25,7 @@ import { useUIState } from './hooks/useUIState';
 
 import { ABILITIES } from './constants';
 import { getBackstoryPrompt, getLifeStandardPrompt, getNamePrompt, getPortraitPrompt, getTraitsPrompt } from './prompt-data';
-import { calculateAcrobatSkills, calculateBarbarianSkills, calculateBardSkills, calculateRangerSkills, calculateThiefSkills } from './utils/skills';
+import { calculateAcrobatSkills, calculateBarbarianSkills, calculateBardSkills, calculateRangerSkills, calculateSageSkills, calculateThiefSkills } from './utils/skills';
 
 // Lazy-load tabs/modals not needed for first paint on Roll Character.
 const ManageTab = lazy(() => import('./components/ManageTab').then(m => ({ default: m.ManageTab })));
@@ -154,6 +154,7 @@ const AppContent: React.FC = () => {
             calculatedBarbarianSkills: selectedClass.skill_type === 'barbarian' ? calculateBarbarianSkills(progression.characterLevel, progression.barbarianSkillIncreases) : null,
             calculatedRangerSkills: selectedClass.skill_type === 'ranger' ? calculateRangerSkills(progression.characterLevel, progression.rangerSkillIncreases) : null,
             calculatedBardSkills: selectedClass.skill_type === 'bard' ? calculateBardSkills(progression.characterLevel, progression.bardSkillIncreases) : null,
+                calculatedSageSkills: selectedClass.skill_type === 'sage' ? calculateSageSkills(progression.characterLevel, progression.sageSkillIncreases) : null,
             favoredTerrain: progression.favoredTerrain, pdfPortrait: pdfPortrait, finalMoney: equipment.finalMoney, characterDescription: ai.characterDescription,
             knownSpells: progression.knownSpells, grog: grog.grog, languages: uniqueLanguages, secondarySkills: ai.secondarySkills,
             lifeStandard: ai.characterTraits?.lifeStandard ?? null,
@@ -202,6 +203,7 @@ const AppContent: React.FC = () => {
     const basicClasses = aggregatedData.CLASSES.filter(c => c.group === 'Basic');
     const demihumanClasses = aggregatedData.CLASSES.filter(c => c.group === 'Demihuman');
     const advancedClasses = aggregatedData.CLASSES.filter(c => c.group === 'Advanced');
+    const newClasses = aggregatedData.CLASSES.filter(c => c.group === 'New');
 
     const isAnyModalOpen = Boolean(
         uiState.isPromptModalVisible ||
@@ -350,7 +352,7 @@ const AppContent: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="mb-12"><h3 className="text-2xl font-semibold text-left mb-4 text-gray-300 border-b-2 border-slate-700 pb-2">Basic Classes</h3><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 mb-4">{basicClasses.map((c) => <ClassCard key={c.name + c.sourceId} classInfo={c} scores={modifiedScores} onSelect={handleSelectClass} isSelected={selectedClass?.name === c.name} onShowInfo={uiState.setClassInfoModalData} selectedRace={selectedRace} />)}</div></div><div className="mb-12"><h3 className="text-2xl font-semibold text-left mb-4 text-gray-300 border-b-2 border-teal-700 pb-2">Demihuman Classes</h3><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 mb-4">{demihumanClasses.map((c) => <ClassCard key={c.name + c.sourceId} classInfo={c} scores={modifiedScores} onSelect={handleSelectClass} isSelected={selectedClass?.name === c.name} onShowInfo={uiState.setClassInfoModalData} selectedRace={selectedRace} />)}</div></div><div><h3 className="text-2xl font-semibold text-left mb-4 text-gray-300 border-b-2 border-indigo-700 pb-2">Advanced Classes</h3><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 mb-4">{advancedClasses.map((c) => <ClassCard key={c.name + c.sourceId} classInfo={c} scores={modifiedScores} onSelect={handleSelectClass} isSelected={selectedClass?.name === c.name} onShowInfo={uiState.setClassInfoModalData} selectedRace={selectedRace} />)}</div></div>
+                                    <div className="mb-12"><h3 className="text-2xl font-semibold text-left mb-4 text-gray-300 border-b-2 border-slate-700 pb-2">Basic Classes</h3><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 mb-4">{basicClasses.map((c) => <ClassCard key={c.name + c.sourceId} classInfo={c} scores={modifiedScores} onSelect={handleSelectClass} isSelected={selectedClass?.name === c.name} onShowInfo={uiState.setClassInfoModalData} selectedRace={selectedRace} />)}</div></div><div className="mb-12"><h3 className="text-2xl font-semibold text-left mb-4 text-gray-300 border-b-2 border-teal-700 pb-2">Demihuman Classes</h3><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 mb-4">{demihumanClasses.map((c) => <ClassCard key={c.name + c.sourceId} classInfo={c} scores={modifiedScores} onSelect={handleSelectClass} isSelected={selectedClass?.name === c.name} onShowInfo={uiState.setClassInfoModalData} selectedRace={selectedRace} />)}</div></div><div><h3 className="text-2xl font-semibold text-left mb-4 text-gray-300 border-b-2 border-indigo-700 pb-2">Advanced Classes</h3><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 mb-4">{advancedClasses.map((c) => <ClassCard key={c.name + c.sourceId} classInfo={c} scores={modifiedScores} onSelect={handleSelectClass} isSelected={selectedClass?.name === c.name} onShowInfo={uiState.setClassInfoModalData} selectedRace={selectedRace} />)}</div></div>{newClasses.length > 0 && <div className="mb-12"><h3 className="text-2xl font-semibold text-left mb-4 text-gray-300 border-b-2 border-purple-700 pb-2">New Classes</h3><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 mb-4">{newClasses.map((c) => <ClassCard key={c.name + c.sourceId} classInfo={c} scores={modifiedScores} onSelect={handleSelectClass} isSelected={selectedClass?.name === c.name} onShowInfo={uiState.setClassInfoModalData} selectedRace={selectedRace} />)}</div></div>}
                                 </div>
                                 {characterRoll.rollHistory.length > 0 && (<div className="mt-12"><h2 className="text-2xl font-semibold text-center mb-4 text-gray-300">Roll History</h2><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{characterRoll.rollHistory.map((roll, index) => (<RollHistoryCard key={index} roll={roll} onRestore={() => restoreRollAndCharacter(roll)} />))}</div></div>)}
                             </>

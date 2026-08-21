@@ -62,7 +62,7 @@ export interface ClassSpellcasting {
 
 export interface ClassFeatureData {
   name: string;
-  category: 'Basic' | 'Demihuman' | 'Advanced';
+  category: 'Basic' | 'Demihuman' | 'Advanced' | 'New';
   requirements: Record<string, number>;
   prime_requisites: string[];
   alignment: string;
@@ -77,7 +77,7 @@ export interface ClassFeatureData {
   // FIX: Added optional sourceId to allow third-party class data to specify its origin.
   sourceId?: SourceID;
   grog_eligible?: boolean;
-  skill_type?: 'thief' | 'acrobat' | 'barbarian' | 'ranger' | 'bard';
+  skill_type?: 'thief' | 'acrobat' | 'barbarian' | 'ranger' | 'bard' | 'sage';
   prefers_warhorse?: boolean;
   physicalDescription?: {
     male?: string;
@@ -88,7 +88,7 @@ export interface ClassFeatureData {
 
 export interface ClassInfo {
   name: string;
-  group: 'Basic' | 'Demihuman' | 'Advanced';
+  group: 'Basic' | 'Demihuman' | 'Advanced' | 'New';
   requirements: Partial<Record<Ability, number>>;
   primeRequisite: Ability | Ability[];
   hitDie: number;
@@ -114,13 +114,24 @@ export interface ClassInfo {
   titles?: string[];
   sourceId?: SourceID;
   grog_eligible?: boolean;
-  skill_type?: 'thief' | 'acrobat' | 'barbarian' | 'ranger' | 'bard';
+  skill_type?: 'thief' | 'acrobat' | 'barbarian' | 'ranger' | 'bard' | 'sage';
   prefers_warhorse?: boolean;
   physicalDescription?: {
     male?: string;
     female?: string;
   };
 }
+
+export enum SageSkill {
+  Lore = 'Lore',
+  Observation = 'Observation',
+  Medicine = 'Medicine',
+  Appraisal = 'Appraisal',
+  Craft = 'Craft',
+}
+
+export type SageSkillIncreases = Record<number, Partial<Record<SageSkill, number>>>;
+export type CalculatedSageSkills = Record<SageSkill, { value: number; display: string; }>;
 
 
 export interface HpRollResult {
