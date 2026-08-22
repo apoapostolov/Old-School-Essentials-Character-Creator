@@ -372,7 +372,7 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
     // Shared OAuth panel props: one button interface for both OAuth providers.
     const oauthPanel = isCodexOauth
         ? {
-            hint: 'OpenAI Codex / ChatGPT OAuth — no API key. Authorize in the browser with a device code. Requires the Vite dev server (or a reverse proxy for /__codex_oauth).',
+            hint: 'OpenAI Codex / ChatGPT OAuth — no API key, browser device-code login (Vite server or /__codex_oauth proxy).',
             connected: codexOauthConnected || codexOauthDevice.status === 'connected',
             device: codexOauthDevice,
             devicePending: codexDevicePending,
@@ -384,7 +384,7 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
             codeLabel: 'OpenAI device code',
         }
         : {
-            hint: 'SuperGrok / X Premium OAuth — no API key. Authorize in the browser with a device code. Requires the Vite dev server (or a reverse proxy for /__xai_oauth).',
+            hint: 'SuperGrok / X Premium OAuth — no API key, browser device-code login (Vite server or /__xai_oauth proxy).',
             connected: xaiOauthConnected || xaiOauthDevice.status === 'connected',
             device: xaiOauthDevice,
             devicePending: devicePending,
@@ -636,7 +636,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                                     <RadioOption
                                         id="source-external"
                                         label="Default External URLs"
-                                        description="Use externally hosted PDFs via full URLs (CDN or your own host) for best compatibility when shipping builds without local sheets."
+                                        description="Use externally hosted PDFs via full URLs (CDN or your own host) for best compatibility."
                                         value="external"
                                         currentValue={sourceType}
                                         onChange={setSourceType}
