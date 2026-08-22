@@ -238,13 +238,11 @@ export const StatblockImportPanel: React.FC = () => {
                 </button>
             </div>
             <p className="text-gray-400 text-center mb-4">
-                Import-ready text for the OSE Statblock Importer module. Paste into Foundry via an actor sheet's
-                <span className="text-yellow-400"> Import Statblock</span>.
-                {savingImage && <span className="block text-xs text-gray-500 mt-1">Saving portrait to world assets…</span>}
+                Import-ready text for the OSE Statblock Importer (actor sheet's
+                <span className="text-yellow-400"> Import Statblock</span>).
+                {savingImage && <span className="block text-xs text-gray-500 mt-1">Saving portrait…</span>}
                 {!savingImage && imageUrl && (
-                    <span className="block text-xs text-green-500/80 mt-1">
-                        Portrait saved locally, hotlinked in the statblock.
-                    </span>
+                    <span className="block text-xs text-green-500/80 mt-1">Portrait hotlinked in the statblock.</span>
                 )}
             </p>
             <textarea

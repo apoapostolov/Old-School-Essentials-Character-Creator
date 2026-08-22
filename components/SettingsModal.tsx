@@ -159,9 +159,8 @@ const HostingTab: React.FC = () => {
     return (
         <section className="space-y-4">
             <p className="text-sm text-gray-400">
-                Generated portraits are uploaded for hotlinking in the Foundry Statblock Importer
-                (<code className="text-yellow-300">img:</code> field). Imgur gives a CDN link that
-                survives this PC; without it the portrait is cached on the local Foundry world instead.
+                Portrait hotlinks for the Foundry Statblock Importer (<code className="text-yellow-300">img:</code> field):
+                Imgur CDN link if a key is set, local world cache otherwise.
             </p>
             <div className="space-y-3 bg-gray-900/70 p-4 rounded-lg border border-gray-700">
                 <h3 className="text-lg font-bold text-yellow-400">Imgur</h3>
@@ -176,8 +175,8 @@ const HostingTab: React.FC = () => {
                     <a href="https://api.imgur.com/oauth2/addclient" target="_blank" rel="noreferrer" className="text-yellow-300 underline">
                         api.imgur.com
                     </a>{' '}
-                    (choose "Anonymous usage" authorization type).
-                    {serverKey && ' A server-side key from the .env file is also active and used as fallback.'}
+                    ("Anonymous usage" authorization type).
+                    {serverKey && ' Server .env key active as fallback.'}
                 </p>
                 <div className="flex flex-wrap gap-2 items-center">
                     <button
