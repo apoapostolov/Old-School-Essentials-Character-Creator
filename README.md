@@ -105,14 +105,6 @@ npm run build
 
 The React entry point is `index.tsx`; `App.tsx` coordinates the three main tabs. Rules and catalogs live in the root data files and `third-party/`, while PDF generation is handled through `hooks/usePdfPrinting.ts` and source-specific field maps.
 
-## The OSE Family
-
-| Project | Use it for |
-| --- | --- |
-| [Old-School Essentials Reforged Rules](https://github.com/apoapostolov/Old-School-Essentials-Reforged-Rules) | Read the full ruleset in Markdown. |
-| [OSE Reforged Rules for Foundry VTT](https://github.com/apoapostolov/OSE-Reforged-Rules-for-Foundry-VTT) | Add Reforged class abilities and automation to Foundry. |
-| [OSE Combat Improvements for Foundry VTT](https://github.com/apoapostolov/OSE-Combat-Improvements-for-Foundry-VTT) | Extend combat tracking, injuries, and secret death saves. |
-| [OSE Statblock Importer for Foundry VTT](https://github.com/apoapostolov/OSE-Statblock-Importer-for-Foundry-VTT) | Turn pasted OSE statblocks into actors. |
 
 ## License
 
