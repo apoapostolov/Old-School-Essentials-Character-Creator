@@ -8,7 +8,7 @@
 
 # Old-School Essentials Character Creator
 
-Build an OSE character from first roll to print-ready sheet, with source packs, house rules, equipment, saves, and optional AI details.
+*Build an OSE character from first roll to print-ready sheet, with source packs, house rules, equipment, saves, and optional AI details.*
 
 ![Version](https://img.shields.io/badge/version-1.1.0-blue)
 ![Node](https://img.shields.io/badge/node-18%2B-339933)
@@ -21,14 +21,14 @@ This browser-based creator keeps the full character-building journey in one guid
 
 ![Old-School Essentials Character Creator interface with character saves, final details, and portrait controls](images/SCREENSHOT_20.png)
 
-## What's New in v1.1.0
+## What's New in 1.1.0
 
 - Assign separate providers and models to creative writing, short text, vision, and image generation.
 - Use OpenAI, Anthropic, Gemini, OpenRouter, xAI, Z.ai, DeepSeek, or OpenCode Go, including xAI device-code sign-in.
-- Open heavy catalogs and print tooling only when needed, reducing the production entry chunk from roughly 1.2 MB to 0.5 MB.
+- Load heavy catalogs and print tooling only when needed for a faster first visit.
 - Import, copy, download, and restore character JSON with clearer save and load errors.
 
-See the full [v1.1.0 changelog](CHANGELOG.md#110---2026-07-27).
+See the full [changelog](./CHANGELOG.md).
 
 ## What You Can Do
 
@@ -41,7 +41,7 @@ See the full [v1.1.0 changelog](CHANGELOG.md#110---2026-07-27).
 - **Keep and move characters.** Store five browser-local save slots, restore them later, or import and export JSON through files or the clipboard.
 - **Print the finished sheet.** Export a filled OSE PDF with derived statistics, equipment, languages, abilities, portrait, and other supported character details.
 
-## From Roll to Sheet
+## Quick Start
 
 1. Open **Sources** and choose the content packs for this character.
 2. Roll abilities, or use the clearly marked manual-entry path when your table approves custom scores. Pick a race and class after reviewing their requirements and rules.
@@ -95,17 +95,10 @@ The maintained rules reference is [rules/OSE_HOUSE_RULES.md](rules/OSE_HOUSE_RUL
 
 Optional source packs are loaded from `third-party/`. Their names and publishers remain visible in the source picker so users can tell which material is active.
 
-## Development
+## Support
 
-```bash
-npm test
-npm run typecheck
-npm run build
-```
-
-The React entry point is `index.tsx`; `App.tsx` coordinates the three main tabs. Rules and catalogs live in the root data files and `third-party/`, while PDF generation is handled through `hooks/usePdfPrinting.ts` and source-specific field maps.
-
+Support, feedback, and feature ideas: [@ApoMakesMods](https://x.com/ApoMakesMods) on X.
 
 ## License
 
-Released under the [MIT License](LICENSE).
+MIT. See [LICENSE](LICENSE).
