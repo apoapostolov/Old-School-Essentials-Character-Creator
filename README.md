@@ -72,6 +72,15 @@ npm run build
 npm run preview
 ```
 
+## Other Old-School Essentials Modules
+
+| Name | Description |
+| --- | --- |
+| [OSE Reforged Rules](https://github.com/apoapostolov/OSE-Reforged-Rules-for-Foundry-VTT) | Class-feature compendium and automation for OSE Reforged Rules. |
+| [OSE Combat Improvements](https://github.com/apoapostolov/OSE-Combat-Improvements-for-Foundry-VTT) | Combat-tracker declareables and controls for OSE. |
+| [OSE Statblock Importer](https://github.com/apoapostolov/OSE-Statblock-Importer-for-Foundry-VTT) | Import and export OSE/BX character and monster text. |
+| [Old-School Essentials Character Creator](https://github.com/apoapostolov/Old-School-Essentials-Character-Creator) | Web character generator for OSE with print-ready sheets and optional AI assists. |
+
 ## Optional AI Setup and Privacy
 
 Open the in-app **Settings** panel to choose a provider, key, and model for each AI task. Provider keys entered there are remembered in browser storage. Build-time environment keys are also supported; see the provider names and variables in [the AI provider notes](docs/SHARED_AI_PROVIDERS_ZHIPU_GROK.md).
