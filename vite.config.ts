@@ -15,11 +15,10 @@ const foundryAssetsDir = path.resolve(
 );
 const wanOrigin = 'http://192.168.1.217:30002';
 
-const portraitSavePlugin = (imgurClientId: string): Plugin => ({
-    name: 'ose-portrait-save',
-    configureServer(server) {
+const portraitSavePlugin = (imgurClientId: string): Plugin => {
+    const attachEndpoints = (middlewares: any) => {
         // Read-only probe: is any Imgur Client-ID configured server-side?
-        server.middlewares.use('/__imgur_status', (_req, res) => {
+        middlewares.use('/__imgur_status', (_req: any, res: any) => {
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({
                 available: Boolean(imgurClientId),
@@ -27,7 +26,7 @@ const portraitSavePlugin = (imgurClientId: string): Plugin => ({
                 configured: Boolean(imgurClientId),
             }));
         });
-        server.middlewares.use('/__save_portrait', (req, res) => {
+        middlewares.use('/__save_portrait', (req: any, res: any) => {
             if (req.method !== 'POST') {
                 res.statusCode = 405;
                 res.end('POST only');
@@ -88,14 +87,18 @@ const portraitSavePlugin = (imgurClientId: string): Plugin => ({
                 }
             });
         });
-    },
-    configurePreviewServer(server) {
-        server.middlewares.use('/__save_portrait', (req, res) => {
-            res.statusCode = 404;
-            res.end();
-        });
-    },
-});
+    };
+
+    return {
+        name: 'ose-portrait-save',
+        configureServer(server) {
+            attachEndpoints(server.middlewares);
+        },
+        configurePreviewServer(server) {
+            attachEndpoints(server.middlewares);
+        },
+    };
+};
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, __dirname, '');
