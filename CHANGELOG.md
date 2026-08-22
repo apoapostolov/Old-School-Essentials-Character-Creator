@@ -6,8 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ## [1.1.0] - 2026-07-27
 
-Theme: **multi-slot AI** + **performance/context overhaul** + **save/load hardening**
-(parity with CoC 1.1 / Delta Green 1.2).
+Choose a different AI provider for each creative task, load heavy catalogs only when you need them, and keep character saves more reliable when moving JSON in or out.
 
 ### Added
 
