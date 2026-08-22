@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useCharacterExtras } from '../../context/CharacterContext';
+import { getImgurClientId } from '../SettingsModal';
 import { getAttackValuesForLevel, getModifier } from '../../utils/character';
 import { getEncumbranceDetails } from '../../utils/encumbrance';
 import type { Item } from '../../types';
@@ -88,6 +89,7 @@ export const StatblockImportPanel: React.FC = () => {
             body: JSON.stringify({
                 dataUrl: src,
                 name: ai.characterName || `${selectedRace?.name ?? ''}-${selectedClass?.name ?? ''}`,
+                imgurClientId: getImgurClientId(),
             }),
         })
             .then((r) => r.json())

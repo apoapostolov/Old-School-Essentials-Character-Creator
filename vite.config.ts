@@ -18,6 +18,15 @@ const wanOrigin = 'http://192.168.1.217:30002';
 const portraitSavePlugin = (imgurClientId: string): Plugin => ({
     name: 'ose-portrait-save',
     configureServer(server) {
+        // Read-only probe: is any Imgur Client-ID configured server-side?
+        server.middlewares.use('/__imgur_status', (_req, res) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({
+                available: Boolean(imgurClientId),
+                source: imgurClientId ? 'env' : 'none',
+                configured: Boolean(imgurClientId),
+            }));
+        });
         server.middlewares.use('/__save_portrait', (req, res) => {
             if (req.method !== 'POST') {
                 res.statusCode = 405;
@@ -28,7 +37,7 @@ const portraitSavePlugin = (imgurClientId: string): Plugin => ({
             req.on('data', (chunk) => { body += chunk; });
             req.on('end', async () => {
                 try {
-                    const { dataUrl, name } = JSON.parse(body || '{}');
+                    const { dataUrl, name, imgurClientId: bodyClientId } = JSON.parse(body || '{}');
                     const match = String(dataUrl || '').match(/^data:image\/(png|jpeg|webp);base64,(.+)$/);
                     if (!match) throw new Error('expected data:image/*;base64 payload');
                     const safeName = String(name || 'portrait')
@@ -37,13 +46,16 @@ const portraitSavePlugin = (imgurClientId: string): Plugin => ({
                         .toLowerCase() || 'portrait';
 
                     // Prefer an Imgur hotlink (CDN-cached, survives this PC);
-                    // fall back to a local world-asset copy.
-                    if (imgurClientId) {
+                    // UI-provided Client-ID wins, then the .env default.
+                    const clientId = /^[A-Za-z0-9]{10,40}$/.test(String(bodyClientId || ''))
+                        ? String(bodyClientId)
+                        : imgurClientId;
+                    if (clientId) {
                         try {
                             const up = await fetch('https://api.imgur.com/3/image', {
                                 method: 'POST',
                                 headers: {
-                                    Authorization: `Client-ID ${imgurClientId}`,
+                                    Authorization: `Client-ID ${clientId}`,
                                     'Content-Type': 'application/json',
                                 },
                                 body: JSON.stringify({

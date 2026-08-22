@@ -80,6 +80,142 @@ const formatModelOptionLabel = (model: {
     priceLabel: string;
 }) => `${model.baseName} · ${model.priceLabel} / 1M mixed`;
 
+/** Local persistence for the Imgur Client-ID (hosting settings). */
+const IMGUR_CLIENT_ID_KEY = 'hosting.imgur.clientId';
+
+export const getImgurClientId = (): string => {
+    try {
+        return window.localStorage.getItem(IMGUR_CLIENT_ID_KEY) || '';
+    } catch {
+        return '';
+    }
+};
+
+const setStoredImgurClientId = (value: string) => {
+    try {
+        if (value.trim()) window.localStorage.setItem(IMGUR_CLIENT_ID_KEY, value.trim());
+        else window.localStorage.removeItem(IMGUR_CLIENT_ID_KEY);
+    } catch {
+        /* private mode */
+    }
+};
+
+/** Probe endpoint: reports whether ANY usable Imgur Client-ID is available. */
+const fetchImgurStatus = async (): Promise<{ available: boolean; source: 'ui' | 'env' | 'none'; configured: boolean }> => {
+    try {
+        const res = await fetch('/__imgur_status');
+        return await res.json();
+    } catch {
+        return { available: false, source: 'none', configured: false };
+    }
+};
+
+const HostingTab: React.FC = () => {
+    const [clientId, setClientId] = useState(getImgurClientId());
+    const [saved, setSaved] = useState(false);
+    const [testing, setTesting] = useState(false);
+    const [testResult, setTestResult] = useState<string | null>(null);
+    const [serverKey, setServerKey] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        void fetchImgurStatus().then((s) => setServerKey(s.source === 'env'));
+    }, []);
+
+    const save = () => {
+        setStoredImgurClientId(clientId);
+        setSaved(true);
+        window.setTimeout(() => setSaved(false), 1500);
+    };
+
+    const runTest = async () => {
+        setTesting(true);
+        setTestResult(null);
+        try {
+            const res = await fetch('/__save_portrait', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    // 1x1 transparent PNG — minimal real upload to validate the key
+                    dataUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+                    name: 'Hosting Test',
+                    imgurClientId: clientId.trim(),
+                }),
+            });
+            const json = await res.json();
+            if (json.host === 'imgur') {
+                setTestResult(`Upload OK — hotlink: ${json.url}`);
+            } else if (json.error) {
+                setTestResult(`Endpoint error: ${json.error}`);
+            } else {
+                setTestResult('Imgur rejected the upload — fell back to local hosting. Check the Client-ID.');
+            }
+        } catch (err: any) {
+            setTestResult(`Request failed: ${err?.message || err}`);
+        } finally {
+            setTesting(false);
+        }
+    };
+
+    return (
+        <section className="space-y-4">
+            <p className="text-sm text-gray-400">
+                Generated portraits are uploaded for hotlinking in the Foundry Statblock Importer
+                (<code className="text-yellow-300">img:</code> field). Imgur gives a CDN link that
+                survives this PC; without it the portrait is cached on the local Foundry world instead.
+            </p>
+            <div className="space-y-3 bg-gray-900/70 p-4 rounded-lg border border-gray-700">
+                <h3 className="text-lg font-bold text-yellow-400">Imgur</h3>
+                <UrlInput
+                    label="Client-ID (anonymous uploads, remembered locally)"
+                    value={clientId}
+                    onChange={(v) => { setClientId(v); setTestResult(null); }}
+                    type="password"
+                />
+                <p className="text-xs text-gray-500">
+                    Free key from{' '}
+                    <a href="https://api.imgur.com/oauth2/addclient" target="_blank" rel="noreferrer" className="text-yellow-300 underline">
+                        api.imgur.com
+                    </a>{' '}
+                    (choose "Anonymous usage" authorization type).
+                    {serverKey && ' A server-side key from the .env file is also active and used as fallback.'}
+                </p>
+                <div className="flex flex-wrap gap-2 items-center">
+                    <button
+                        type="button"
+                        onClick={save}
+                        className="bg-yellow-600 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-3 rounded-md text-sm"
+                        disabled={clientId.trim() === getImgurClientId()}
+                    >
+                        {saved ? 'Saved ✓' : 'Save'}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => void runTest()}
+                        className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-md text-sm disabled:opacity-60"
+                        disabled={testing}
+                    >
+                        {testing ? 'Testing…' : 'Test upload'}
+                    </button>
+                    {clientId.trim() && (
+                        <button
+                            type="button"
+                            onClick={() => { setClientId(''); setStoredImgurClientId(''); }}
+                            className="border border-gray-600 font-bold py-2 px-3 rounded-md text-sm text-gray-300"
+                        >
+                            Clear
+                        </button>
+                    )}
+                </div>
+                {testResult && (
+                    <p className={`text-xs break-all ${testResult.startsWith('Upload OK') ? 'text-green-400' : 'text-red-400'}`}>
+                        {testResult}
+                    </p>
+                )}
+            </div>
+        </section>
+    );
+};
+
 const SearchableSelect: React.FC<{
     label: string;
     value: string;
@@ -433,7 +569,7 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     const { sourceType, setSourceType, externalUrls, setExternalUrl, selfHostedUrl, setSelfHostedUrl } = useSheetContext();
-    const [activeTab, setActiveTab] = useState<'sheet' | 'ai'>('sheet');
+    const [activeTab, setActiveTab] = useState<'sheet' | 'ai' | 'hosting'>('sheet');
 
     return (
         <div
@@ -474,6 +610,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                         className={`px-4 py-2 rounded-t-lg font-bold ${activeTab === 'ai' ? 'bg-gray-800 text-yellow-400 border border-gray-600 border-b-0' : 'text-gray-400 hover:text-gray-200'}`}
                     >
                         AI Provider
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setActiveTab('hosting')}
+                        className={`px-4 py-2 rounded-t-lg font-bold ${activeTab === 'hosting' ? 'bg-gray-800 text-yellow-400 border border-gray-600 border-b-0' : 'text-gray-400 hover:text-gray-200'}`}
+                    >
+                        Hosting
                     </button>
                 </div>
 
@@ -560,6 +703,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
                             ))}
                         </>
                     )}
+
+                    {activeTab === 'hosting' && <HostingTab />}
                 </div>
 
                 <footer className="p-4 border-t border-gray-700 flex-shrink-0 text-right bg-gray-900 rounded-b-lg">
