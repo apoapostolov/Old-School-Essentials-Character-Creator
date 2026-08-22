@@ -8,6 +8,7 @@ import { BackstoryGenerator } from './final-touches/BackstoryGenerator';
 import { CharacterDetailsColumn } from './final-touches/CharacterDetailsColumn';
 import { CreativeColumn } from './final-touches/CreativeColumn';
 import { ExpressivePortraitsStudio } from './final-touches/ExpressivePortraitsStudio';
+import { StatblockImportPanel } from './final-touches/StatblockImportPanel';
 
 interface FinalTouchesTabProps {
     onShowPromptInfo: () => void;
@@ -49,6 +50,8 @@ export const FinalTouchesTab: React.FC<FinalTouchesTabProps> = ({ onShowPromptIn
                     characterName={ai.characterName}
                 />
             )}
+
+            <StatblockImportPanel />
 
             <BackstoryGenerator
                 backstory={ai.backstory}

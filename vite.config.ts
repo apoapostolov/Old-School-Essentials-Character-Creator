@@ -1,9 +1,94 @@
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import fs from 'fs';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+
+/**
+ * Dev/preview server endpoint: saves a base64 portrait into the Foundry
+ * world's assets folder so the OSE Statblock Importer can hotlink it.
+ * POST /__save_portrait  { dataUrl, name } -> { url }
+ */
+const foundryWorldId = 'old-school-adventures';
+const foundryAssetsDir = path.resolve(
+    process.env.HOME || '/home/apoapostolov',
+    `FoundryData.14/Data/worlds/${foundryWorldId}/assets`,
+);
+const wanOrigin = 'http://192.168.1.217:30002';
+
+const portraitSavePlugin = (imgurClientId: string): Plugin => ({
+    name: 'ose-portrait-save',
+    configureServer(server) {
+        server.middlewares.use('/__save_portrait', (req, res) => {
+            if (req.method !== 'POST') {
+                res.statusCode = 405;
+                res.end('POST only');
+                return;
+            }
+            let body = '';
+            req.on('data', (chunk) => { body += chunk; });
+            req.on('end', async () => {
+                try {
+                    const { dataUrl, name } = JSON.parse(body || '{}');
+                    const match = String(dataUrl || '').match(/^data:image\/(png|jpeg|webp);base64,(.+)$/);
+                    if (!match) throw new Error('expected data:image/*;base64 payload');
+                    const safeName = String(name || 'portrait')
+                        .replace(/[^a-z0-9]+/gi, '-')
+                        .replace(/^-+|-+$/g, '')
+                        .toLowerCase() || 'portrait';
+
+                    // Prefer an Imgur hotlink (CDN-cached, survives this PC);
+                    // fall back to a local world-asset copy.
+                    if (imgurClientId) {
+                        try {
+                            const up = await fetch('https://api.imgur.com/3/image', {
+                                method: 'POST',
+                                headers: {
+                                    Authorization: `Client-ID ${imgurClientId}`,
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    image: match[2],
+                                    type: 'base64',
+                                    name: `${safeName}.png`,
+                                    title: `${safeName} portrait`,
+                                }),
+                            });
+                            const j: any = await up.json();
+                            if (up.ok && j?.data?.link) {
+                                res.setHeader('Content-Type', 'application/json');
+                                res.end(JSON.stringify({ url: j.data.link, host: 'imgur' }));
+                                return;
+                            }
+                            console.warn('[ose-portrait-save] imgur upload failed:', up.status, j?.data?.error || j?.data?.message);
+                        } catch (err: any) {
+                            console.warn('[ose-portrait-save] imgur upload error:', err?.message);
+                        }
+                    }
+
+                    const fileName = `${safeName}-portrait-${Date.now()}.${match[1] === 'jpeg' ? 'jpg' : match[1]}`;
+                    fs.mkdirSync(foundryAssetsDir, { recursive: true });
+                    fs.writeFileSync(path.join(foundryAssetsDir, fileName), Buffer.from(match[2], 'base64'));
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({ url: `${wanOrigin}/worlds/${foundryWorldId}/assets/${fileName}`, host: 'local' }));
+                } catch (err: any) {
+                    res.statusCode = 400;
+                    res.end(JSON.stringify({ error: String(err?.message || err) }));
+                }
+            });
+        });
+    },
+    configurePreviewServer(server) {
+        server.middlewares.use('/__save_portrait', (req, res) => {
+            res.statusCode = 404;
+            res.end();
+        });
+    },
+});
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, __dirname, '');
+    const imgurClientId =
+        env.IMGUR_CLIENT_ID || process.env.IMGUR_CLIENT_ID || '';
     const geminiApiKey = env.VITE_GEMINI_API_KEY || env.GEMINI_API_KEY || env.API_KEY || '';
     const openRouterApiKey = env.VITE_OPENROUTER_API_KEY || env.OPENROUTER_API_KEY || '';
     const openCodeGoApiKey = env.VITE_OPENCODE_GO_API_KEY || env.OPENCODE_GO_API_KEY || '';
@@ -61,7 +146,7 @@ export default defineConfig(({ mode }) => {
                 ...codexApiProxy,
             },
         },
-        plugins: [react()],
+        plugins: [react(), portraitSavePlugin(imgurClientId)],
         define: {
             'process.env.API_KEY': JSON.stringify(geminiApiKey),
             'process.env.GEMINI_API_KEY': JSON.stringify(geminiApiKey),

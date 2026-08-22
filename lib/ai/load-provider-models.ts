@@ -43,7 +43,9 @@ export const getMinimalModelsForProvider = (provider: AiProviderId): OpenRouterM
       return sortOpenRouterModels([
         asSummary({ id: 'gpt-5.6-luna', baseName: 'GPT-5.6 Luna', inputModalities: ['text', 'image'], priceLabel: 'plan' }),
         asSummary({ id: 'gpt-5.6-terra', baseName: 'GPT-5.6 Terra', inputModalities: ['text', 'image'], priceLabel: 'plan' }),
+        asSummary({ id: 'gpt-5.6-sol', baseName: 'GPT-5.6 Sol', inputModalities: ['text', 'image'], priceLabel: 'plan' }),
         asSummary({ id: 'gpt-5.5', baseName: 'GPT-5.5', inputModalities: ['text', 'image'], priceLabel: 'plan' }),
+        asSummary({ id: 'gpt-5.4-mini', baseName: 'GPT-5.4 Mini', inputModalities: ['text', 'image'], priceLabel: 'plan' }),
         asSummary({ id: 'gpt-image-2', baseName: 'GPT Image 2', outputModalities: ['image', 'text'], inputModalities: ['text', 'image'], priceLabel: 'plan' }),
       ]);
     case 'anthropic':
