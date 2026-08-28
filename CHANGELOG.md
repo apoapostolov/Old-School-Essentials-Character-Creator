@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+- LAN host Codex and Grok OAuth: Vite injects this machine's CLI sessions so
+  table players can generate without their own accounts. Admin page at `/__host`.
+  Tokens stay on the server.
+
 ## [1.1.0] - 2026-07-27
 
 Choose a different AI provider for each creative task, load heavy catalogs only when you need them, and keep character saves more reliable when moving JSON in or out.

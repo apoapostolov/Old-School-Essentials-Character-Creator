@@ -32,9 +32,12 @@
 
 ### Non-goals
 
-- Server-side secret proxy  
+- Baking Codex or SuperGrok OAuth tokens into the JS bundle  
 - Zhipu Anthropic-compat route (optional later)  
 - Grok video / TTS product surfaces  
+
+LAN table hosts can share this machine's Codex and Grok CLI sessions through
+Vite (`/__host`). See the README admins-only section.
 
 ---
 
@@ -171,6 +174,7 @@ Legacy single-provider `ai.provider` may seed all slots once on first read.
 ## 6. Port checklist (per repo)
 
 ### Call of Cthulhu
+
 - [x] Copy `lib/ai/ai-slots.ts`, `load-provider-models.ts`, `zhipu.ts`, `xai.ts`, `xai-oauth.ts`, caches  
 - [x] Replace Settings AI tab with four slot blocks (no single global provider)  
 - [x] `xai-oauth` block: device code + open browser, **no API key**  
@@ -180,12 +184,14 @@ Legacy single-provider `ai.provider` may seed all slots once on first read.
 - [ ] Manual: mixed providers smoke in browser (optional)
 
 ### Delta Green
+
 - [x] Same module set + multi-slot Settings + runtime  
 - [x] Vite `server.proxy` + `preview.proxy` for `/__xai_oauth`  
 - [x] `tests/zhipu-xai.test.ts` + provider order  
 - [ ] Manual: mixed providers smoke in browser (optional)
 
 ### Old School Essentials
+
 - [x] Full `lib/ai/*` port + model caches (was Gemini-only env)  
 - [x] Multi-slot Settings modal + header **AI** button  
 - [x] Generation hooks routed through `useAiRuntime`  

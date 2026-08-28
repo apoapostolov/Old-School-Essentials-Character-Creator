@@ -1,6 +1,8 @@
 import { useCallback } from 'react';
 import { useAiSettings } from '../context/AiSettingsContext';
 import type { AiModelSlot } from '../lib/ai/ai-slots';
+import { getDefaultModelIdForProvider } from '../lib/ai/load-provider-models';
+import { HOST_OAUTH_TOKEN, probeHostOauth } from '../lib/ai/host-oauth';
 import { isTextOnlyAiProvider, type AiProviderId } from '../lib/ai/provider-options';
 
 const OPENCODE_GO_API_BASE = 'https://opencode.ai/zen/go/v1';
@@ -45,7 +47,7 @@ const getGeminiClient = async (apiKey: string) => {
   return new GoogleGenAI({ apiKey });
 };
 
-const resolveOpenAiCompatibleBase = async (provider: AiProviderId) => {
+const resolveOpenAiCompatibleBase = async (provider: AiProviderId, credential?: string) => {
   if (provider === 'opencode-go') return OPENCODE_GO_API_BASE;
   if (provider === 'deepseek') return DEEPSEEK_API_BASE;
   if (provider === 'zhipu') {
@@ -53,8 +55,8 @@ const resolveOpenAiCompatibleBase = async (provider: AiProviderId) => {
     return ZHIPU_CODING_API_BASE;
   }
   if (provider === 'xai' || provider === 'xai-oauth') {
-    const { XAI_API_BASE } = await import('../lib/ai/xai');
-    return XAI_API_BASE;
+    const { getXaiApiBase } = await import('../lib/ai/xai');
+    return getXaiApiBase(credential);
   }
   if (provider === 'openai') {
     const { OPENAI_API_BASE } = await import('../lib/ai/openai');
@@ -68,7 +70,21 @@ export const useAiRuntime = () => {
 
   const runSlot = useCallback(async (slot: AiModelSlot) => {
     const cfg = slots[slot];
-    const credential = await resolveProviderCredential(cfg.provider);
+    let provider = cfg.provider;
+    let modelId = cfg.modelId;
+    let credential = await resolveProviderCredential(provider);
+    if (!credential) {
+      const host = await probeHostOauth();
+      if (host.codex.available) {
+        provider = 'openai-codex';
+        modelId = getDefaultModelIdForProvider('openai-codex', slot);
+        credential = HOST_OAUTH_TOKEN;
+      } else if (host.xai.available && slot !== 'image') {
+        provider = 'xai-oauth';
+        modelId = getDefaultModelIdForProvider('xai-oauth', slot);
+        credential = HOST_OAUTH_TOKEN;
+      }
+    }
     if (!credential) {
       throw new Error(
         cfg.provider === 'xai-oauth'
@@ -78,7 +94,7 @@ export const useAiRuntime = () => {
             : `Add an API key for ${cfg.provider} in the ${slot} slot Settings.`,
       );
     }
-    return { ...cfg, credential };
+    return { ...cfg, provider, modelId, credential };
   }, [slots, resolveProviderCredential]);
 
   const generateText = useCallback(async (params: {
@@ -180,7 +196,7 @@ export const useAiRuntime = () => {
         throw new Error(`Vision prompts are not available with ${provider}.`);
       }
       const { fetchOpenAiCompatibleChatCompletion } = await import('../lib/ai/openai-compatible');
-      const baseUrl = await resolveOpenAiCompatibleBase(provider);
+      const baseUrl = await resolveOpenAiCompatibleBase(provider, credential);
       const result = await fetchOpenAiCompatibleChatCompletion({
         baseUrl,
         apiKey: credential,

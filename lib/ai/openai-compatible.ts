@@ -1,4 +1,5 @@
 import type { OpenRouterChatMessage, OpenRouterChatCompletionResult } from './openrouter';
+import { isHostOauthToken } from './host-oauth';
 
 const readErrorMessage = async (response: Response) => {
     const fallback = `Request failed (${response.status})`;
@@ -16,9 +17,18 @@ const readErrorMessage = async (response: Response) => {
 };
 
 const joinUrl = (baseUrl: string, path: string) => {
+    const suffix = path.replace(/^\//, '');
+    if (/^https?:\/\//i.test(baseUrl)) {
+        const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+        return new URL(suffix, normalizedBase).toString();
+    }
     const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-    return new URL(path.replace(/^\//, ''), normalizedBase).toString();
+    return `${normalizedBase}${suffix}`;
 };
+
+const authHeaders = (apiKey: string): Record<string, string> => (
+    isHostOauthToken(apiKey) ? {} : { Authorization: `Bearer ${apiKey}` }
+);
 
 export const fetchOpenAiCompatibleModels = async (params: {
     baseUrl: string;
@@ -29,9 +39,7 @@ export const fetchOpenAiCompatibleModels = async (params: {
     }
 
     const response = await fetch(joinUrl(params.baseUrl, '/models'), {
-        headers: {
-            Authorization: `Bearer ${params.apiKey}`,
-        },
+        headers: authHeaders(params.apiKey),
     });
 
     if (!response.ok) {
@@ -58,7 +66,7 @@ export const fetchOpenAiCompatibleChatCompletion = async (params: {
     const response = await fetch(joinUrl(params.baseUrl, '/chat/completions'), {
         method: 'POST',
         headers: {
-            Authorization: `Bearer ${params.apiKey}`,
+            ...authHeaders(params.apiKey),
             'Content-Type': 'application/json',
             ...(params.headers || {}),
         },

@@ -85,9 +85,43 @@ npm run preview
 
 Open the in-app **Settings** panel to choose a provider, key, and model for each AI task. Provider keys entered there are remembered in browser storage. Build-time environment keys are also supported; see the provider names and variables in [the AI provider notes](docs/SHARED_AI_PROVIDERS_ZHIPU_GROK.md).
 
-AI requests leave the browser and go to the provider selected for that task. Review the generated prompt before sending sensitive character or campaign material. xAI SuperGrok sign-in uses a device-code flow and needs the Vite OAuth proxy supplied by `npm run dev`; a static host must provide an equivalent proxy.
+AI requests leave the browser and go to the provider selected for that task. Review the generated prompt before sending sensitive character or campaign material. xAI SuperGrok sign-in uses a device-code flow and needs the Vite OAuth proxy supplied by `npm run dev`. A static host must provide an equivalent proxy.
 
 The character saves and selected source list use browser `localStorage`. Export JSON if you want a portable backup before clearing site data.
+
+Table hosts who want players to use this machine's Codex or SuperGrok session without player logins: see [Admins only](#admins-only-lan-host-codex-and-grok).
+
+## Admins only: LAN host Codex and Grok
+
+This section is for the person who runs `npm run dev` or `vite preview` for a table. Players stay on `/`. They do not open `/__host`.
+
+The Vite server can inject this machine's Codex and Grok OAuth so players generate names, text, and portraits without their own accounts. Tokens stay in `~/.codex/auth.json` and `~/.grok/auth.json`. They never go into the JS bundle. Empty AI slots fall through to host Codex. Host Grok is used when a slot is set to SuperGrok (`xai-oauth`). Host Grok does not cover image generation.
+
+This uses your ChatGPT and SuperGrok quota until sharing is turned off. Do not expose this server to the public internet.
+
+### Admin page
+
+Open `/__host` on the same host as the app, for example `http://<lan-ip>:30001/__host`.
+
+If `HOST_OAUTH_ADMIN_KEY` is unset, any client on a private address can open the page: loopback, RFC1918 LAN, and Tailscale CGNAT (`100.64.0.0/10`). If that key is set in `.env`, the page asks for it instead.
+
+The page shows a Codex card and a Grok card with sharing on or off, session source (`codex-cli`, `grok-cli`, or `pi-auth`), expiry, and whether an admin toggle or env flag has disabled sharing. The JSON dump at the bottom is the same status. Tokens are not shown.
+
+### Controls
+
+- **Reload sessions** reads the auth files again after a CLI login or token refresh.
+- **Disable** and **Enable** stop or start sharing in this process. A restart turns sharing back on unless the matching env flag is set.
+- **Disable both** and **Enable both** apply that toggle to Codex and Grok together.
+- **Test ping** sends a real `pong` request to Codex or Grok. Skip this unless generation is broken. It uses quota.
+
+### After the table
+
+1. Open `/__host`.
+2. Click **Disable both**.
+3. For a stop that survives restart, set `CODEX_HOST_DISABLED=1` and `XAI_HOST_DISABLED=1` in `.env`, then restart the server.
+4. Log out of Codex CLI or Grok CLI if you want the tokens gone from this machine.
+
+`/__oauth_host_status` tells the app `{ available, source }` only. Local preview-service commands live in [docs/prod-server.md](docs/prod-server.md).
 
 ## Rules and Content
 

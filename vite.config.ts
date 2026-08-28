@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { hostOauthPlugin } from './vite/host-oauth';
 
 /**
  * Dev/preview server endpoint: saves a base64 portrait into the Foundry
@@ -128,14 +129,6 @@ export default defineConfig(({ mode }) => {
             rewrite: (p: string) => p.replace(/^\/__codex_oauth/, ''),
         },
     };
-    const codexApiProxy = {
-        '/__codex_api': {
-            target: 'https://chatgpt.com',
-            changeOrigin: true,
-            secure: true,
-            rewrite: (p: string) => p.replace(/^\/__codex_api/, ''),
-        },
-    };
     return {
         server: {
             port: 3003,
@@ -151,17 +144,15 @@ export default defineConfig(({ mode }) => {
             proxy: {
                 ...xaiOauthProxy,
                 ...codexOauthProxy,
-                ...codexApiProxy,
             },
         },
         preview: {
             proxy: {
                 ...xaiOauthProxy,
                 ...codexOauthProxy,
-                ...codexApiProxy,
             },
         },
-        plugins: [react(), portraitSavePlugin(imgurClientId)],
+        plugins: [react(), portraitSavePlugin(imgurClientId), hostOauthPlugin()],
         define: {
             'process.env.API_KEY': JSON.stringify(geminiApiKey),
             'process.env.GEMINI_API_KEY': JSON.stringify(geminiApiKey),

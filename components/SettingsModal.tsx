@@ -350,6 +350,8 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
         disconnectCodexOauth,
         pasteCodexOauthToken,
         codexOauthConnected,
+        codexHostAvailable,
+        xaiHostAvailable,
     } = useAiSettings();
     const view = slots[slot];
     const isOauth = view.provider === 'xai-oauth';
@@ -372,8 +374,11 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
     // Shared OAuth panel props: one button interface for both OAuth providers.
     const oauthPanel = isCodexOauth
         ? {
-            hint: 'OpenAI Codex / ChatGPT OAuth — no API key, browser device-code login (Vite server or /__codex_oauth proxy).',
-            connected: codexOauthConnected || codexOauthDevice.status === 'connected',
+            hint: codexHostAvailable
+                ? 'Host Codex is on for this LAN session. Admin: /__host'
+                : 'OpenAI Codex / ChatGPT OAuth. Device-code login through this server.',
+            connected: codexOauthConnected || codexHostAvailable || codexOauthDevice.status === 'connected',
+            localConnected: codexOauthConnected,
             device: codexOauthDevice,
             devicePending: codexDevicePending,
             start: startCodexOauthDeviceFlow,
@@ -384,8 +389,11 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
             codeLabel: 'OpenAI device code',
         }
         : {
-            hint: 'SuperGrok / X Premium OAuth — no API key, browser device-code login (Vite server or /__xai_oauth proxy).',
-            connected: xaiOauthConnected || xaiOauthDevice.status === 'connected',
+            hint: xaiHostAvailable
+                ? 'Host Grok OAuth is on for this LAN session. Admin: /__host'
+                : 'SuperGrok / X Premium OAuth. Device-code login through this server.',
+            connected: xaiOauthConnected || xaiHostAvailable || xaiOauthDevice.status === 'connected',
+            localConnected: xaiOauthConnected,
             device: xaiOauthDevice,
             devicePending: devicePending,
             start: startXaiOauthDeviceFlow,
@@ -471,7 +479,7 @@ const SlotProviderBlock: React.FC<{ slot: AiModelSlot }> = ({ slot }) => {
                                 Cancel
                             </button>
                         )}
-                        {oauthPanel.connected && (
+                        {oauthPanel.localConnected && (
                             <button
                                 type="button"
                                 className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded-md text-sm"

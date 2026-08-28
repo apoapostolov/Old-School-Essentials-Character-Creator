@@ -2,9 +2,16 @@ import type { OpenRouterModelSummary, OpenRouterOutputModality } from './openrou
 import { sortOpenRouterModels } from './openrouter';
 import { fetchOpenAiCompatibleModels } from './openai-compatible';
 import { XAI_MODEL_CACHE } from '../../data/xai-model-cache';
+import { isHostOauthToken, XAI_API_PROXY_PREFIX } from './host-oauth';
 
 /** xAI OpenAI-compatible API base (API key and OAuth bearer). */
 export const XAI_API_BASE = 'https://api.x.ai/v1';
+
+export const getXaiApiBase = (credential?: string) => (
+  typeof window !== 'undefined' && isHostOauthToken(credential || '')
+    ? `${XAI_API_PROXY_PREFIX}/v1`
+    : XAI_API_BASE
+);
 
 const CACHE_MAP = new Map(XAI_MODEL_CACHE.map(entry => [entry.id, entry] as const));
 const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
@@ -56,7 +63,7 @@ export const getXaiModelCacheSummaries = () =>
 
 export const fetchXaiModels = async (apiKeyOrToken: string): Promise<OpenRouterModelSummary[]> => {
   const models = await fetchOpenAiCompatibleModels({
-    baseUrl: XAI_API_BASE,
+    baseUrl: getXaiApiBase(apiKeyOrToken),
     apiKey: apiKeyOrToken,
   });
   const normalized = models

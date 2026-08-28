@@ -156,11 +156,25 @@ describe('openai codex catalog', () => {
   });
 
   it('extracts text deltas and completed text from SSE events', async () => {
-    const { extractCodexText } = await import('../lib/ai/codex');
+    const { extractCodexText, parseCodexSseBuffer } = await import('../lib/ai/codex');
     expect(extractCodexText({ type: 'response.output_text.delta', delta: 'hi' })).toBe('hi');
+    expect(extractCodexText({
+      type: 'response.output_text.done',
+      text: '{"positivePhysical":"Scarred"}',
+    })).toBe('{"positivePhysical":"Scarred"}');
     expect(extractCodexText({
       type: 'response.completed',
       response: { output: [{ type: 'message', content: [{ type: 'output_text', text: 'done' }] }] },
     })).toBe('done');
+    const crlf = parseCodexSseBuffer([
+      'data: {"type":"response.output_text.delta","delta":"Hi"}',
+      'data: {"type":"response.output_text.done","text":"full"}',
+      '',
+    ].join('\r\n'));
+    expect(crlf.events.map((event: { type: string }) => event.type)).toEqual([
+      'response.output_text.delta',
+      'response.output_text.done',
+    ]);
+    expect(crlf.events[1].text).toBe('full');
   });
 });

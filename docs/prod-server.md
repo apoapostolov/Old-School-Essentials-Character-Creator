@@ -41,3 +41,14 @@ journalctl --user -u ose-creator.service -f         # logs
   attached in both dev and preview servers by `vite.config.ts`.
 - `IMGUR_CLIENT_ID` is read from the repo `.env` (gitignored) at server start.
 - The build adds ~10-25s to each (re)start while `dist/` regenerates.
+- Host Codex and Grok OAuth injects on `/__codex_api` and `/__xai_api` from
+  `~/.codex/auth.json` and `~/.grok/auth.json`. Admin page: `/__host`.
+  Public README: [Admins only](../README.md#admins-only-lan-host-codex-and-grok).
+
+## Host OAuth admin (this machine)
+
+- App: <http://192.168.1.217:30001/> (Tailscale <http://100.106.46.69:30001/>)
+- Admin: <http://192.168.1.217:30001/__host> (dev <http://192.168.1.217:10003/__host>)
+- Status JSON: `/__oauth_host_status` (no tokens)
+- Kill switch that survives restart: `CODEX_HOST_DISABLED=1` and
+  `XAI_HOST_DISABLED=1` in `.env`, then `systemctl --user restart ose-creator.service`

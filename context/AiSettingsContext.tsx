@@ -40,6 +40,7 @@ import {
   type CodexOauthDevicePending,
   type CodexOauthDeviceState,
 } from '../lib/ai/codex-oauth';
+import { HOST_OAUTH_TOKEN, probeHostOauth } from '../lib/ai/host-oauth';
 
 export type { AiProviderId };
 export type { AiModelSlot };
@@ -82,6 +83,9 @@ export interface AiSettingsContextType {
   /** Advanced: paste a Codex bearer access token. */
   pasteCodexOauthToken: (accessToken: string) => void;
   codexOauthConnected: boolean;
+  /** Server is injecting this machine's Codex / Grok OAuth for LAN clients. */
+  codexHostAvailable: boolean;
+  xaiHostAvailable: boolean;
   /**
    * Resolve credential for a provider (API key vault or OAuth bearer).
    * Used by runtime + refresh.
@@ -150,6 +154,8 @@ export const AiSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const [codexOauthDevice, setCodexOauthDevice] = useState<CodexOauthDeviceState>({ status: 'idle' });
   const [codexOauthConnected, setCodexOauthConnected] = useState(() => Boolean(getCodexOauthSession()?.accessToken));
+  const [codexHostAvailable, setCodexHostAvailable] = useState(false);
+  const [xaiHostAvailable, setXaiHostAvailable] = useState(false);
   const codexPollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const codexPendingRef = useRef<CodexOauthDevicePending | null>(null);
 
@@ -164,14 +170,25 @@ export const AiSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   };
 
+  useEffect(() => {
+    void probeHostOauth().then((status) => {
+      setCodexHostAvailable(status.codex.available);
+      setXaiHostAvailable(status.xai.available);
+    });
+  }, []);
+
   const resolveProviderCredential = useCallback(async (provider: AiProviderId) => {
     if (provider === 'xai-oauth') {
       const token = await getValidXaiOauthAccessToken();
-      return token || '';
+      if (token) return token;
+      const host = await probeHostOauth();
+      return host.xai.available ? HOST_OAUTH_TOKEN : '';
     }
     if (provider === 'openai-codex') {
       const token = await getValidCodexOauthAccessToken();
-      return token || '';
+      if (token) return token;
+      const host = await probeHostOauth();
+      return host.codex.available ? HOST_OAUTH_TOKEN : '';
     }
     return (keyVault[provider] || getBuildTimeApiKeyForProvider(provider) || '').trim();
   }, [keyVault]);
@@ -464,7 +481,9 @@ export const AiSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const provider = slots.creative.provider;
   const setProvider = useCallback((p: AiProviderId) => setSlotProvider('creative', p), [setSlotProvider]);
   const providerApiKey = (provider === 'xai-oauth' || provider === 'openai-codex')
-    ? ((provider === 'xai-oauth' ? xaiOauthConnected : codexOauthConnected) ? 'oauth-session' : '')
+    ? ((provider === 'xai-oauth'
+      ? (xaiOauthConnected || xaiHostAvailable)
+      : (codexOauthConnected || codexHostAvailable)) ? 'oauth-session' : '')
     : (keyVault[provider] || '');
 
   const value = useMemo<AiSettingsContextType>(() => ({
@@ -488,6 +507,8 @@ export const AiSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     disconnectCodexOauth,
     pasteCodexOauthToken,
     codexOauthConnected,
+    codexHostAvailable,
+    xaiHostAvailable,
     resolveProviderCredential,
     // legacy
     provider,
@@ -528,6 +549,8 @@ export const AiSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     disconnectCodexOauth,
     pasteCodexOauthToken,
     codexOauthConnected,
+    codexHostAvailable,
+    xaiHostAvailable,
     resolveProviderCredential,
     provider,
     setProvider,

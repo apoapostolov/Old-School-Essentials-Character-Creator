@@ -1,6 +1,7 @@
 import type { OpenRouterModelSummary, OpenRouterOutputModality } from './openrouter';
 import { sortOpenRouterModels } from './openrouter';
 import { CODEX_MODEL_CACHE } from '../../data/codex-model-cache';
+import { isHostOauthToken } from './host-oauth';
 
 /**
  * OpenAI Codex (ChatGPT subscription OAuth) Responses API client.
@@ -47,11 +48,13 @@ export const getCodexModelCacheSummaries = () =>
 
 const codexHeaders = (token: string) => {
   const headers: Record<string, string> = {
-    Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
   };
-  const account = chatgptAccountIdFromToken(token);
-  if (account) headers['ChatGPT-Account-ID'] = account;
+  if (!isHostOauthToken(token)) {
+    headers.Authorization = `Bearer ${token}`;
+    const account = chatgptAccountIdFromToken(token);
+    if (account) headers['ChatGPT-Account-ID'] = account;
+  }
   return headers;
 };
 
@@ -80,40 +83,40 @@ const readSseBlock = (raw: string): any | null => {
   }
 };
 
-/** Parse one SSE stream into events; resolves with the full event list. */
+/** Pull complete `data:` JSON events out of an SSE buffer. CRLF-safe. */
+export const parseCodexSseBuffer = (buf: string): { events: any[]; rest: string } => {
+  const events: any[] = [];
+  const parts = buf.split(/\r?\n/);
+  const rest = parts.pop() ?? '';
+  for (const rawLine of parts) {
+    const line = rawLine.trim();
+    if (!line.startsWith('data:')) continue;
+    const event = readSseBlock(line.slice(5).trim());
+    if (event) events.push(event);
+  }
+  return { events, rest };
+};
+
+/** Parse one SSE stream into events. */
 const streamSse = async (
   response: Response,
   onEvent: (event: any) => void,
 ): Promise<void> => {
   const reader = response.body?.getReader();
-  if (!reader) return;
+  if (!reader) throw new Error('Codex returned no stream');
   const decoder = new TextDecoder();
   let buf = '';
   for (;;) {
     const { done, value } = await reader.read();
     if (done) break;
     buf += decoder.decode(value, { stream: true });
-    while (buf.includes('\n\n')) {
-      const idx = buf.indexOf('\n\n');
-      const block = buf.slice(0, idx);
-      buf = buf.slice(idx + 2);
-      const dataLines = block
-        .split('\n')
-        .filter(line => line.startsWith('data:'))
-        .map(line => line.slice(5).trim());
-      const raw = dataLines.join('\n');
-      const event = readSseBlock(raw);
-      if (event) onEvent(event);
-    }
+    const parsed = parseCodexSseBuffer(buf);
+    buf = parsed.rest;
+    parsed.events.forEach(onEvent);
   }
-  if (buf.trim()) {
-    const dataLines = buf
-      .split('\n')
-      .filter(line => line.startsWith('data:'))
-      .map(line => line.slice(5).trim());
-    const event = readSseBlock(dataLines.join('\n'));
-    if (event) onEvent(event);
-  }
+  buf += decoder.decode();
+  const parsed = parseCodexSseBuffer(buf.endsWith('\n') ? buf : `${buf}\n`);
+  parsed.events.forEach(onEvent);
 };
 
 /** Convert OpenAI chat messages → Codex Responses `instructions` + `input` rows. */
@@ -164,6 +167,9 @@ export const extractCodexText = (event: any): string => {
   if (etype.endsWith('output_text.delta')) {
     return String(event.delta || '');
   }
+  if (etype.endsWith('output_text.done') && typeof event.text === 'string') {
+    return event.text;
+  }
   if (typeof event.output_text === 'string' && etype.endsWith('completed')) {
     return event.output_text;
   }
@@ -178,7 +184,11 @@ export const extractCodexText = (event: any): string => {
       Object.values(node).forEach(walk);
     }
   };
-  if (etype === 'response.completed' || etype === 'response.output_item.done') {
+  if (
+    etype === 'response.completed'
+    || etype === 'response.output_item.done'
+    || etype.endsWith('output_text.done')
+  ) {
     walk(event);
   }
   return texts.join('');
@@ -216,7 +226,11 @@ export const fetchCodexChatCompletion = async (params: {
     input: rows,
     stream: true,
   };
-  if (instructions) payload.instructions = instructions;
+  const jsonRule = params.json
+    ? 'Reply with a single JSON object only. No markdown fences, no preamble.'
+    : '';
+  const joined = [instructions, jsonRule].filter(Boolean).join('\n');
+  if (joined) payload.instructions = joined;
 
   const response = await fetch(`${getCodexApiBase()}/responses`, {
     method: 'POST',
@@ -238,8 +252,8 @@ export const fetchCodexChatCompletion = async (params: {
     const hit = extractCodexText(event);
     if (hit) final = hit;
   });
-  const text = deltas.join('') || final;
-  if (!text.trim()) throw new Error('Codex returned no text');
+  const text = (final || deltas.join('')).trim();
+  if (!text) throw new Error('Codex returned no text');
   return text;
 };
 
