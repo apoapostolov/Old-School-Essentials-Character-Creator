@@ -28,10 +28,10 @@ export const useAIGeneration = (
     // Composing smaller, focused hooks
     const nameGen = useNameGeneration(selectedClass, showToast, aggregatedData, karameikos);
     const secondarySkills = useSecondarySkills(theme, aggregatedData);
-    const traitsGen = useTraitsGeneration(selectedClass, scores, showToast, aggregatedData);
-    const portraitGen = usePortraitGeneration(selectedClass, scores, level, showToast, aggregatedData);
+    const traitsGen = useTraitsGeneration(selectedClass, scores, showToast, aggregatedData, karameikos);
+    const portraitGen = usePortraitGeneration(selectedClass, scores, level, showToast, aggregatedData, karameikos);
     const language = useLanguageManagement(selectedClass, scores, theme, showToast, aggregatedData);
-    const backstory = useBackstoryGeneration(selectedClass, scores, showToast, aggregatedData);
+    const backstory = useBackstoryGeneration(selectedClass, scores, showToast, aggregatedData, karameikos);
 
     // Handlers that orchestrate calls between hooks
     const handleGenerateName = useCallback(() => {

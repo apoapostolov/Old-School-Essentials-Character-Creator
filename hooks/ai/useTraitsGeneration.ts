@@ -5,13 +5,15 @@ import { LIFESTYLES } from '../../lifestyle-data';
 import { calculateFinalLifestyle } from '../../lifestyle-simulation';
 import { parseJsonLike } from '../../lib/ai/json';
 import type { AggregatedData } from '../useAggregatedData';
+import type { KarameikosState } from '../useKarameikos';
 import { useAiRuntime } from '../useAiRuntime';
 
 export const useTraitsGeneration = (
     selectedClass: ClassInfo | null,
     scores: AbilityScores | null,
     showToast: (msg: string) => void,
-    aggregatedData: AggregatedData
+    aggregatedData: AggregatedData,
+    karameikos?: KarameikosState,
 ) => {
     const [characterTraits, setCharacterTraits] = useState<CharacterTraits | null>(null);
     const [isGeneratingTraits, setIsGeneratingTraits] = useState(false);
@@ -44,6 +46,12 @@ export const useTraitsGeneration = (
             const selectedGender = gender ?? (Math.random() > 0.5 ? 'male' : 'female');
             const prompt = getLifeStandardPrompt(
                 selectedClass, scores, selectedGender, theme, secondarySkills, lifestyleDetails, failureEvent,
+                {
+                    ethnos: karameikos?.ethnos?.origin,
+                    socialStanding: karameikos?.socialStanding?.standing,
+                    promptOverrides: aggregatedData.PROMPT_OVERRIDES,
+                    classGroup: selectedClass.group,
+                },
             );
             const raw = await generateText({ prompt, json: true, purpose: 'simple' });
             const result = parseJsonLike(raw) as { lifeStandard?: string };
@@ -62,7 +70,7 @@ export const useTraitsGeneration = (
         } finally {
             setIsGeneratingLifeStandard(false);
         }
-    }, [selectedClass, scores, showToast, aggregatedData.SECONDARY_SKILLS, generateText]);
+    }, [selectedClass, scores, showToast, aggregatedData.SECONDARY_SKILLS, aggregatedData.PROMPT_OVERRIDES, generateText, karameikos]);
 
     const onGenerateTraits = useCallback(async (
         gender: 'male' | 'female' | null,
@@ -77,6 +85,12 @@ export const useTraitsGeneration = (
             const selectedGender = gender ?? (Math.random() > 0.5 ? 'male' : 'female');
             const prompt = getTraitsPrompt(
                 selectedClass, selectedGender, theme, characterTraits.lifeStandard, aggregatedData.THEMES,
+                {
+                    ethnos: karameikos?.ethnos?.origin,
+                    socialStanding: karameikos?.socialStanding?.standing,
+                    promptOverrides: aggregatedData.PROMPT_OVERRIDES,
+                    classGroup: selectedClass.group,
+                },
             );
             const raw = await generateText({ prompt, json: true, purpose: 'simple' });
             const result = parseJsonLike(raw) as {
@@ -96,7 +110,7 @@ export const useTraitsGeneration = (
         } finally {
             setIsGeneratingTraits(false);
         }
-    }, [selectedClass, scores, characterTraits, showToast, aggregatedData.THEMES, generateText]);
+    }, [selectedClass, scores, characterTraits, showToast, aggregatedData.THEMES, aggregatedData.PROMPT_OVERRIDES, generateText, karameikos]);
 
     const reset = useCallback(() => {
         setCharacterTraits(null);

@@ -168,7 +168,13 @@ const AppContent: React.FC = () => {
         const equipmentItems = equipment.allItemKeys.map(key => aggregatedData.ITEMS[key]).filter(Boolean);
         const lifestyleDetails = ai.characterTraits?.lifestyleKey ? aggregatedData.LIFESTYLES[ai.characterTraits.lifestyleKey] : null;
         // FIX: Added missing 'selectedRace' argument to 'getPortraitPrompt' call to match function signature.
-        return getPortraitPrompt(selectedClass, modifiedScores, ai.gender, ai.theme, ai.characterTraits, progression.characterLevel, ai.secondarySkills, equipmentItems, ai.characterTraits?.lifeStandard ?? null, lifestyleDetails, aggregatedData.THEMES, selectedRace);
+        return getPortraitPrompt(selectedClass, modifiedScores, ai.gender, ai.theme, ai.characterTraits, progression.characterLevel, ai.secondarySkills, equipmentItems, ai.characterTraits?.lifeStandard ?? null, lifestyleDetails, aggregatedData.THEMES, selectedRace, {
+            ethnos: character.karameikos?.ethnos?.origin,
+            socialStanding: character.karameikos?.socialStanding?.standing,
+            promptOverrides: aggregatedData.PROMPT_OVERRIDES,
+            raceName: selectedRace?.name,
+            classGroup: selectedClass.group,
+        });
     };
 
     const generateBackstoryPrompt = () => {
@@ -176,18 +182,33 @@ const AppContent: React.FC = () => {
         const equipmentItems = equipment.allItemKeys.map(key => aggregatedData.ITEMS[key]).filter(Boolean);
         const lifestyleDetails = ai.characterTraits.lifestyleKey ? aggregatedData.LIFESTYLES[ai.characterTraits.lifestyleKey] : null;
         // FIX: Added missing 'selectedRace' argument to 'getBackstoryPrompt' call to match function signature.
-        return getBackstoryPrompt(ai.characterName, selectedClass, modifiedScores, ai.gender, ai.theme, ai.characterTraits, progression.characterLevel, ai.secondarySkills, equipmentItems, ai.characterTraits.lifeStandard ?? null, lifestyleDetails, aggregatedData.THEMES, selectedRace);
+        return getBackstoryPrompt(ai.characterName, selectedClass, modifiedScores, ai.gender, ai.theme, ai.characterTraits, progression.characterLevel, ai.secondarySkills, equipmentItems, ai.characterTraits.lifeStandard ?? null, lifestyleDetails, aggregatedData.THEMES, selectedRace, {
+            ethnos: character.karameikos?.ethnos?.origin,
+            socialStanding: character.karameikos?.socialStanding?.standing,
+            promptOverrides: aggregatedData.PROMPT_OVERRIDES,
+            raceName: selectedRace?.name,
+            classGroup: selectedClass.group,
+        });
     };
 
     const generateNamePrompt = () => {
         if (!selectedClass) return 'Please select a class before viewing the name prompt.';
-        const ethnos = character.karameikos?.ethnos?.origin;
-        return getNamePrompt(ai.gender, selectedClass, ai.theme, aggregatedData.THEMES, ethnos);
+        return getNamePrompt(ai.gender, selectedClass, ai.theme, aggregatedData.THEMES, {
+            ethnos: character.karameikos?.ethnos?.origin,
+            socialStanding: character.karameikos?.socialStanding?.standing,
+            promptOverrides: aggregatedData.PROMPT_OVERRIDES,
+            classGroup: selectedClass.group,
+        });
     };
 
     const generateTraitsPrompt = () => {
         if (!selectedClass) return 'Please select a class before viewing the traits prompt.';
-        return getTraitsPrompt(selectedClass, ai.gender, ai.theme, ai.characterTraits?.lifeStandard ?? null, aggregatedData.THEMES);
+        return getTraitsPrompt(selectedClass, ai.gender, ai.theme, ai.characterTraits?.lifeStandard ?? null, aggregatedData.THEMES, {
+            ethnos: character.karameikos?.ethnos?.origin,
+            socialStanding: character.karameikos?.socialStanding?.standing,
+            promptOverrides: aggregatedData.PROMPT_OVERRIDES,
+            classGroup: selectedClass.group,
+        });
     };
 
     const generateLifeStandardPrompt = () => {
@@ -196,7 +217,12 @@ const AppContent: React.FC = () => {
         const skillName = ai.secondarySkills[0];
         const skillData = skillList.find(s => s.skill === skillName);
         const lifestyleDetails = skillData ? aggregatedData.LIFESTYLES[skillData.lifestyle] : aggregatedData.LIFESTYLES['Modest'];
-        return getLifeStandardPrompt(selectedClass, modifiedScores, ai.gender, ai.theme, ai.secondarySkills, lifestyleDetails, null);
+        return getLifeStandardPrompt(selectedClass, modifiedScores, ai.gender, ai.theme, ai.secondarySkills, lifestyleDetails, null, {
+            ethnos: character.karameikos?.ethnos?.origin,
+            socialStanding: character.karameikos?.socialStanding?.standing,
+            promptOverrides: aggregatedData.PROMPT_OVERRIDES,
+            classGroup: selectedClass.group,
+        });
     };
 
     const isGrogEligible = !!selectedClass?.grog_eligible;

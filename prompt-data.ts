@@ -1,6 +1,7 @@
 
 import { ABILITY_SCORE_DESCRIPTORS } from './ability-score-descriptors';
 import { ABILITIES } from './constants';
+import { collectPromptOverrideText, type PromptPayloadOptions } from './lib/ai/prompt-overrides';
 import type { AbilityScores, CharacterTraits, ClassInfo, Emotion, Item, Lifestyle, LifestyleKey, Race, Theme, ThemeConfig } from './types';
 import { getTitleForLevel } from './utils';
 
@@ -40,109 +41,47 @@ const getArchetype = (classInfo: ClassInfo): string => {
 }
 
 // --- Name Generation ---
-export const getNamePrompt = (gender: string, selectedClass: ClassInfo, theme: Theme, allThemes: Record<string, ThemeConfig>, ethnos?: string) => {
-    const themeConfig = allThemes[theme].name;
+export const getNamePrompt = (
+    gender: string,
+    selectedClass: ClassInfo,
+    theme: Theme,
+    allThemes: Record<string, ThemeConfig>,
+    options?: PromptPayloadOptions,
+) => {
+    const themeConfig = allThemes[theme] ?? allThemes['ose'];
     const isDemihuman = selectedClass.group === 'Demihuman';
     const characterType = isDemihuman ? selectedClass.name.toLowerCase() : selectedClass.name;
-
-    // If Mystara theme and ethnos is provided, include ethnic name examples
-    if (theme === 'mystara' && ethnos) {
-        const nameExamples = getEthnicNameExamples(ethnos, gender);
-        if (nameExamples) {
-            return `Generate a single, unique character name for a ${gender} ${characterType} from the ${ethnos} ethnic group in the Grand Duchy of Karameikos (Mystara D&D setting).
-
-**Cultural Context:**
-${nameExamples.context}
-
-**Example Names for ${gender === 'male' ? 'Males' : 'Females'}:**
-${nameExamples.examples.join(', ')}
-
-**Instructions:**
-- Study the cultural inspiration (${nameExamples.inspiration}) and linguistic patterns in the example names
-- You may choose one of the suggested names OR create an original name that fits the same cultural aesthetic
-- The name should sound authentic to the ${ethnos} ethnicity and match the phonetic patterns shown
-- Ensure the name is appropriate for a ${characterType} character
-- Return ONLY the character name in JSON format with a single key: "name"
-
+    const desc = themeConfig?.name?.promptDescription ?? 'in a classic D&D/OSE fantasy world.';
+    const override = collectPromptOverrideText(options?.promptOverrides, {
+        kind: 'name',
+        gender,
+        ethnos: options?.ethnos,
+        socialStanding: options?.socialStanding,
+        raceName: options?.raceName,
+        classGroup: selectedClass.group,
+    });
+    return `Generate a single, unique character name suitable for a ${gender} ${characterType} ${desc}.
+${override ? `
+${override}
+` : ''}
 Provide the name in JSON format with a single key: "name".`;
-        }
-    }
-
-    // Fallback to default prompt
-    return `Generate a single, unique character name suitable for a ${gender} ${characterType} ${themeConfig.promptDescription}. Provide the name in JSON format with a single key: "name".`;
 };
 
-// Helper function to get ethnic name examples based on ethnos and gender
-const getEthnicNameExamples = (ethnos: string, gender: string): { context: string, inspiration: string, examples: string[] } | null => {
-    const isMale = gender === 'male';
-
-    switch (ethnos) {
-        case 'Slavani':
-            return {
-                context: 'The Slavani (35-40% of population) are the most numerous folk in Karameikos—farmers, artisans, and petty merchants. They use "High Traladaran" names often ending in -ar, -os, or traditional Slavic roots. Many adopt Thyatian-style names to signal status.',
-                inspiration: 'Croatia, Slovenia, Bosnia & Herzegovina',
-                examples: isMale
-                    ? ['Antic', 'Bornos', 'Branimar', 'Darkos', 'Dragovan', 'Ivanar', 'Markos', 'Nikolas', 'Petrar', 'Stefanos', 'Stoyar', 'Zvonimios']
-                    : ['Ana', 'Danica', 'Dragica', 'Ivana', 'Jelena', 'Katarina', 'Marija', 'Petra', 'Vesna', 'Višnja', 'Zlata', 'Željka']
-            };
-
-        case 'Sarapi':
-            return {
-                context: 'The Sarapi (25-30% of population) are hill and river valley folk of fiery temperament and strong family loyalties. They favor hard, consonant-heavy names ending in -mir, -slav, -an, or -ko, reflecting ancient warrior traditions.',
-                inspiration: 'Bulgaria, North Macedonia, Southern Serbia',
-                examples: isMale
-                    ? ['Borislav', 'Bozhidar', 'Branimir', 'Dragutin', 'Krasimir', 'Miroslav', 'Radomir', 'Stanislav', 'Tomislav', 'Vladimir', 'Andon', 'Dragan', 'Georgi', 'Marko', 'Nikola', 'Petar']
-                    : ['Albena', 'Bogdana', 'Desislava', 'Elena', 'Kalina', 'Krasimira', 'Milena', 'Nevena', 'Rayna', 'Teodora', 'Vesna', 'Zora']
-            };
-
-        case 'Polanitsi':
-            return {
-                context: 'The Polanici (12-18% of population) are traders, horse breeders, and grain merchants found near larger settlements. They favor softer consonants and Western Slavic endings like -ek or -ush. Travel and commerce define their culture.',
-                inspiration: 'Poland, Czechia, Slovakia, Western Ukraine',
-                examples: isMale
-                    ? ['Andrzej', 'Dariusz', 'Grzegorz', 'Jacek', 'Jakub', 'Kazimierz', 'Lukasz', 'Maciej', 'Pavel', 'Piotr', 'Tadeusz', 'Vaclav', 'Wojciech', 'Zbigniew', 'Zdenek']
-                    : ['Agata', 'Agnieszka', 'Danuta', 'Elzbieta', 'Hanna', 'Jadwiga', 'Joanna', 'Katarzyna', 'Magdalena', 'Marta', 'Teresa', 'Zofia', 'Zuzanna']
-            };
-
-        case 'Vlastari':
-            return {
-                context: 'The Vlastari (8-12% of population) are mountain clans and shepherds bound by blood oaths and ancient rites. Their names have a distinct Latin/Dacian flavor, often ending in -in, -el, or -us, reflecting Romanian and Vlach heritage.',
-                inspiration: 'Romania, Montenegro, Vlachs',
-                examples: isMale
-                    ? ['Alexandru', 'Andrei', 'Bogdan', 'Constantin', 'Dragos', 'Dumitru', 'Florin', 'Ion', 'Mihai', 'Nicolae', 'Razvan', 'Stefan', 'Traian', 'Vlad']
-                    : ['Ana', 'Andreea', 'Catalina', 'Elena', 'Ioana', 'Iulia', 'Maria', 'Mihaela', 'Raluca', 'Simona', 'Stefania', 'Valentina']
-            };
-
-        case 'Derevei':
-            return {
-                context: 'The Derevei (4-6% of population) are scattered forest folk—hunters, trappers, and herbalists. Silent and stoic, they use East Slavic or Nordic names that are harsh and wintry, reflecting their northern/Rus heritage.',
-                inspiration: 'Russia (Northern/Siberian), Belarus, Northern Ukraine, Scandinavia',
-                examples: isMale
-                    ? ['Alexey', 'Boris', 'Dmitry', 'Igor', 'Ivan', 'Mikhail', 'Nikolai', 'Pavel', 'Sergey', 'Vladimir', 'Yaroslav', 'Bjorn', 'Harald', 'Olaf', 'Ragnar', 'Sven']
-                    : ['Aleksandra', 'Anastasia', 'Ekaterina', 'Elena', 'Irina', 'Maria', 'Natalia', 'Olga', 'Svetlana', 'Tatiana', 'Astrid', 'Freya', 'Helga', 'Ingrid']
-            };
-
-        case 'Stigani':
-            return {
-                context: 'The Stigani (1-3% of population) are nomadic artisans, musicians, and traders living in mobile family groups. Viewed with suspicion by settled folk, they use exotic names that sound foreign, often borrowed and twisted from other cultures.',
-                inspiration: 'Roma / Travelers',
-                examples: isMale
-                    ? ['Arsen', 'Bavol', 'Django', 'Hanzi', 'Janko', 'Kiran', 'Marko', 'Milosh', 'Nicu', 'Rajko', 'Romano', 'Tamas', 'Vano', 'Zindelo']
-                    : ['Esmeralda', 'Florica', 'Kali', 'Kezia', 'Miri', 'Nadia', 'Sabina', 'Shani', 'Simza', 'Viorela', 'Zemfira']
-            };
-
-        case 'Thyatian':
-            return {
-                context: 'Thyatians (15-20% of population, concentrated in cities) are the ruling class—administrators, knights, and officers from the Thyatian Empire. They use distinctly Byzantine/Greek names, separating them from the Slavic-named subjects.',
-                inspiration: 'Byzantine Empire / Constantinople / Rome',
-                examples: isMale
-                    ? ['Adrianos', 'Alexios', 'Antonios', 'Basileios', 'Christos', 'Demetrios', 'Georgios', 'Konstantios', 'Leonidas', 'Michael', 'Nikolaos', 'Stephanos', 'Theodoros']
-                    : ['Alexandra', 'Anastasia', 'Angeliki', 'Christina', 'Daphni', 'Eleni', 'Eirene', 'Helena', 'Katerina', 'Maria', 'Sophia', 'Theodora']
-            };
-
-        default:
-            return null;
+export const getVillageNamePrompt = (
+    socialStanding: string,
+    ethnos: string,
+    options?: PromptPayloadOptions,
+): string => {
+    const override = collectPromptOverrideText(options?.promptOverrides, {
+        kind: 'village',
+        ethnos: options?.ethnos ?? ethnos,
+        socialStanding: options?.socialStanding ?? socialStanding,
+    });
+    if (override) {
+        return `${override}
+Return ONLY the village name as JSON: {"villageName":"..."}`;
     }
+    return `Generate a single authentic Slavic fantasy village or homestead name for the Grand Duchy of Karameikos setting (based on Mystara D&D). The character is from a family with ${socialStanding} social standing and ${ethnos} ethnicity. The name should sound like it belongs in Eastern European folklore with Slavic linguistic patterns. One token: hyphens allowed, no spaces. Return ONLY the village name as JSON: {"villageName":"..."}`;
 };
 
 // --- Traits Generation (Split into two parts) ---
@@ -154,7 +93,8 @@ export const getLifeStandardPrompt = (
     theme: Theme,
     secondarySkills: string[],
     lifestyleDetails: Lifestyle,
-    failureEvent: { tier: LifestyleKey, type: 'brutal' | 'unfortunate' } | null
+    failureEvent: { tier: LifestyleKey, type: 'brutal' | 'unfortunate' } | null,
+    options?: PromptPayloadOptions,
 ) => {
     const isDemihuman = selectedClass.group === 'Demihuman';
     const characterType = isDemihuman ? selectedClass.name.toLowerCase() : selectedClass.name;
@@ -173,7 +113,15 @@ Use the following scores to make your judgment: WIS ${scores.Wisdom}, INT ${scor
 - High CHA (13+) implies they were well-respected or liked. Low CHA (8-) implies they were disliked or infamous.
 Combine these factors into one fluid sentence about their past career, grounding it in the following background style: **${lifestyleDetails.backgroundStyle}**.`;
 
-    return `Generate a "lifeStandard" for a ${gender} ${characterType}. ${professionClause}${failureClause}\n\n${rulesClause} Provide the output in JSON format with a single key: "lifeStandard".`;
+    const override = collectPromptOverrideText(options?.promptOverrides, {
+        kind: 'lifeStandard',
+        gender,
+        ethnos: options?.ethnos,
+        socialStanding: options?.socialStanding,
+        raceName: options?.raceName,
+        classGroup: selectedClass.group,
+    });
+    return `Generate a "lifeStandard" for a ${gender} ${characterType}. ${professionClause}${failureClause}\n\n${rulesClause}${override ? `\n\n${override}` : ''} Provide the output in JSON format with a single key: "lifeStandard".`;
 };
 
 
@@ -182,13 +130,22 @@ export const getTraitsPrompt = (
     gender: string,
     theme: Theme,
     lifeStandard: string | null,
-    allThemes: Record<string, ThemeConfig>
+    allThemes: Record<string, ThemeConfig>,
+    options?: PromptPayloadOptions,
 ) => {
     const themeConfig = allThemes[theme].traits;
     const contextClause = lifeStandard ? `Their background is summarized as: "${lifeStandard}". The traits you generate should be consistent with this life experience.` : '';
     const isDemihuman = selectedClass.group === 'Demihuman';
     const characterType = isDemihuman ? selectedClass.name.toLowerCase() : selectedClass.name;
-    return `Generate three distinct character traits for a ${gender} ${characterType} ${themeConfig.promptDescription}. ${contextClause} Provide the traits in JSON format according to the specified schema. The negative trait should be a significant flaw that adds depth and potential for conflict, reflecting the chosen theme. It could be a physical ailment, a psychological compulsion, or a dark personality quirk.`;
+    const override = collectPromptOverrideText(options?.promptOverrides, {
+        kind: 'traits',
+        gender,
+        ethnos: options?.ethnos,
+        socialStanding: options?.socialStanding,
+        raceName: options?.raceName,
+        classGroup: selectedClass.group,
+    });
+    return `Generate three distinct character traits for a ${gender} ${characterType} ${themeConfig.promptDescription}. ${contextClause}${override ? ` ${override}` : ''} Provide the traits in JSON format according to the specified schema. The negative trait should be a significant flaw that adds depth and potential for conflict, reflecting the chosen theme. It could be a physical ailment, a psychological compulsion, or a dark personality quirk.`;
 };
 
 // --- Helper for Portrait Prompt ---
@@ -214,7 +171,8 @@ export const getPortraitPrompt = (
     lifeStandard: string | null,
     lifestyleDetails: Lifestyle | null,
     allThemes: Record<string, ThemeConfig>,
-    race: Race | null
+    race: Race | null,
+    options?: PromptPayloadOptions,
 ): string => {
     const title = getTitleForLevel(selectedClass, level);
     const abilityScoreDescriptors = getAbilityScoreDescriptorsString(scores);
@@ -293,6 +251,15 @@ export const getPortraitPrompt = (
         gender ? `**Gender:** ${gender.charAt(0).toUpperCase() + gender.slice(1)}` : null
     ].filter(Boolean);
 
+    const override = collectPromptOverrideText(options?.promptOverrides, {
+        kind: 'portrait',
+        gender,
+        ethnos: options?.ethnos,
+        socialStanding: options?.socialStanding,
+        raceName: options?.raceName ?? race?.name ?? raceNameForPrompt,
+        classGroup: selectedClass.group,
+    });
+
     return `Generate a character portrait based on the following information.
 ${headerParts.join('\n')}
 **Title & Power Level:** This character is a Level ${level}/${selectedClass.maxLevel} ${selectedClass.name} with the title "${title}". The title indicates their current standing and experience; they are not at the peak of their power unless their level is near maximum. Their appearance should reflect this stage of their career.
@@ -311,7 +278,8 @@ ${containerInstruction}
 - Atmosphere: ${portraitPromptConfig.atmosphere}
 - Visual Style: ${portraitPromptConfig.visualStyle}
 - Additional Details: ${portraitPromptConfig.additionalDetails}
-**Final Interpretation:** Interpret these physical and mental traits to influence the character's appearance. For example, a character described as frail should have a thin build, while a charismatic one might have a confident expression. ${genderInstruction} The final image should be a single character, full-body portrait, with a 9:16 aspect ratio.`;
+${override ? `${override}
+` : ''}**Final Interpretation:** Interpret these physical and mental traits to influence the character's appearance. For example, a character described as frail should have a thin build, while a charismatic one might have a confident expression. ${genderInstruction} The final image should be a single character, full-body portrait, with a 9:16 aspect ratio.`;
 };
 
 export const getDescriptionPrompt = (traits: CharacterTraits | null): string => {
@@ -363,7 +331,8 @@ export const getBackstoryPrompt = (
     lifeStandard: string | null,
     lifestyleDetails: Lifestyle | null,
     allThemes: Record<string, ThemeConfig>,
-    race: Race | null
+    race: Race | null,
+    options?: PromptPayloadOptions,
 ): string => {
     const title = getTitleForLevel(selectedClass, level);
     const themeConfig = allThemes[theme];
@@ -392,6 +361,15 @@ export const getBackstoryPrompt = (
         ? `This character is Level ${level}. Their story must reflect this experience. For each level above one (that's ${level - 1} adventure${level > 2 ? 's' : ''}), they have survived a significant and perilous undertaking appropriate for their level. Briefly allude to these past exploits to explain their current competence and outlook.`
         : 'This character is at the very beginning of their adventuring career.';
 
+    const override = collectPromptOverrideText(options?.promptOverrides, {
+        kind: 'backstory',
+        gender,
+        ethnos: options?.ethnos,
+        socialStanding: options?.socialStanding,
+        raceName: options?.raceName ?? race?.name,
+        classGroup: selectedClass.group,
+    });
+
     return `You are a human fantasy author with a knack for creating grounded, compelling character histories. Write a detailed, two-page backstory for the following character. The story should be a summary of their life, from youth to their current adventuring career. Weave their traits and abilities into the narrative subtly, without listing them directly.
 
 **Character Details:**
@@ -416,7 +394,7 @@ ${raceInstruction ? `- ${raceInstruction}\n` : ''}- ${classInstruction}
 3.  **Focus on the "Why":** The most important part is the inciting incident. What made them leave their old life? Was it tragedy, ambition, desperation, or a calling?
 4.  **Incorporate Experience:** ${levelExperienceClause}
 5.  **Formatting:** Use Markdown to bold the names of any important characters (family, mentors, rivals), places (hometowns, significant locations), or unique items you invent for the story. For example: "He was born in the village of **Oakhaven** to his parents, **Elara** and **Garrick**."
-6.  **Tone & Style:** The tone should be serious and grounded, fitting the specified theme. The output must be a single long string with paragraphs separated by double newlines (\\n\\n).`;
+6.  **Tone & Style:** The tone should be serious and grounded, fitting the specified theme. The output must be a single long string with paragraphs separated by double newlines (\\n\\n).${override ? `\n7.  **Setting override:** ${override}` : ''}`;
 };
 
 // --- Grog Generation ---

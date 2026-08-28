@@ -13,6 +13,7 @@ import type {
   Spell,
   ThemeConfig,
 } from '../types';
+import type { SourcePromptOverrides } from '../lib/ai/prompt-overrides';
 import type { SheetConfig } from './ose/sheet-config';
 
 export interface SourceData {
@@ -27,6 +28,8 @@ export interface SourceData {
   sheetConfig: SheetConfig;
   pdfMap: any;
   classData: any;
+  /** Optional. Lives in third-party/<pack>/prompt-overrides.ts */
+  promptOverrides?: SourcePromptOverrides;
 }
 
 const sourceCache = new Map<SourceID, SourceData>();
@@ -127,6 +130,7 @@ async function importSourcePack(sourceId: SourceID): Promise<SourceData> {
         { SHEET_CONFIG },
         { PDF_FIELD_MAP },
         classData,
+        { PROMPT_OVERRIDES },
       ] = await Promise.all([
         import('./mystara/class-features'),
         import('./mystara/races-data'),
@@ -139,6 +143,7 @@ async function importSourcePack(sourceId: SourceID): Promise<SourceData> {
         import('./mystara/sheet-config'),
         import('./mystara/pdf-fields-config'),
         import('./mystara/class-data'),
+        import('./mystara/prompt-overrides'),
       ]);
       return {
         features: CLASS_FEATURES_DATA,
@@ -152,6 +157,7 @@ async function importSourcePack(sourceId: SourceID): Promise<SourceData> {
         sheetConfig: SHEET_CONFIG,
         pdfMap: PDF_FIELD_MAP,
         classData,
+        promptOverrides: PROMPT_OVERRIDES,
       };
     }
     case 'northland': {

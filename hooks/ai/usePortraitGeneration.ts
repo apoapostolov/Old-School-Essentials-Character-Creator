@@ -4,6 +4,7 @@ import type { AbilityScores, CharacterTraits, ClassInfo, Emotion, Item, Race, Th
 import { cropImage } from '../../utils/image';
 import { parseJsonLike } from '../../lib/ai/json';
 import type { AggregatedData } from '../useAggregatedData';
+import type { KarameikosState } from '../useKarameikos';
 import { useAiRuntime } from '../useAiRuntime';
 
 export const usePortraitGeneration = (
@@ -11,7 +12,8 @@ export const usePortraitGeneration = (
     scores: AbilityScores | null,
     level: number,
     showToast: (msg: string) => void,
-    aggregatedData: AggregatedData
+    aggregatedData: AggregatedData,
+    karameikos?: KarameikosState,
 ) => {
     const [portrait, setPortrait] = useState<string | null>(null);
     const [headshot, setHeadshot] = useState<string | null>(null);
@@ -78,6 +80,13 @@ export const usePortraitGeneration = (
             const prompt = getPortraitPrompt(
                 selectedClass, scores, gender, theme, traits, level, secondarySkills,
                 equipmentItems, lifeStandard, lifestyleDetails, aggregatedData.THEMES, race,
+                {
+                    ethnos: karameikos?.ethnos?.origin,
+                    socialStanding: karameikos?.socialStanding?.standing,
+                    promptOverrides: aggregatedData.PROMPT_OVERRIDES,
+                    raceName: race?.name,
+                    classGroup: selectedClass.group,
+                },
             );
             const newPortrait = await generateImage({ prompt, aspectRatio: '1:1' });
             setPortrait(newPortrait);
@@ -90,7 +99,7 @@ export const usePortraitGeneration = (
         } finally {
             setIsGeneratingPortrait(false);
         }
-    }, [selectedClass, scores, level, generateDescription, aggregatedData.THEMES, aggregatedData.LIFESTYLES, generateImage]);
+    }, [selectedClass, scores, level, generateDescription, aggregatedData.THEMES, aggregatedData.LIFESTYLES, aggregatedData.PROMPT_OVERRIDES, generateImage, karameikos]);
 
     const onCropHeadshot = useCallback(async () => {
         if (!portrait) {

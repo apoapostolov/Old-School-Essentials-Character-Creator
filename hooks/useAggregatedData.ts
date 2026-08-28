@@ -16,6 +16,7 @@ import type {
 import { Ability } from '../types';
 import type { SheetConfig } from '../third-party/ose/sheet-config';
 import { loadSources, type SourceData } from '../third-party/load-source';
+import type { SourcePromptOverrides } from '../lib/ai/prompt-overrides';
 
 // Base Data (OSE) — always eager
 import { CLASS_FEATURES_DATA as BASE_CLASS_FEATURES } from '../class-features';
@@ -72,6 +73,7 @@ export interface AggregatedData {
   LIFESTYLES: typeof LIFESTYLES;
   SHEET_CONFIGS: Partial<Record<SourceID, SheetConfig>>;
   PDF_FIELD_MAPS: Partial<Record<SourceID, any>>;
+  PROMPT_OVERRIDES: SourcePromptOverrides[];
   isLoading: boolean;
   loadError: string | null;
 }
@@ -90,6 +92,7 @@ function buildAggregated(
   let allSecondarySkills: Record<Theme, SecondarySkillEntry[]> = { ...BASE_SECONDARY_SKILLS };
   let allSheetConfigs: Partial<Record<SourceID, SheetConfig>> = { ose: OSE_SHEET_CONFIG };
   let allPdfFieldMaps: Partial<Record<SourceID, any>> = { ose: OSE_PDF_MAP };
+  const allPromptOverrides: SourcePromptOverrides[] = [];
 
   let aggregatedClassTitles = { ...OSE_CLASS_DATA.CLASS_TITLES };
   let aggregatedSpellSlots = { ...OSE_CLASS_DATA.SPELL_SLOTS_DATA };
@@ -122,6 +125,7 @@ function buildAggregated(
     allSecondarySkills = { ...allSecondarySkills, ...sourceData.secondarySkills };
     allSheetConfigs[sourceId] = sourceData.sheetConfig;
     allPdfFieldMaps[sourceId] = sourceData.pdfMap;
+    if (sourceData.promptOverrides) allPromptOverrides.push(sourceData.promptOverrides);
 
     aggregatedClassTitles = { ...aggregatedClassTitles, ...sourceData.classData.CLASS_TITLES };
     aggregatedSpellSlots.classes = {
@@ -219,6 +223,7 @@ function buildAggregated(
     LIFESTYLES,
     SHEET_CONFIGS: allSheetConfigs,
     PDF_FIELD_MAPS: allPdfFieldMaps,
+    PROMPT_OVERRIDES: allPromptOverrides,
   };
 }
 

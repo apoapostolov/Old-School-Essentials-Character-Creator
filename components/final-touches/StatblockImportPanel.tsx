@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useCharacterExtras } from '../../context/CharacterContext';
+import { useSourceContext } from '../../context/SourceContext';
+import { formatFoundryNotesHtml, formatKarameikosStatblockNotes } from '../../data/karameikos-data';
 import { getImgurClientId } from '../SettingsModal';
 import { getAttackValuesForLevel, getModifier } from '../../utils/character';
 import { getEncumbranceDetails } from '../../utils/encumbrance';
@@ -71,7 +73,8 @@ const WORN = (item: Item): string =>
     `${item.name} ${item.carry_type === 'stowed' ? '{stowed}' : '{worn}'}`;
 
 export const StatblockImportPanel: React.FC = () => {
-    const { ai, selectedClass, selectedRace, characterRoll, aggregatedData, progression, equipment } = useCharacterExtras();
+    const { ai, selectedClass, selectedRace, characterRoll, aggregatedData, progression, equipment, karameikos } = useCharacterExtras();
+    const { selectedSources } = useSourceContext();
     const [copied, setCopied] = useState(false);
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [savingImage, setSavingImage] = useState(false);
@@ -104,8 +107,8 @@ export const StatblockImportPanel: React.FC = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ai.pdfPortraitSrc, ai.portrait]);
 
-    const statblock = useMemo(() => {
-        if (!selectedClass) return '';
+    const { statblock, notesHtml } = useMemo(() => {
+        if (!selectedClass) return { statblock: '', notesHtml: '' };
         const scores = characterRoll.scores;
         const level = progression.characterLevel || 1;
         const items = (equipment.allItemKeys ?? [])
@@ -172,26 +175,48 @@ export const StatblockImportPanel: React.FC = () => {
             ai.commonLanguage,
             ai.racialLanguage?.name,
             ...(ai.selectedBonusLanguages ?? []),
-        ].filter(Boolean);
+            ...((selectedSources.has('mystara') ? karameikos?.selectedScripts : undefined) ?? []),
+        ].filter(Boolean) as string[];
         if (languages.length > 1 || (languages.length === 1 && languages[0] !== 'Common Tongue')) {
             parts.push(`Languages: ${languages.join(', ')}`);
         }
 
-        const traits = ai.characterTraits
+        const personality = ai.characterTraits
             ? [ai.characterTraits.positivePhysical, ai.characterTraits.positiveMental, ai.characterTraits.negative]
                 .filter(Boolean).join(', ')
             : '';
+        const karameikosTraits = selectedSources.has('mystara') && karameikos
+            ? formatKarameikosStatblockNotes({
+                socialStanding: karameikos.socialStanding,
+                ethnos: karameikos.ethnos,
+                literacy: karameikos.literacy,
+                hometown: karameikos.hometown,
+                villageName: karameikos.villageName,
+                selectedScripts: karameikos.selectedScripts,
+            }).join('. ')
+            : '';
+        const traits = [personality, karameikosTraits].filter(Boolean).join('. ');
         if (traits) parts.push(`Traits: ${traits}`);
 
         if (ai.characterTraits?.lifeStandard) parts.push(`Role: ${ai.characterTraits.lifeStandard}`);
 
-        const notes: string[] = [];
-        if (selectedRace && RACE_SV_NOTE[selectedRace.name]) notes.push(`race ${RACE_SV_NOTE[selectedRace.name]}`);
-        if (selectedClass.name === 'Sage') notes.push('Sage class, saves as Magic-User');
-        if (notes.length) parts.push(`Notes: ${notes.join('; ')}`);
+        const features: string[] = [];
+        if (selectedRace && RACE_SV_NOTE[selectedRace.name]) {
+            features.push(`{${RACE_SV_NOTE[selectedRace.name]}} Demihuman.`);
+        }
+        if (selectedClass.name === 'Sage') {
+            features.push('{Sage} Saves as Magic-User.');
+        }
+        if (features.length) parts.push(`Feature: ${features.join(' ')}`);
 
-        return `${name}: ${parts.join('; ')}`;
-    }, [ai, selectedClass, selectedRace, characterRoll, aggregatedData, progression, equipment, imageUrl]);
+        const languageNotes = (languages.length > 1 || (languages.length === 1 && languages[0] !== 'Common Tongue'))
+            ? languages
+            : [];
+        return {
+            statblock: `${name}: ${parts.join('; ')}`,
+            notesHtml: formatFoundryNotesHtml(traits, languageNotes),
+        };
+    }, [ai, selectedClass, selectedRace, characterRoll, aggregatedData, progression, equipment, imageUrl, karameikos, selectedSources]);
 
     const onCopy = async () => {
         if (!statblock) return;
@@ -253,6 +278,15 @@ export const StatblockImportPanel: React.FC = () => {
                 className="w-full resize-y min-h-24 max-h-96 bg-gray-900/80 border border-gray-700 rounded-lg p-3 font-mono text-xs text-gray-300 leading-relaxed focus:outline-none focus:border-yellow-400/60"
                 spellCheck={false}
             />
+            {notesHtml ? (
+                <div className="mt-3">
+                    <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Foundry notes (HTML)</p>
+                    <div
+                        className="bg-gray-900/80 border border-gray-700 rounded-lg p-3 text-sm text-gray-200 leading-relaxed prose prose-invert max-w-none"
+                        dangerouslySetInnerHTML={{ __html: notesHtml }}
+                    />
+                </div>
+            ) : null}
         </div>
     );
 };

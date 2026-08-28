@@ -2,13 +2,15 @@ import { useCallback, useState } from 'react';
 import type { ClassInfo, AbilityScores, CharacterTraits, Theme, Item, Lifestyle, Race } from '../../types';
 import { getBackstoryPrompt } from '../../prompt-data';
 import type { AggregatedData } from '../useAggregatedData';
+import type { KarameikosState } from '../useKarameikos';
 import { useAiRuntime } from '../useAiRuntime';
 
 export const useBackstoryGeneration = (
     selectedClass: ClassInfo | null,
     scores: AbilityScores | null,
     showToast: (msg: string) => void,
-    aggregatedData: AggregatedData
+    aggregatedData: AggregatedData,
+    karameikos?: KarameikosState,
 ) => {
     const [backstory, setBackstory] = useState<string | null>(null);
     const [isGeneratingBackstory, setIsGeneratingBackstory] = useState(false);
@@ -45,7 +47,14 @@ export const useBackstoryGeneration = (
                 characterTraits.lifeStandard ?? null,
                 lifestyleDetails,
                 aggregatedData.THEMES,
-                race
+                race,
+                {
+                    ethnos: karameikos?.ethnos?.origin,
+                    socialStanding: karameikos?.socialStanding?.standing,
+                    promptOverrides: aggregatedData.PROMPT_OVERRIDES,
+                    raceName: race?.name,
+                    classGroup: selectedClass.group,
+                },
             );
             const text = await generateText({ prompt, purpose: 'creative' });
             setBackstory(text.trim());
@@ -55,7 +64,7 @@ export const useBackstoryGeneration = (
         } finally {
             setIsGeneratingBackstory(false);
         }
-    }, [selectedClass, scores, showToast, aggregatedData.THEMES, generateText]);
+    }, [selectedClass, scores, showToast, aggregatedData.THEMES, aggregatedData.PROMPT_OVERRIDES, generateText, karameikos]);
 
     const reset = useCallback(() => {
         setBackstory(null);

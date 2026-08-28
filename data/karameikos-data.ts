@@ -436,3 +436,85 @@ export function rollHometown(socialStandingRoll: number): HometownResult {
     description: entry.description,
   };
 }
+
+const firstSentence = (text: string, max = 110): string => {
+  const compact = text.replace(/\s+/g, ' ').replace(/;/g, ',').trim();
+  const match = compact.match(/^.+?[.](?=\s|$)/);
+  const sentence = (match ? match[0] : compact).trim();
+  if (sentence.length <= max) return sentence;
+  const cut = sentence.slice(0, max);
+  const space = cut.lastIndexOf(' ');
+  return (space > 40 ? cut.slice(0, space) : cut).replace(/[.,:]+$/, '');
+};
+
+const sanitizeNote = (text: string): string => text.replace(/;/g, ',').replace(/\s+/g, ' ').trim();
+
+/**
+ * Karameikos background as Traits: clauses.
+ * ose-statblock-importer only writes system.details.notes from Traits
+ * (HTML `<strong>traits:</strong> …`) plus Languages/TT/NA extras.
+ * A Notes: token is not a freeform field — it is scraped for traits/gear
+ * and the rest is dropped. No semicolons: the importer splits tokens on `;`.
+ */
+export function formatKarameikosStatblockNotes(input: {
+  socialStanding?: SocialStandingResult | null;
+  ethnos?: EthnosResult | null;
+  literacy?: LiteracyResult | null;
+  hometown?: HometownResult | null;
+  villageName?: string | null;
+  selectedScripts?: string[];
+}): string[] {
+  const parts: string[] = [];
+  const standing = input.socialStanding;
+  if (standing) {
+    if (standing.goldModifier === 0) {
+      parts.push(`Standing: ${sanitizeNote(standing.standing)}`);
+    } else {
+      const gold = standing.goldModifier > 0 ? `+${standing.goldModifier}%` : `${standing.goldModifier}%`;
+      parts.push(`Standing: ${sanitizeNote(standing.standing)} (gold ${gold})`);
+    }
+  }
+  const ethnos = input.ethnos;
+  if (ethnos) {
+    const blurb = firstSentence(ethnos.description);
+    parts.push(blurb
+      ? `Ethnos: ${sanitizeNote(ethnos.origin)} (${blurb})`
+      : `Ethnos: ${sanitizeNote(ethnos.origin)}`);
+  }
+  const literacy = input.literacy;
+  if (literacy) {
+    let line = `Literacy: ${sanitizeNote(literacy.proficiencyLevel)}`;
+    const scripts = (input.selectedScripts ?? []).map(sanitizeNote).filter(Boolean);
+    if (scripts.length) line += ` (scripts ${scripts.join(', ')})`;
+    parts.push(line);
+  }
+  const hometown = input.hometown;
+  if (hometown) {
+    let town = sanitizeNote(hometown.hometown);
+    if (input.villageName && (hometown.hometown === 'Homestead' || hometown.hometown === 'Village/Town')) {
+      const prefix = hometown.hometown === 'Homestead' ? 'Homestead of ' : 'Village of ';
+      town = `${prefix}${sanitizeNote(input.villageName)}`;
+    }
+    const blurb = firstSentence(hometown.description);
+    parts.push(blurb ? `Origin: ${town} (${blurb})` : `Origin: ${town}`);
+  }
+  return parts;
+}
+
+export function escapeStatblockHtml(text: string): string {
+  return String(text ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/** HTML the importer writes to system.details.notes for these fields. */
+export function formatFoundryNotesHtml(traits: string, languages: string[] = []): string {
+  const parts: string[] = [];
+  const traitText = sanitizeNote(traits);
+  if (traitText) parts.push(`<strong>traits:</strong> ${escapeStatblockHtml(traitText)}`);
+  const langs = languages.map(sanitizeNote).filter(Boolean);
+  if (langs.length) parts.push(`Languages: ${escapeStatblockHtml(langs.join(', '))}`);
+  return parts.join('<br>');
+}

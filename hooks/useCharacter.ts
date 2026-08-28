@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { AbilityScores, ClassInfo, Race, CharacterSaveData } from '../types';
-import { parseJsonLike } from '../lib/ai/json';
+import { extractNamedText } from '../lib/ai/json';
+import { getVillageNamePrompt } from '../prompt-data';
 import { applyRaceModifiers } from '../domain/race-modifiers';
 import type { AggregatedData } from './useAggregatedData';
 import { useAiRuntime } from './useAiRuntime';
@@ -24,16 +25,20 @@ export const useCharacter = (showToast: (msg: string) => void, aggregatedData: A
     // Function to generate village/homestead names using AI
     const generateVillageName = useCallback(async (socialStanding: string, ethnos: string): Promise<string> => {
         try {
-            const prompt = `Generate a single authentic Slavic fantasy village or homestead name for the Grand Duchy of Karameikos setting (based on Mystara D&D). The character is from a family with ${socialStanding} social standing and ${ethnos} ethnicity. The name should sound like it belongs in Eastern European folklore with Slavic linguistic patterns. Reference the style from Grand Duchy of Karameikos Gazetteer (GAZ1). Return ONLY the village name as JSON: {"villageName":"..."}`;
+            const prompt = getVillageNamePrompt(socialStanding, ethnos, {
+                ethnos,
+                socialStanding,
+                promptOverrides: aggregatedData.PROMPT_OVERRIDES,
+            });
             const raw = await generateText({ prompt, json: true, purpose: 'simple' });
-            const result = parseJsonLike(raw) as { villageName?: string };
-            if (!result?.villageName) throw new Error('No village name returned');
-            return result.villageName;
+            const villageName = extractNamedText(raw, ['villageName', 'name']);
+            if (!villageName) throw new Error('The simple writing slot returned no usable village name.');
+            return villageName;
         } catch (error) {
             console.error('Village name generation failed:', error);
             throw error;
         }
-    }, [generateText]);
+    }, [generateText, aggregatedData.PROMPT_OVERRIDES]);
 
     // Compose the individual hooks
     const characterRoll = useCharacterRoll();
