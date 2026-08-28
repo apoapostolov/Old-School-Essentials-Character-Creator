@@ -1,7 +1,8 @@
-import { useCallback, useMemo, useState } from 'react';
-import type { AbilityScores, ClassInfo, Item, Race, Theme } from '../../types';
-import type { AggregatedData } from '../useAggregatedData';
-import type { KarameikosState } from '../useKarameikos';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { preferredWorldTheme } from '../theme-data';
+import type { AbilityScores, ClassInfo, Item, Race, Theme } from '../types';
+import type { AggregatedData } from './useAggregatedData';
+import type { KarameikosState } from './useKarameikos';
 
 import { useBackstoryGeneration } from './ai/useBackstoryGeneration';
 import { useLanguageManagement } from './ai/useLanguageManagement';
@@ -21,13 +22,18 @@ export const useAIGeneration = (
     karameikos?: KarameikosState
 ) => {
     // Shared state managed by the main hook
-    const [theme, setTheme] = useState<Theme>('ose');
+    const [theme, setTheme] = useState<Theme>(() => preferredWorldTheme(aggregatedData.THEMES));
     const [gender, setGender] = useState<'male' | 'female'>('male');
     const equipmentItems = useMemo(() => allItemKeys.map(key => aggregatedData.ITEMS[key]).filter((item): item is Item => !!item), [allItemKeys, aggregatedData.ITEMS]);
+    const worldThemeKeys = Object.keys(aggregatedData.THEMES).join('\0');
+
+    useEffect(() => {
+        setTheme((current) => preferredWorldTheme(aggregatedData.THEMES, current));
+    }, [worldThemeKeys, aggregatedData.THEMES]);
 
     // Composing smaller, focused hooks
     const nameGen = useNameGeneration(selectedClass, showToast, aggregatedData, karameikos);
-    const secondarySkills = useSecondarySkills(theme, aggregatedData);
+    const secondarySkills = useSecondarySkills(theme, selectedClass?.name ?? null, aggregatedData);
     const traitsGen = useTraitsGeneration(selectedClass, scores, showToast, aggregatedData, karameikos);
     const portraitGen = usePortraitGeneration(selectedClass, scores, level, showToast, aggregatedData, karameikos);
     const language = useLanguageManagement(selectedClass, scores, theme, showToast, aggregatedData);
@@ -77,7 +83,7 @@ export const useAIGeneration = (
     }, [backstory, nameGen.characterName, traitsGen.characterTraits, gender, theme, secondarySkills.secondarySkills, level, equipmentItems, aggregatedData.LIFESTYLES, selectedRace]);
 
     const reset = useCallback(() => {
-        setTheme('ose');
+        setTheme(preferredWorldTheme(aggregatedData.THEMES));
         setGender('male');
         nameGen.reset();
         traitsGen.resetTraits();
@@ -85,10 +91,10 @@ export const useAIGeneration = (
         language.reset();
         secondarySkills.reset();
         backstory.reset();
-    }, [nameGen, traitsGen, portraitGen, language, secondarySkills, backstory]);
+    }, [nameGen, traitsGen, portraitGen, language, secondarySkills, backstory, aggregatedData.THEMES]);
 
     const restoreState = useCallback((state: any) => {
-        setTheme(state?.theme ?? 'ose');
+        setTheme(preferredWorldTheme(aggregatedData.THEMES, state?.theme));
         setGender(state?.gender ?? 'male');
 
         nameGen.restore(state?.characterName);
@@ -112,7 +118,7 @@ export const useAIGeneration = (
             backstory: state?.backstory ?? null,
             isGeneratingBackstory: state?.isGeneratingBackstory ?? false,
         });
-    }, [nameGen, traitsGen, portraitGen, language, secondarySkills, backstory]);
+    }, [nameGen, traitsGen, portraitGen, language, secondarySkills, backstory, aggregatedData.THEMES]);
 
     return {
         // Shared state

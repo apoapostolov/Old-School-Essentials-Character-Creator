@@ -42,6 +42,18 @@ describe('Mystara prompt override pack', () => {
         expect(prompt).toContain('Byzantine');
     });
 
+    it('lists a large female example-name bank', () => {
+        const prompt = getNamePrompt('female', fighter, 'ose', OSE_THEMES, {
+            ethnos: 'Slavani',
+            promptOverrides: packs,
+        });
+        const line = prompt.split('\n').find((row) => row.startsWith('Example Names for Females:'));
+        expect(line).toBeTruthy();
+        const count = line!.split(',').length;
+        expect(count).toBeGreaterThanOrEqual(70);
+        expect(prompt).not.toContain('Real female names');
+    });
+
     it('forces bronze-dark Stigani humans and bans pale Russian Romani', () => {
         const prompt = getPortraitPrompt(
             fighter, scores, 'male', 'ose', null, 1, null, [], null, null, OSE_THEMES, human,

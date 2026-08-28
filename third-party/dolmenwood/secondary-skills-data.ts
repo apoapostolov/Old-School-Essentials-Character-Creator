@@ -1,6 +1,7 @@
-import type { SecondarySkillEntry } from '../../types';
+import type { SecondarySkillEntry, SecondarySkillsByClass } from '../../types';
 
-export const SECONDARY_SKILLS_DOLMENWOOD: SecondarySkillEntry[] = [
+export const SECONDARY_SKILLS_DOLMENWOOD: SecondarySkillsByClass = {
+  default: [
   { min: 1, max: 5, skill: 'Apiarist (Bee Keeper)', lifestyle: 'Modest' },
   { min: 6, max: 10, skill: 'Basket-weaver', lifestyle: 'Poor' },
   { min: 11, max: 15, skill: 'Charcoaler', lifestyle: 'Squalid' },
@@ -21,4 +22,5 @@ export const SECONDARY_SKILLS_DOLMENWOOD: SecondarySkillEntry[] = [
   { min: 86, max: 90, skill: 'Toll-keeper', lifestyle: 'Modest' },
   { min: 91, max: 95, skill: 'Woodcutter', lifestyle: 'Poor' },
   { min: 96, max: 100, skill: 'Worm-wrangler', lifestyle: 'Squalid' },
-];
+  ],
+};

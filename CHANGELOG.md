@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 - LAN host Codex and Grok OAuth: Vite injects this machine's CLI sessions so
   table players can generate without their own accounts. Admin page at `/__host`.
   Tokens stay on the server.
+- Generate Traits and names recover Codex JSON even when Luna streams CRLF SSE
+  or wraps keys in markdown.
+- Choose Your World defaults to a loaded source pack instead of generic OSE.
+- Profession tables are per world and class. Mystara uses Karameikos jobs.
+- With Mystara on, Life Before Adventuring follows the Manage social standing
+  roll instead of climbing wealth at random.
 
 ## [1.1.0] - 2026-07-27
 

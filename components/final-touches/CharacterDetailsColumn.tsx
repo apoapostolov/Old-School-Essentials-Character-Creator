@@ -21,7 +21,7 @@ interface CharacterDetailsColumnProps {
 }
 
 export const CharacterDetailsColumn: React.FC<CharacterDetailsColumnProps> = ({ onShowNamePromptInfo, onShowLifeStandardPromptInfo }) => {
-    const { characterRoll, ai, aggregatedData } = useCharacterExtras();
+    const { characterRoll, ai, aggregatedData, karameikos } = useCharacterExtras();
     const { selectedSources } = useSourceContext();
     const scores = characterRoll.scores!;
 
@@ -68,7 +68,11 @@ export const CharacterDetailsColumn: React.FC<CharacterDetailsColumnProps> = ({ 
                         <QuestionIcon className="h-5 w-5" />
                     </button>
                 </div>
-                <p className="text-xs text-gray-500 -mt-2 mb-3">Rolling a profession generates a summary of your 'Life Before Adventuring' based on your abilities and resets character traits.</p>
+                <p className="text-xs text-gray-500 -mt-2 mb-3">
+                    {isKarameikos
+                        ? "Rolling a profession writes Life Before Adventuring from the Karameikos social standing on Manage & Outfit. It does not reroll station. Traits reset."
+                        : "Rolling a profession generates a summary of your 'Life Before Adventuring' based on your abilities and resets character traits."}
+                </p>
                 <DetailGenerator onGenerate={ai.onRollSecondarySkill} isGenerating={ai.isGeneratingLifeStandard} isRoll>
                      <span>{ai.secondarySkills ? ai.secondarySkills.join(', ') : '...'}</span>
                 </DetailGenerator>
@@ -76,8 +80,14 @@ export const CharacterDetailsColumn: React.FC<CharacterDetailsColumnProps> = ({ 
                     <div className="mt-4 bg-black/30 p-3 rounded-md border border-gray-600">
                         <div className="flex justify-between items-baseline mb-2">
                             <p className="text-xs font-bold uppercase text-yellow-500">Life Before Adventuring</p>
-                            {ai.characterTraits?.lifestyleKey && (
-                                <p className="text-sm font-semibold text-gray-300 bg-gray-700/50 px-2 py-0.5 rounded-md">{ai.characterTraits.lifestyleKey}</p>
+                            {(isKarameikos && karameikos.socialStanding?.standing
+                                ? karameikos.socialStanding.standing
+                                : ai.characterTraits?.lifestyleKey) && (
+                                <p className="text-sm font-semibold text-gray-300 bg-gray-700/50 px-2 py-0.5 rounded-md">
+                                    {isKarameikos && karameikos.socialStanding?.standing
+                                        ? karameikos.socialStanding.standing
+                                        : ai.characterTraits?.lifestyleKey}
+                                </p>
                             )}
                         </div>
                         {ai.isGeneratingLifeStandard ? (

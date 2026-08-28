@@ -1,6 +1,7 @@
-import type { SecondarySkillEntry } from '../../types';
+import type { SecondarySkillEntry, SecondarySkillsByClass } from '../../types';
 
-export const SECONDARY_SKILLS_GODS: SecondarySkillEntry[] = [
+export const SECONDARY_SKILLS_GODS: SecondarySkillsByClass = {
+  default: [
   { min: 1, max: 5, skill: 'Bone-carver', lifestyle: 'Poor' },
   { min: 6, max: 10, skill: 'Pit-fighter', lifestyle: 'Squalid' },
   { min: 11, max: 15, skill: 'Ruin-scavenger', lifestyle: 'Wretched' },
@@ -21,4 +22,5 @@ export const SECONDARY_SKILLS_GODS: SecondarySkillEntry[] = [
   { min: 86, max: 90, skill: 'Witch-finder', lifestyle: 'Modest' },
   { min: 91, max: 95, skill: 'Mountain Guide', lifestyle: 'Modest' },
   { min: 96, max: 100, skill: 'Lost Prince/Princess', lifestyle: 'Wretched' },
-];
+  ],
+};

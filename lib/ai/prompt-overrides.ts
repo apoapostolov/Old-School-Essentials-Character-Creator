@@ -127,7 +127,7 @@ export const renderEthnicNameBlock = (
         profile.names.instructions,
         standing,
         '',
-        joinNames(`Real ${who} names`, lists.real),
+        joinNames(gender === 'female' ? 'Example Names for Females' : `Real ${who} names`, lists.real),
         joinNames('Fantasy variations', lists.fantasy),
         joinNames('Imperial-influenced', lists.imperial),
         'Do not use generic English fantasy names.',

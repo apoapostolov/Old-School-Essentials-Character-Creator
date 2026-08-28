@@ -19,7 +19,11 @@ interface CreativeColumnProps {
 
 export const CreativeColumn: React.FC<CreativeColumnProps> = ({ onShowPromptInfo, onShowTraitsPromptInfo, isKarameikos }) => {
     const { ai } = useCharacterExtras();
-    const showTraits = ai.characterTraits && (ai.characterTraits.positivePhysical || ai.characterTraits.negative);
+    const showTraits = !!(ai.characterTraits && (
+        ai.characterTraits.positivePhysical
+        || ai.characterTraits.positiveMental
+        || ai.characterTraits.negative
+    ));
     const traitsStep = isKarameikos ? 5 : 6;
     const portraitStep = isKarameikos ? 6 : 7;
 

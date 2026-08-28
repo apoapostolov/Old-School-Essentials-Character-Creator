@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { formatFoundryNotesHtml, formatKarameikosStatblockNotes } from '../data/karameikos-data';
-import { getNamePrompt } from '../prompt-data';
+import { formatFoundryNotesHtml, formatKarameikosStatblockNotes, lifestyleKeyForSocialStanding } from '../data/karameikos-data';
+import { getLifeStandardPrompt, getNamePrompt } from '../prompt-data';
+import { LIFESTYLES } from '../lifestyle-data';
+import type { AbilityScores } from '../types';
 import { THEMES as OSE_THEMES } from '../theme-data';
 import { THEMES as MYSTARA_THEMES } from '../third-party/mystara/theme-data';
 import { PROMPT_OVERRIDES } from '../third-party/mystara/prompt-overrides';
@@ -99,5 +101,39 @@ describe('getNamePrompt Karameikos ethnos', () => {
         const prompt = getNamePrompt('male', fighter, 'gone', OSE_THEMES);
         expect(prompt).toContain('classic D&D/OSE');
         expect(prompt).not.toContain('undefined');
+    });
+});
+
+describe('Karameikos social standing locks Life Before Adventuring', () => {
+    const scores = {
+        Strength: 10, Intelligence: 16, Wisdom: 16, Dexterity: 10, Constitution: 10, Charisma: 16,
+    } as AbilityScores;
+
+    it('maps gazetteer standings onto lifestyle keys', () => {
+        expect(lifestyleKeyForSocialStanding('Penniless')).toBe('Squalid');
+        expect(lifestyleKeyForSocialStanding('Struggling')).toBe('Poor');
+        expect(lifestyleKeyForSocialStanding('Comfortable')).toBe('Comfortable');
+        expect(lifestyleKeyForSocialStanding('Wealthy/Untitled')).toBe('Wealthy');
+        expect(lifestyleKeyForSocialStanding('Wealthy/Titled Noble (minimum for Knight)')).toBe('Wealthy');
+        expect(lifestyleKeyForSocialStanding('Very Wealthy/Untitled')).toBe('Wealthy');
+        expect(lifestyleKeyForSocialStanding('Very Wealthy/Titled Noble')).toBe('Aristocratic');
+        expect(lifestyleKeyForSocialStanding('Royal Family')).toBe('Aristocratic');
+    });
+
+    it('pins the life-standard prompt to the rolled station and drops climb/fail language', () => {
+        const prompt = getLifeStandardPrompt(
+            fighter, scores, 'male', 'mystara', ['Village farmer'], LIFESTYLES.Squalid, {
+                tier: 'Poor',
+                type: 'brutal',
+            }, {
+                socialStanding: 'Penniless',
+                promptOverrides: [PROMPT_OVERRIDES],
+            },
+        );
+        expect(prompt).toContain('Penniless');
+        expect(prompt).toContain('already rolled on Manage');
+        expect(prompt).toContain('Do not raise or lower social station');
+        expect(prompt).not.toContain('Crucial Narrative Event');
+        expect(prompt).not.toContain('became wealthier');
     });
 });

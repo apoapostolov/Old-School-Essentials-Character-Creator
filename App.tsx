@@ -25,6 +25,8 @@ import { useUIState } from './hooks/useUIState';
 
 import { ABILITIES } from './constants';
 import { getBackstoryPrompt, getLifeStandardPrompt, getNamePrompt, getPortraitPrompt, getTraitsPrompt } from './prompt-data';
+import { lifestyleKeyForSocialStanding } from './data/karameikos-data';
+import { lifestyleForSkill, resolveSecondarySkillTable } from './secondary-skills-data';
 import { calculateAcrobatSkills, calculateBarbarianSkills, calculateBardSkills, calculateRangerSkills, calculateSageSkills, calculateThiefSkills } from './utils/skills';
 
 // Lazy-load tabs/modals not needed for first paint on Roll Character.
@@ -213,10 +215,12 @@ const AppContent: React.FC = () => {
 
     const generateLifeStandardPrompt = () => {
         if (!selectedClass || !modifiedScores || !ai.secondarySkills) return 'Please roll a profession first to view the life standard prompt.';
-        const skillList = aggregatedData.SECONDARY_SKILLS[ai.theme] || aggregatedData.SECONDARY_SKILLS['ose'];
-        const skillName = ai.secondarySkills[0];
-        const skillData = skillList.find(s => s.skill === skillName);
-        const lifestyleDetails = skillData ? aggregatedData.LIFESTYLES[skillData.lifestyle] : aggregatedData.LIFESTYLES['Modest'];
+        const skillList = resolveSecondarySkillTable(aggregatedData.SECONDARY_SKILLS, ai.theme, selectedClass.name);
+        const standing = character.karameikos?.socialStanding?.standing;
+        const lifestyleKey = standing
+            ? lifestyleKeyForSocialStanding(standing)
+            : lifestyleForSkill(skillList, ai.secondarySkills[0]);
+        const lifestyleDetails = aggregatedData.LIFESTYLES[lifestyleKey];
         return getLifeStandardPrompt(selectedClass, modifiedScores, ai.gender, ai.theme, ai.secondarySkills, lifestyleDetails, null, {
             ethnos: character.karameikos?.ethnos?.origin,
             socialStanding: character.karameikos?.socialStanding?.standing,

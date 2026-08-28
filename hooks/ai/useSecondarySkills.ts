@@ -1,29 +1,38 @@
 import { useState, useCallback } from 'react';
 import type { Theme } from '../../types';
 import type { AggregatedData } from '../useAggregatedData';
+import { resolveSecondarySkillTable, SECONDARY_SKILL_TWO } from '../../secondary-skills-data';
 
-export const useSecondarySkills = (theme: Theme, aggregatedData: AggregatedData) => {
+export const useSecondarySkills = (
+    theme: Theme,
+    className: string | null,
+    aggregatedData: AggregatedData,
+) => {
     const [secondarySkills, setSecondarySkills] = useState<string[] | null>(null);
 
     const rollSingleSkill = useCallback((): string => {
-        const skillList = aggregatedData.SECONDARY_SKILLS[theme] || aggregatedData.SECONDARY_SKILLS['ose'];
+        const skillList = resolveSecondarySkillTable(
+            aggregatedData.SECONDARY_SKILLS,
+            theme,
+            className || 'default',
+        );
         const roll = Math.floor(Math.random() * 100) + 1;
         const result = skillList.find(s => roll >= s.min && roll <= s.max);
-        return result ? result.skill : 'Farmer'; // Fallback
-    }, [theme, aggregatedData.SECONDARY_SKILLS]);
-    
+        return result ? result.skill : 'Farmer';
+    }, [theme, className, aggregatedData.SECONDARY_SKILLS]);
+
     const onRollSecondarySkill = useCallback(() => {
         let skills: string[] = [];
         const firstSkill = rollSingleSkill();
-    
-        if (firstSkill === 'Roll for two skills') {
+
+        if (firstSkill === SECONDARY_SKILL_TWO) {
             let skill1 = rollSingleSkill();
-            while (skill1 === 'Roll for two skills') {
+            while (skill1 === SECONDARY_SKILL_TWO) {
                 skill1 = rollSingleSkill();
             }
-            
+
             let skill2 = rollSingleSkill();
-            while (skill2 === 'Roll for two skills' || skill2 === skill1) {
+            while (skill2 === SECONDARY_SKILL_TWO || skill2 === skill1) {
                 skill2 = rollSingleSkill();
             }
             skills = [skill1, skill2];

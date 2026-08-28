@@ -8,7 +8,7 @@ import type {
   Item,
   LanguageSetting,
   Race,
-  SecondarySkillEntry,
+  SecondarySkillsByWorld,
   SourceID,
   Spell,
   ThemeConfig,
@@ -24,7 +24,7 @@ export interface SourceData {
   spells: Spell[];
   themes: Record<string, ThemeConfig>;
   languages: Record<string, LanguageSetting>;
-  secondarySkills: Record<string, SecondarySkillEntry[]>;
+  secondarySkills: SecondarySkillsByWorld;
   sheetConfig: SheetConfig;
   pdfMap: any;
   classData: any;

@@ -3,7 +3,9 @@ import type { ClassInfo, AbilityScores, CharacterTraits, Theme, LifestyleKey } f
 import { getTraitsPrompt, getLifeStandardPrompt } from '../../prompt-data';
 import { LIFESTYLES } from '../../lifestyle-data';
 import { calculateFinalLifestyle } from '../../lifestyle-simulation';
-import { parseJsonLike } from '../../lib/ai/json';
+import { extractNamedText, extractTraits } from '../../lib/ai/json';
+import { lifestyleKeyForSocialStanding } from '../../data/karameikos-data';
+import { lifestyleForSkill, resolveSecondarySkillTable } from '../../secondary-skills-data';
 import type { AggregatedData } from '../useAggregatedData';
 import type { KarameikosState } from '../useKarameikos';
 import { useAiRuntime } from '../useAiRuntime';
@@ -35,13 +37,19 @@ export const useTraitsGeneration = (
         try {
             let baseLifestyleKey: LifestyleKey = 'Modest';
             if (secondarySkills.length > 0) {
-                const skillList = aggregatedData.SECONDARY_SKILLS[theme] || aggregatedData.SECONDARY_SKILLS['ose'];
-                const skillName = secondarySkills[0];
-                const skillData = skillList.find(s => s.skill === skillName);
-                if (skillData) baseLifestyleKey = skillData.lifestyle;
+                const skillList = resolveSecondarySkillTable(
+                    aggregatedData.SECONDARY_SKILLS,
+                    theme,
+                    selectedClass.name,
+                );
+                baseLifestyleKey = lifestyleForSkill(skillList, secondarySkills[0]);
             }
 
-            const { finalLifestyleKey, failureEvent } = calculateFinalLifestyle(baseLifestyleKey, scores);
+            const standing = karameikos?.socialStanding?.standing;
+            const locked = standing ? lifestyleKeyForSocialStanding(standing) : null;
+            const { finalLifestyleKey, failureEvent } = locked
+                ? { finalLifestyleKey: locked, failureEvent: null }
+                : calculateFinalLifestyle(baseLifestyleKey, scores);
             const lifestyleDetails = LIFESTYLES[finalLifestyleKey];
             const selectedGender = gender ?? (Math.random() > 0.5 ? 'male' : 'female');
             const prompt = getLifeStandardPrompt(
@@ -54,11 +62,11 @@ export const useTraitsGeneration = (
                 },
             );
             const raw = await generateText({ prompt, json: true, purpose: 'simple' });
-            const result = parseJsonLike(raw) as { lifeStandard?: string };
-            if (!result?.lifeStandard) throw new Error('No life standard returned');
+            const lifeStandard = extractNamedText(raw, ['lifeStandard', 'life_standard']);
+            if (!lifeStandard) throw new Error('The simple writing slot returned no usable life standard.');
 
             setCharacterTraits({
-                lifeStandard: result.lifeStandard,
+                lifeStandard,
                 lifestyleKey: finalLifestyleKey,
                 positivePhysical: '',
                 positiveMental: '',
@@ -77,7 +85,7 @@ export const useTraitsGeneration = (
         theme: Theme
     ) => {
         if (!selectedClass || !scores || !characterTraits?.lifeStandard) {
-            showToast('Please determine a profession first to generate a life standard.');
+            showToast('Roll profession first (step 4). Traits need Life Before Adventuring.');
             return;
         }
         setIsGeneratingTraits(true);
@@ -93,20 +101,23 @@ export const useTraitsGeneration = (
                 },
             );
             const raw = await generateText({ prompt, json: true, purpose: 'simple' });
-            const result = parseJsonLike(raw) as {
-                positivePhysical?: string;
-                positiveMental?: string;
-                negative?: string;
-            };
+            const result = extractTraits(raw);
+            if (!result.positivePhysical && !result.positiveMental && !result.negative) {
+                const snippet = typeof raw === 'string' ? raw.replace(/\s+/g, ' ').slice(0, 160) : '';
+                throw new Error(snippet
+                    ? `No trait fields in the reply (${snippet})`
+                    : 'The simple writing slot returned no usable traits.');
+            }
             setCharacterTraits(prev => ({
                 ...(prev!),
-                positivePhysical: result.positivePhysical || '',
-                positiveMental: result.positiveMental || '',
-                negative: result.negative || '',
+                positivePhysical: result.positivePhysical,
+                positiveMental: result.positiveMental,
+                negative: result.negative,
             }));
         } catch (e) {
             console.error('Trait generation failed:', e);
-            showToast('Could not generate traits. Please try again.');
+            const detail = e instanceof Error && e.message ? e.message : 'Please try again.';
+            showToast(`Could not generate traits. ${detail}`);
         } finally {
             setIsGeneratingTraits(false);
         }

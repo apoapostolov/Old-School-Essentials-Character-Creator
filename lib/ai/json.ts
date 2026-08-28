@@ -85,3 +85,84 @@ export const extractNamedText = (raw: unknown, keys: string[]): string => {
     }
     return '';
 };
+
+export type TraitTriple = {
+    positivePhysical: string;
+    positiveMental: string;
+    negative: string;
+};
+
+const TRAIT_ALIASES: Record<keyof TraitTriple, string[]> = {
+    positivePhysical: ['positivePhysical', 'positive_physical', 'physical', 'phys'],
+    positiveMental: ['positiveMental', 'positive_mental', 'mental'],
+    negative: ['negative', 'flaw', 'negativeTrait', 'negative_trait'],
+};
+
+const fieldFromRecord = (record: Record<string, unknown>, aliases: string[]): string => {
+    const wanted = new Set(aliases.map((key) => key.toLowerCase()));
+    for (const [key, value] of Object.entries(record)) {
+        if (!wanted.has(key.toLowerCase())) continue;
+        const hit = asNonEmptyString(value);
+        if (hit) return hit;
+    }
+    return '';
+};
+
+const fieldFromLabels = (text: string, aliases: string[]): string => {
+    const names = aliases.map((key) => key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+    const re = new RegExp(
+        `(?:^|[\\n])\\s*(?:\\d+[.)]\\s*)?(?:[-*]\\s*)?(?:\\*{0,2})(?:${names})(?:\\*{0,2})\\b[^\\n:]{0,24}:\\s*([^\\n]+)`,
+        'i',
+    );
+    const match = text.match(re);
+    return match?.[1] ? asNonEmptyString(match[1].replace(/^\*+|\*+$/g, '')) : '';
+};
+
+const fieldFromBlob = (text: string, aliases: string[]): string => {
+    for (const key of aliases) {
+        const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const quoted = new RegExp(
+            `(?:^|[\\n{,])\\s*"?${escaped}"?\\s*[:=]\\s*"([^"]+)"`,
+            'i',
+        );
+        const hit = text.match(quoted)?.[1];
+        if (hit) {
+            const value = asNonEmptyString(hit);
+            if (value) return value;
+        }
+    }
+    return fieldFromLabels(text, aliases);
+};
+
+const traitsFromUnknown = (value: unknown): TraitTriple => {
+    const empty: TraitTriple = { positivePhysical: '', positiveMental: '', negative: '' };
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return empty;
+    const record = value as Record<string, unknown>;
+    const nested = record.traits;
+    const fromNested = nested && typeof nested === 'object' && !Array.isArray(nested)
+        ? traitsFromUnknown(nested)
+        : empty;
+    return {
+        positivePhysical: fieldFromRecord(record, TRAIT_ALIASES.positivePhysical) || fromNested.positivePhysical,
+        positiveMental: fieldFromRecord(record, TRAIT_ALIASES.positiveMental) || fromNested.positiveMental,
+        negative: fieldFromRecord(record, TRAIT_ALIASES.negative) || fromNested.negative,
+    };
+};
+
+/** Pull the three trait fields out of JSON or labeled Codex prose. */
+export const extractTraits = (raw: unknown): TraitTriple => {
+    const parsed = parseJsonLike(raw);
+    const fromJson = traitsFromUnknown(parsed);
+    if (fromJson.positivePhysical || fromJson.positiveMental || fromJson.negative) {
+        return fromJson;
+    }
+    if (typeof raw !== 'string') {
+        return { positivePhysical: '', positiveMental: '', negative: '' };
+    }
+    const text = stripCodeFences(raw);
+    return {
+        positivePhysical: fieldFromBlob(text, [...TRAIT_ALIASES.positivePhysical, 'body']),
+        positiveMental: fieldFromBlob(text, [...TRAIT_ALIASES.positiveMental, 'mind']),
+        negative: fieldFromBlob(text, [...TRAIT_ALIASES.negative, 'weakness']),
+    };
+};

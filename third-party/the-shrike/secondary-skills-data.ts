@@ -1,6 +1,7 @@
-import type { SecondarySkillEntry } from '../../types';
+import type { SecondarySkillEntry, SecondarySkillsByClass } from '../../types';
 
-export const SECONDARY_SKILLS_SHRIKE: SecondarySkillEntry[] = [
+export const SECONDARY_SKILLS_SHRIKE: SecondarySkillsByClass = {
+  default: [
   { min: 1, max: 10, skill: 'Whaler', lifestyle: 'Poor' },
   { min: 11, max: 20, skill: 'Shipwright', lifestyle: 'Modest' },
   { min: 21, max: 30, skill: 'Rope-maker', lifestyle: 'Poor' },
@@ -13,4 +14,5 @@ export const SECONDARY_SKILLS_SHRIKE: SecondarySkillEntry[] = [
   { min: 86, max: 90, skill: 'Lighthouse Keeper', lifestyle: 'Modest' },
   { min: 91, max: 95, skill: 'Dock Worker', lifestyle: 'Squalid' },
   { min: 96, max: 100, skill: 'Castaway', lifestyle: 'Wretched' },
-];
+  ],
+};

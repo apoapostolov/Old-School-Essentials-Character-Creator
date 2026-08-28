@@ -360,6 +360,11 @@ export interface SecondarySkillEntry {
   lifestyle: LifestyleKey;
 }
 
+/** Class name, or `default` when a world has no table for that class. */
+export type SecondarySkillsByClass = Record<string, SecondarySkillEntry[]>;
+/** World/theme key (ose, mystara, dolmenwood, ...) to per-class tables. */
+export type SecondarySkillsByWorld = Record<string, SecondarySkillsByClass>;
+
 export interface RaceFeature {
   name: string;
   text: string;

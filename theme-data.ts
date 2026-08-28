@@ -1,5 +1,21 @@
 import type { Theme, ThemeConfig } from './types';
 
+export const GENERIC_WORLD_THEME: Theme = 'ose';
+
+/** Prefer a loaded source world over generic D&D/OSE. Keep a current source pick. */
+export const preferredWorldTheme = (
+  themes: Record<string, ThemeConfig>,
+  current?: string | null,
+): Theme => {
+  const keys = Object.keys(themes);
+  const sourceKeys = keys.filter((key) => key !== GENERIC_WORLD_THEME);
+  if (current && current !== GENERIC_WORLD_THEME && themes[current]) return current;
+  if (sourceKeys.length > 0) return sourceKeys[0];
+  if (current && themes[current]) return current;
+  if (themes[GENERIC_WORLD_THEME]) return GENERIC_WORLD_THEME;
+  return keys[0] || GENERIC_WORLD_THEME;
+};
+
 export const THEMES: Record<Theme, ThemeConfig> = {
   'ose': {
     displayName: 'D&D/OSE',

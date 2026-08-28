@@ -7,7 +7,7 @@ import type {
   LanguageSetting,
   Race,
   SavingThrowRange,
-  SecondarySkillEntry,
+  SecondarySkillsByWorld,
   SourceID,
   Spell,
   Theme,
@@ -26,7 +26,7 @@ import { EQUIPMENT_KITS as BASE_KITS } from '../equipment-kits';
 import { SPELLS as BASE_SPELLS } from '../spells-data';
 import { THEMES as BASE_THEMES } from '../theme-data';
 import { LANGUAGE_SETTINGS as BASE_LANGUAGES } from '../language-data';
-import { SECONDARY_SKILLS as BASE_SECONDARY_SKILLS } from '../secondary-skills-data';
+import { mergeSecondarySkillWorlds, SECONDARY_SKILLS as BASE_SECONDARY_SKILLS } from '../secondary-skills-data';
 import { LIFESTYLES } from '../lifestyle-data';
 import { PDF_FIELD_MAP as OSE_PDF_MAP } from '../third-party/ose/pdf-fields-config';
 import { SHEET_CONFIG as OSE_SHEET_CONFIG } from '../third-party/ose/sheet-config';
@@ -69,7 +69,7 @@ export interface AggregatedData {
   SPELLS: Spell[];
   THEMES: Record<string, ThemeConfig>;
   LANGUAGE_SETTINGS: Record<string, LanguageSetting>;
-  SECONDARY_SKILLS: Record<Theme, SecondarySkillEntry[]>;
+  SECONDARY_SKILLS: SecondarySkillsByWorld;
   LIFESTYLES: typeof LIFESTYLES;
   SHEET_CONFIGS: Partial<Record<SourceID, SheetConfig>>;
   PDF_FIELD_MAPS: Partial<Record<SourceID, any>>;
@@ -89,7 +89,7 @@ function buildAggregated(
   let allSpells: Spell[] = [];
   let allThemes: Record<string, ThemeConfig> = {};
   let allLanguages: Record<string, LanguageSetting> = {};
-  let allSecondarySkills: Record<Theme, SecondarySkillEntry[]> = { ...BASE_SECONDARY_SKILLS };
+  let allSecondarySkills: SecondarySkillsByWorld = mergeSecondarySkillWorlds({}, BASE_SECONDARY_SKILLS);
   let allSheetConfigs: Partial<Record<SourceID, SheetConfig>> = { ose: OSE_SHEET_CONFIG };
   let allPdfFieldMaps: Partial<Record<SourceID, any>> = { ose: OSE_PDF_MAP };
   const allPromptOverrides: SourcePromptOverrides[] = [];
@@ -122,7 +122,7 @@ function buildAggregated(
     allSpells.push(...addSourceIdToSpells(sourceData.spells, sourceId));
     allThemes = { ...allThemes, ...sourceData.themes };
     allLanguages = { ...allLanguages, ...sourceData.languages };
-    allSecondarySkills = { ...allSecondarySkills, ...sourceData.secondarySkills };
+    allSecondarySkills = mergeSecondarySkillWorlds(allSecondarySkills, sourceData.secondarySkills);
     allSheetConfigs[sourceId] = sourceData.sheetConfig;
     allPdfFieldMaps[sourceId] = sourceData.pdfMap;
     if (sourceData.promptOverrides) allPromptOverrides.push(sourceData.promptOverrides);

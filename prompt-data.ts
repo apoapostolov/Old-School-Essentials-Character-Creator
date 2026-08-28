@@ -2,8 +2,13 @@
 import { ABILITY_SCORE_DESCRIPTORS } from './ability-score-descriptors';
 import { ABILITIES } from './constants';
 import { collectPromptOverrideText, type PromptPayloadOptions } from './lib/ai/prompt-overrides';
+import { preferredWorldTheme } from './theme-data';
 import type { AbilityScores, CharacterTraits, ClassInfo, Emotion, Item, Lifestyle, LifestyleKey, Race, Theme, ThemeConfig } from './types';
 import { getTitleForLevel } from './utils';
+
+const resolveThemeConfig = (theme: Theme, allThemes: Record<string, ThemeConfig>) => (
+    allThemes[theme] ?? allThemes[preferredWorldTheme(allThemes)]
+);
 
 const getArchetype = (classInfo: ClassInfo): string => {
     const parts = new Set<string>();
@@ -48,7 +53,7 @@ export const getNamePrompt = (
     allThemes: Record<string, ThemeConfig>,
     options?: PromptPayloadOptions,
 ) => {
-    const themeConfig = allThemes[theme] ?? allThemes['ose'];
+    const themeConfig = resolveThemeConfig(theme, allThemes);
     const isDemihuman = selectedClass.group === 'Demihuman';
     const characterType = isDemihuman ? selectedClass.name.toLowerCase() : selectedClass.name;
     const desc = themeConfig?.name?.promptDescription ?? 'in a classic D&D/OSE fantasy world.';
@@ -99,14 +104,20 @@ export const getLifeStandardPrompt = (
     const isDemihuman = selectedClass.group === 'Demihuman';
     const characterType = isDemihuman ? selectedClass.name.toLowerCase() : selectedClass.name;
 
-    const professionClause = `The character's secondary skill/profession is **${secondarySkills.join(' and ')}**.
+    const standing = options?.socialStanding?.trim();
+    const professionClause = standing
+        ? `The character's secondary skill/profession is **${secondarySkills.join(' and ')}**. That is the work they did, not a new rank. Family social standing (already rolled on Manage): **${standing}**. Lifestyle for this station: **${lifestyleDetails.name}** ("${lifestyleDetails.description}").`
+        : `The character's secondary skill/profession is **${secondarySkills.join(' and ')}**.
 This profession is associated with a **${lifestyleDetails.name}** lifestyle, described as: "${lifestyleDetails.description}".`;
 
-    const failureClause = failureEvent
+    const failureClause = !standing && failureEvent
         ? `\n\n**Crucial Narrative Event:** The character's career was marked by a significant setback. They attempted to advance from a **${failureEvent.tier}** lifestyle but failed due to a **${failureEvent.type === 'brutal' ? 'brutal and unforgiving' : 'deeply unfortunate'}** life event (e.g., famine, war, disease, bandits, a bad business deal, a personal tragedy). **You MUST invent and incorporate this specific event into the narrative as the reason their progress stalled.**`
         : '';
 
-    const rulesClause = `Generate a 'lifeStandard' field: a single, evocative sentence (max 25 words) that describes their success and standard of living from this past profession.
+    const rulesClause = standing
+        ? `Generate a 'lifeStandard' field: a single, evocative sentence (max 25 words) of how they lived at **${standing}** station while working as ${secondarySkills.join(' and ')}.
+WIS ${scores.Wisdom}, INT ${scores.Intelligence}, CHA ${scores.Charisma} color how they did that work (skilled, clumsy, liked, disliked). Do not raise or lower social station. Do not invent a climb, a fall, or a new family rank. Ground the sentence in: **${lifestyleDetails.backgroundStyle}**.`
+        : `Generate a 'lifeStandard' field: a single, evocative sentence (max 25 words) that describes their success and standard of living from this past profession.
 Use the following scores to make your judgment: WIS ${scores.Wisdom}, INT ${scores.Intelligence}, CHA ${scores.Charisma}. Your judgment MUST follow these rules:
 - High WIS (13+) implies they were skilled and successful. Low WIS (8-) implies they were unskilled or mediocre.
 - High INT (13+), if the profession allows, implies they became wealthier than the typical lifestyle. Low INT (8-) implies they struggled financially.
@@ -133,7 +144,7 @@ export const getTraitsPrompt = (
     allThemes: Record<string, ThemeConfig>,
     options?: PromptPayloadOptions,
 ) => {
-    const themeConfig = allThemes[theme].traits;
+    const themeConfig = resolveThemeConfig(theme, allThemes).traits;
     const contextClause = lifeStandard ? `Their background is summarized as: "${lifeStandard}". The traits you generate should be consistent with this life experience.` : '';
     const isDemihuman = selectedClass.group === 'Demihuman';
     const characterType = isDemihuman ? selectedClass.name.toLowerCase() : selectedClass.name;
@@ -145,7 +156,7 @@ export const getTraitsPrompt = (
         raceName: options?.raceName,
         classGroup: selectedClass.group,
     });
-    return `Generate three distinct character traits for a ${gender} ${characterType} ${themeConfig.promptDescription}. ${contextClause}${override ? ` ${override}` : ''} Provide the traits in JSON format according to the specified schema. The negative trait should be a significant flaw that adds depth and potential for conflict, reflecting the chosen theme. It could be a physical ailment, a psychological compulsion, or a dark personality quirk.`;
+    return `Generate three distinct character traits for a ${gender} ${characterType} ${themeConfig.promptDescription}. ${contextClause}${override ? ` ${override}` : ''} The negative trait should be a significant flaw that adds depth and potential for conflict, reflecting the chosen theme. It could be a physical ailment, a psychological compulsion, or a dark personality quirk. Reply with JSON only, no markdown, using exactly these keys: {"positivePhysical":"...","positiveMental":"...","negative":"..."}. Each value is one or two sentences.`;
 };
 
 // --- Helper for Portrait Prompt ---
@@ -177,7 +188,7 @@ export const getPortraitPrompt = (
     const title = getTitleForLevel(selectedClass, level);
     const abilityScoreDescriptors = getAbilityScoreDescriptorsString(scores);
     const genderInstruction = gender ? `The character is ${gender}. This is a primary visual characteristic; ensure the portrait strongly reflects this.` : `The gender is not specified; interpret freely based on the class and theme.`;
-    const portraitPromptConfig = allThemes[theme].portrait;
+    const portraitPromptConfig = resolveThemeConfig(theme, allThemes).portrait;
     const professionInstruction = secondarySkills ? `**Secondary Profession:** The character has a background as a **${secondarySkills.join(' and ')}**. This is not their current adventuring role, but it has shaped their physique, posture, and bearing. For example, a blacksmith would have strong hands, a tailor might have a keen eye for detail, a farmer a weathered look. **Do not depict them performing the profession.** Instead, show how the profession has subtly influenced their appearance as an adventurer.` : '';
 
     let raceInstruction = '';
@@ -335,7 +346,7 @@ export const getBackstoryPrompt = (
     options?: PromptPayloadOptions,
 ): string => {
     const title = getTitleForLevel(selectedClass, level);
-    const themeConfig = allThemes[theme];
+    const themeConfig = resolveThemeConfig(theme, allThemes);
     const abilityScoreDescriptors = getAbilityScoreDescriptorsString(scores);
     const equipmentList = equipmentItems.map(i => i.name).join(', ') || 'basic starting gear';
 

@@ -1,6 +1,7 @@
-import type { SecondarySkillEntry } from '../../types';
+import type { SecondarySkillEntry, SecondarySkillsByClass } from '../../types';
 
-export const SECONDARY_SKILLS_NORTHLAND: SecondarySkillEntry[] = [
+export const SECONDARY_SKILLS_NORTHLAND: SecondarySkillsByClass = {
+  default: [
   { min: 1, max: 5, skill: 'Skald (Poet)', lifestyle: 'Modest' },
   { min: 6, max: 10, skill: 'Berserker', lifestyle: 'Poor' },
   { min: 11, max: 15, skill: 'Longship Rower', lifestyle: 'Poor' },
@@ -21,4 +22,5 @@ export const SECONDARY_SKILLS_NORTHLAND: SecondarySkillEntry[] = [
   { min: 86, max: 90, skill: 'Woodcarver', lifestyle: 'Modest' },
   { min: 91, max: 95, skill: 'Herbalist', lifestyle: 'Poor' },
   { min: 96, max: 100, skill: 'Roll for two skills', lifestyle: 'Modest' },
-];
+  ],
+};

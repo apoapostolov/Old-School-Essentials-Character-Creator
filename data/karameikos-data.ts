@@ -1,5 +1,7 @@
 // Karameikos background data and functions for OSE Character Creator
 
+import type { LifestyleKey } from '../types';
+
 export interface SocialStandingResult {
   roll: number;
   standing: string;
@@ -7,6 +9,19 @@ export interface SocialStandingResult {
   goldModifier: number;
   description: string;
 }
+
+/** Map a rolled Karameikos standing onto the OSE lifestyle ladder. */
+export const lifestyleKeyForSocialStanding = (standing: string): LifestyleKey => {
+  const text = standing.toLowerCase();
+  const titled = /(?:^|\/)titled\b/.test(text);
+  if (text.includes('royal')) return 'Aristocratic';
+  if (text.includes('very wealthy')) return titled ? 'Aristocratic' : 'Wealthy';
+  if (text.includes('wealthy')) return 'Wealthy';
+  if (text.includes('comfortable')) return 'Comfortable';
+  if (text.includes('struggling')) return 'Poor';
+  if (text.includes('penniless')) return 'Squalid';
+  return 'Modest';
+};
 
 export interface EthnosResult {
   roll: number;
