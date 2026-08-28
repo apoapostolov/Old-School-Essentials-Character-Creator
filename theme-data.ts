@@ -16,6 +16,16 @@ export const preferredWorldTheme = (
   return keys[0] || GENERIC_WORLD_THEME;
 };
 
+/** Keep an explicit saved world, including generic OSE. Used on load/import. */
+export const savedWorldTheme = (
+  themes: Record<string, ThemeConfig>,
+  saved?: string | null,
+): Theme => {
+  if (saved && themes[saved]) return saved;
+  if (saved) return saved;
+  return preferredWorldTheme(themes);
+};
+
 export const THEMES: Record<Theme, ThemeConfig> = {
   'ose': {
     displayName: 'D&D/OSE',

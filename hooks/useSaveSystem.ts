@@ -1,6 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useCharacterContext } from '../context/CharacterContext';
-import type { CharacterSaveData, SaveSlot } from '../types';
+import { useSourceContext } from '../context/SourceContext';
+import { inferSavedSources, pickKarameikosSave } from '../lib/save-character';
+import type { CharacterSaveData, SaveSlot, SourceID } from '../types';
 
 const SAVE_VERSION = '1.0.0';
 const MAX_SLOTS = 5;
@@ -16,6 +18,7 @@ const cloneData = <T,>(value: T): T => JSON.parse(JSON.stringify(value ?? null))
 export const useSaveSystem = () => {
     const [slots, setSlots] = useState<(SaveSlot | null)[]>(Array(MAX_SLOTS).fill(null));
     const character = useCharacterContext();
+    const { selectedSources, setSelectedSources } = useSourceContext();
 
     useEffect(() => {
         try {
@@ -102,22 +105,14 @@ export const useSaveSystem = () => {
                 grog: cloneData({
                     grog: c.grog?.grog ?? null,
                 }),
-                karameikos: cloneData({
-                    ethnos: kar.ethnos,
-                    socialStanding: kar.socialStanding,
-                    family: kar.family,
-                    villageName: kar.villageName,
-                    // keep any other plain state fields if present
-                    ...Object.fromEntries(
-                        Object.entries(kar).filter(([, v]) => typeof v !== 'function'),
-                    ),
-                }),
+                karameikos: cloneData(pickKarameikosSave(kar)),
+                selectedSources: Array.from(selectedSources),
             },
             metadata: {
                 characterName,
             },
         };
-    }, [character]);
+    }, [character, selectedSources]);
 
     const saveCharacter = useCallback((slotIndex: number, customName?: string) => {
         if (slotIndex < 0 || slotIndex >= MAX_SLOTS) {
@@ -157,8 +152,12 @@ export const useSaveSystem = () => {
         if (typeof loader !== 'function') {
             throw new Error('Character loader is not available');
         }
+        const sources = inferSavedSources(slot.data?.characterData as Record<string, unknown>);
+        if (sources) {
+            setSelectedSources(new Set<SourceID>(sources));
+        }
         loader(slot.data);
-    }, [slots, character]);
+    }, [slots, character, setSelectedSources]);
 
     const deleteSlot = useCallback((slotIndex: number) => {
         if (slotIndex < 0 || slotIndex >= MAX_SLOTS) {

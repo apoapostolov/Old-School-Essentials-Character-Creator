@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { preferredWorldTheme } from '../theme-data';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { preferredWorldTheme, savedWorldTheme } from '../theme-data';
 import type { AbilityScores, ClassInfo, Item, Race, Theme } from '../types';
 import type { AggregatedData } from './useAggregatedData';
 import type { KarameikosState } from './useKarameikos';
@@ -22,13 +22,24 @@ export const useAIGeneration = (
     karameikos?: KarameikosState
 ) => {
     // Shared state managed by the main hook
-    const [theme, setTheme] = useState<Theme>(() => preferredWorldTheme(aggregatedData.THEMES));
+    const [theme, setThemeState] = useState<Theme>(() => preferredWorldTheme(aggregatedData.THEMES));
     const [gender, setGender] = useState<'male' | 'female'>('male');
+    const themeLockedRef = useRef(false);
     const equipmentItems = useMemo(() => allItemKeys.map(key => aggregatedData.ITEMS[key]).filter((item): item is Item => !!item), [allItemKeys, aggregatedData.ITEMS]);
     const worldThemeKeys = Object.keys(aggregatedData.THEMES).join('\0');
 
+    const setTheme = useCallback((next: Theme) => {
+        themeLockedRef.current = true;
+        setThemeState(next);
+    }, []);
+
     useEffect(() => {
-        setTheme((current) => preferredWorldTheme(aggregatedData.THEMES, current));
+        setThemeState((current) => {
+            if (themeLockedRef.current) {
+                return current || preferredWorldTheme(aggregatedData.THEMES);
+            }
+            return preferredWorldTheme(aggregatedData.THEMES, current);
+        });
     }, [worldThemeKeys, aggregatedData.THEMES]);
 
     // Composing smaller, focused hooks
@@ -83,7 +94,8 @@ export const useAIGeneration = (
     }, [backstory, nameGen.characterName, traitsGen.characterTraits, gender, theme, secondarySkills.secondarySkills, level, equipmentItems, aggregatedData.LIFESTYLES, selectedRace]);
 
     const reset = useCallback(() => {
-        setTheme(preferredWorldTheme(aggregatedData.THEMES));
+        themeLockedRef.current = false;
+        setThemeState(preferredWorldTheme(aggregatedData.THEMES));
         setGender('male');
         nameGen.reset();
         traitsGen.resetTraits();
@@ -94,7 +106,8 @@ export const useAIGeneration = (
     }, [nameGen, traitsGen, portraitGen, language, secondarySkills, backstory, aggregatedData.THEMES]);
 
     const restoreState = useCallback((state: any) => {
-        setTheme(preferredWorldTheme(aggregatedData.THEMES, state?.theme));
+        themeLockedRef.current = true;
+        setThemeState(savedWorldTheme(aggregatedData.THEMES, state?.theme));
         setGender(state?.gender ?? 'male');
 
         nameGen.restore(state?.characterName);

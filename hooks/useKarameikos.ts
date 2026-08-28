@@ -154,7 +154,7 @@ export const useKarameikos = (generateVillageName: (socialStanding: string, ethn
         setLiteracy(state.literacy ?? null);
         setHometown(state.hometown ?? null);
         setVillageName(state.villageName ?? null);
-        setIsGeneratingVillage(Boolean(state.isGeneratingVillage));
+        setIsGeneratingVillage(false);
         setSelectedScripts(state.selectedScripts ? [...state.selectedScripts] : []);
     }, []);
 

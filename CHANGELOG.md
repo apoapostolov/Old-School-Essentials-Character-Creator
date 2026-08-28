@@ -13,6 +13,8 @@ All notable changes to this project will be documented in this file.
 - Profession tables are per world and class. Mystara uses Karameikos jobs.
 - With Mystara on, Life Before Adventuring follows the Manage social standing
   roll instead of climbing wealth at random.
+- Save, load, and JSON import keep Karameikos background, the chosen world
+  (including generic OSE), and the source packs that character used.
 
 ## [1.1.0] - 2026-07-27
 
