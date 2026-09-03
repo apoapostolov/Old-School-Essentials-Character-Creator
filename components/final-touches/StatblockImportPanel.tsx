@@ -19,7 +19,6 @@ import type { Item } from '../../types';
 /** Class name → SV/HD letter understood by the importer's alias tables. */
 const SV_CLASS_LETTER: Record<string, string> = {
     'Fighter': 'F',
-    'Warrior': 'F',
     'Knight': 'K',
     'Paladin': 'PAL',
     'Ranger': 'R',
@@ -60,6 +59,24 @@ const RACE_SV_NOTE: Record<string, string> = {
     'Halfling': 'Halfling',
     'Half-Elf': 'Half-Elf',
     'Half-Orc': 'Half-Orc',
+    'Svirfneblin': 'Svirfneblin',
+};
+
+/**
+ * The statblock is a semicolon-delimited single line. Free text (AI-generated
+ * names/traits, feature descriptions) may contain ';' or newlines, which would
+ * split into garbage fields on import. Neutralize them before emitting.
+ */
+const scrub = (raw: string | undefined | null): string =>
+    (raw ?? '')
+        .replace(/[;\r\n]+/g, ', ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+/** Magic bonus embedded in an item name, e.g. 'Sword +1' → 1. */
+const magicBonus = (item: Item | undefined): number => {
+    const m = item?.name.match(/\+(\d+)/);
+    return m ? parseInt(m[1], 10) : 0;
 };
 
 const normalizeAlignment = (raw: string | undefined): string => {
@@ -132,7 +149,7 @@ export const StatblockImportPanel: React.FC = () => {
         const armors = items.filter((i) => i.category === 'Armor');
         const gear = items.filter((i) => i.category !== 'Weapon' && i.category !== 'Armor');
 
-        const name = ai.characterName?.trim() || `${selectedRace?.name ?? 'Human'} ${selectedClass.name}`;
+        const name = scrub(ai.characterName) || `${selectedRace?.name ?? 'Human'} ${selectedClass.name}`;
 
         const parts: string[] = [];
 
@@ -140,7 +157,7 @@ export const StatblockImportPanel: React.FC = () => {
         if (imageUrl) parts.push(`img: ${imageUrl}`);
 
         // AC (ascending) + hit dice + hp
-        parts.push(`AAC ${computeAac(armors)}`);
+        parts.push(`AAC ${computeAac(armors) + (scores ? getModifier(scores.Dexterity) : 0)}`);
         const letter = SV_CLASS_LETTER[selectedClass.name] ?? 'F';
         parts.push(`HD ${letter}${level}`);
         if (progression.hpResult?.total) parts.push(`HP ${progression.hpResult.total}`);
@@ -151,12 +168,15 @@ export const StatblockImportPanel: React.FC = () => {
             : 120;
         parts.push(`MV ${mv}`);
 
-        // Attacks: primary melee weapon + class progression + Str mod
+        // Attacks: primary weapon + class progression + Str (melee) or Dex+magic (missile)
         parts.push('#AT 1');
         const primary = weapons.find((w) => w.isMelee) ?? weapons[0];
         const attack = getAttackValuesForLevel(selectedClass, level);
-        const strMod = scores ? getModifier(scores.Strength) : 0;
-        const atkBonus = (attack?.bonus ?? 0) + strMod;
+        const isMissile = primary ? !primary.isMelee && primary.isMissile : false;
+        const magic = magicBonus(primary);
+        const atkBonus = (attack?.bonus ?? 0)
+            + (isMissile ? getModifier(scores?.Dexterity ?? 10) : getModifier(scores?.Strength ?? 10))
+            + magic;
         const dmg = primary?.damage ?? '1d6';
         parts.push(atkBonus ? `Dmg ${atkBonus >= 0 ? '+' : ''}${atkBonus} atk ${dmg}` : `Dmg ${dmg}`);
 
@@ -184,34 +204,33 @@ export const StatblockImportPanel: React.FC = () => {
             parts.push(`Spells: ${progression.knownSpells.join(', ')}`);
         }
 
-        const languages = [
-            ai.commonLanguage,
-            ai.racialLanguage?.name,
-            ...(ai.selectedBonusLanguages ?? []),
-            ...((selectedSources.has('mystara') ? karameikos?.selectedScripts : undefined) ?? []),
-        ].filter(Boolean) as string[];
+        const languages = Array.from(new Set(
+            [ai.commonLanguage, ai.racialLanguage?.name, ...(ai.selectedBonusLanguages ?? []),
+                ...((selectedSources.has('mystara') ? karameikos?.selectedScripts : undefined) ?? [])]
+                .filter(Boolean) as string[]
+        ));
         if (languages.length > 1 || (languages.length === 1 && languages[0] !== 'Common Tongue')) {
             parts.push(`Languages: ${languages.join(', ')}`);
         }
 
-        const personality = ai.characterTraits
+        const personality = scrub(ai.characterTraits
             ? [ai.characterTraits.positivePhysical, ai.characterTraits.positiveMental, ai.characterTraits.negative]
                 .filter(Boolean).join(', ')
-            : '';
+            : '');
         const karameikosTraits = selectedSources.has('mystara') && karameikos
-            ? formatKarameikosStatblockNotes({
+            ? scrub(formatKarameikosStatblockNotes({
                 socialStanding: karameikos.socialStanding,
                 ethnos: karameikos.ethnos,
                 literacy: karameikos.literacy,
                 hometown: karameikos.hometown,
                 villageName: karameikos.villageName,
                 selectedScripts: karameikos.selectedScripts,
-            }).join('. ')
+            }).join('. '))
             : '';
         const traits = [personality, karameikosTraits].filter(Boolean).join('. ');
         if (traits) parts.push(`Traits: ${traits}`);
 
-        if (ai.characterTraits?.lifeStandard) parts.push(`Role: ${ai.characterTraits.lifeStandard}`);
+        if (ai.characterTraits?.lifeStandard) parts.push(`Role: ${scrub(ai.characterTraits.lifeStandard)}`);
 
         const features: string[] = [];
         if (selectedRace && RACE_SV_NOTE[selectedRace.name]) {
@@ -219,6 +238,13 @@ export const StatblockImportPanel: React.FC = () => {
         }
         if (selectedClass.name === 'Sage') {
             features.push('{Sage} Saves as Magic-User.');
+        }
+        // Class abilities granted at or below the current level → Feature blocks
+        // (importer creates one Foundry ability item per {Name}).
+        for (const ability of selectedClass.abilities ?? []) {
+            if (ability.name && ability.desc && ability.level <= level && !ability.hide_from_list) {
+                features.push(`{${ability.name}} ${scrub(ability.desc)}`);
+            }
         }
         if (features.length) parts.push(`Feature: ${features.join(' ')}`);
 
