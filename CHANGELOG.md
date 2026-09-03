@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.3] - 2026-09-03
+
+### Fixed
+
+- Statblock export: Half-Elf and Half-Orc now emit `HALFELF`/`HALFORC`
+  class letters. The short `HE`/`HO` forms have no alias in the importer's
+  save tables, so those characters silently kept default saves on import.
+- Statblock export: ascending AC includes the Dexterity modifier.
+- Statblock export: attack bonus uses DEX for missile weapons and adds
+  magic weapon bonuses from the item name.
+- Statblock export: free text (name, traits, role) is scrubbed of
+  semicolons and newlines that could corrupt the import.
+- Statblock export: languages are deduplicated.
+- Statblock export: dropped inline class-ability Feature blocks; the
+  importer populates abilities from the Reforged pack on import.
+- Data: Acrobat, Gnome, and Svirfneblin hit die corrected to 1d4 per
+  OSE Advanced Fantasy (level-up HP rolls and statblock HD were too high).
+- Statblock export: Svirfneblin now gets the Demihuman feature note.
+
 ## [Unreleased]
 
 - LAN host Codex and Grok OAuth: Vite injects this machine's CLI sessions so

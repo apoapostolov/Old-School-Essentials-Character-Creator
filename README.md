@@ -10,7 +10,7 @@
 
 *Build an OSE character from first roll to print-ready sheet, with source packs, house rules, equipment, saves, and optional AI details.*
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.3-blue)
 ![Node](https://img.shields.io/badge/node-18%2B-339933)
 ![React](https://img.shields.io/badge/react-18.2-61DAFB)
 ![Vite](https://img.shields.io/badge/vite-6.x-646CFF)
