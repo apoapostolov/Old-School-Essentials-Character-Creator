@@ -33,6 +33,19 @@ const SV_CLASS_LETTER: Record<string, string> = {
     'Magic-User': 'MU',
     'Mage': 'MU',
     'Illusionist': 'ILL',
+    // Racial classes: letters resolve in the importer's FEATURE_CLASS_MAP /
+    // HD_CLASS_DIE_MAP (E→elf d6, DROW d6, DUERGAR d8, HALFLING d4, etc.).
+    // Without these the exporter falls back to 'F' and mis-assigns fighter
+    // d8 HD + fighter saves to every demihuman character.
+    'Dwarf': 'D',
+    'Duergar': 'DUERGAR',
+    'Elf': 'E',
+    'Drow': 'DROW',
+    'Gnome': 'GNOME',
+    'Halfling': 'HALFLING',
+    'Half-Elf': 'HE',
+    'Half-Orc': 'HO',
+    'Svirfneblin': 'SVIRF',
     // Sage is a creator homebrew class the importer does not know; use the
     // closest save progression (magic_user) and flag it in Notes.
     'Sage': 'MU',
