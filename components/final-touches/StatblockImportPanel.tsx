@@ -42,8 +42,11 @@ const SV_CLASS_LETTER: Record<string, string> = {
     'Drow': 'DROW',
     'Gnome': 'GNOME',
     'Halfling': 'HALFLING',
-    'Half-Elf': 'HE',
-    'Half-Orc': 'HO',
+    // NOTE: 'HE'/'HO' have no SV_CLASS_MAP alias in the importer (only
+    // HALFELF/HALF-ELF/HALFORC/HALF-ORC resolve); short forms silently drop
+    // save progression on import.
+    'Half-Elf': 'HALFELF',
+    'Half-Orc': 'HALFORC',
     'Svirfneblin': 'SVIRF',
     // Sage is a creator homebrew class the importer does not know; use the
     // closest save progression (magic_user) and flag it in Notes.
