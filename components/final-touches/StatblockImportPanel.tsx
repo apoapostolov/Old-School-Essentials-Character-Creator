@@ -239,13 +239,12 @@ export const StatblockImportPanel: React.FC = () => {
         if (selectedClass.name === 'Sage') {
             features.push('{Sage} Saves as Magic-User.');
         }
-        // Class abilities granted at or below the current level → Feature blocks
-        // (importer creates one Foundry ability item per {Name}).
-        for (const ability of selectedClass.abilities ?? []) {
-            if (ability.name && ability.desc && ability.level <= level && !ability.hide_from_list) {
-                features.push(`{${ability.name}} ${scrub(ability.desc)}`);
-            }
-        }
+        // NOTE: class abilities are intentionally NOT exported here. The
+        // importer auto-populates abilities on character import: core class
+        // features from the Advanced Tome compendium (importClassFeaturesToActor)
+        // and homebrew abilities from homebrew.json (applyHomebrewToActor),
+        // each with full descriptions. Inlining short versions here would just
+        // duplicate items on the sheet.
         if (features.length) parts.push(`Feature: ${features.join(' ')}`);
 
         const languageNotes = (languages.length > 1 || (languages.length === 1 && languages[0] !== 'Common Tongue'))
