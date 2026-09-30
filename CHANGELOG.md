@@ -2,38 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+Work in progress for tables sharing a local host and for Mystara characters.
+These changes are in the current source, not the 1.1.3 release.
+
+### Added
+
+- A table host can share this machine's Codex or Grok session with players on
+  the LAN. The host controls sharing at `/__host`; tokens stay on the server.
+- World and class now guide profession choices. Mystara characters use
+  Karameikos jobs, and their earlier life follows the social-standing roll.
+
+### Changed
+
+- Saves and JSON imports keep a character's world, source packs, and
+  Karameikos background together.
+- AI names and traits recover more reliably from Codex responses with line
+  breaks or Markdown wrappers.
+
 ## [1.1.3] - 2026-09-03
+
+Statblocks now carry the character you built more faithfully into an OSE
+import, and three Advanced Fantasy options use their correct hit dice.
 
 ### Fixed
 
-- Statblock export: Half-Elf and Half-Orc now emit `HALFELF`/`HALFORC`
-  class letters. The short `HE`/`HO` forms have no alias in the importer's
-  save tables, so those characters silently kept default saves on import.
-- Statblock export: ascending AC includes the Dexterity modifier.
-- Statblock export: attack bonus uses DEX for missile weapons and adds
-  magic weapon bonuses from the item name.
-- Statblock export: free text (name, traits, role) is scrubbed of
-  semicolons and newlines that could corrupt the import.
-- Statblock export: languages are deduplicated.
-- Statblock export: dropped inline class-ability Feature blocks; the
-  importer populates abilities from the Reforged pack on import.
-- Data: Acrobat, Gnome, and Svirfneblin hit die corrected to 1d4 per
-  OSE Advanced Fantasy (level-up HP rolls and statblock HD were too high).
-- Statblock export: Svirfneblin now gets the Demihuman feature note.
-
-## [Unreleased]
-
-- LAN host Codex and Grok OAuth: Vite injects this machine's CLI sessions so
-  table players can generate without their own accounts. Admin page at `/__host`.
-  Tokens stay on the server.
-- Generate Traits and names recover Codex JSON even when Luna streams CRLF SSE
-  or wraps keys in markdown.
-- Choose Your World defaults to a loaded source pack instead of generic OSE.
-- Profession tables are per world and class. Mystara uses Karameikos jobs.
-- With Mystara on, Life Before Adventuring follows the Manage social standing
-  roll instead of climbing wealth at random.
-- Save, load, and JSON import keep Karameikos background, the chosen world
-  (including generic OSE), and the source packs that character used.
+- Half-Elf and Half-Orc export class identifiers the importer recognizes, so
+  their saves survive the trip. Ascending AC, missile attack bonuses, magic
+  weapon bonuses, and languages also transfer correctly.
+- Names and other free text can no longer break the semicolon-delimited
+  statblock. The importer supplies class abilities from the Reforged pack.
+- Acrobat, Gnome, and Svirfneblin use the 1d4 hit die from OSE Advanced
+  Fantasy; Svirfneblin exports its Demihuman note.
 
 ## [1.1.0] - 2026-07-27
 

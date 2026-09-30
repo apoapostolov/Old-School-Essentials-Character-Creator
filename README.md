@@ -21,14 +21,16 @@ This browser-based creator keeps the full character-building journey in one guid
 
 ![Old-School Essentials Character Creator interface with character saves, final details, and portrait controls](images/SCREENSHOT_20.png)
 
-## What's New in 1.1.0
+## What's New in 1.1.3
 
-- Assign separate providers and models to creative writing, short text, vision, and image generation.
-- Use OpenAI, Anthropic, Gemini, OpenRouter, xAI, Z.ai, DeepSeek, or OpenCode Go, including xAI device-code sign-in.
-- Load heavy catalogs and print tooling only when needed for a faster first visit.
-- Import, copy, download, and restore character JSON with clearer save and load errors.
+Exported statblocks now preserve more of the character you made: Half-Elf and
+Half-Orc saves, armor class, missile attacks, weapon bonuses, and languages
+carry through to the importer. Acrobat, Gnome, and Svirfneblin also use their
+correct Advanced Fantasy hit dice.
 
-See the full [changelog](./CHANGELOG.md).
+The current source includes additional work for Mystara characters and LAN
+table hosts. Those changes are listed under [Unreleased](CHANGELOG.md#unreleased)
+and were not part of 1.1.3. See the full [changelog](./CHANGELOG.md).
 
 ## What You Can Do
 
