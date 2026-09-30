@@ -1,21 +1,26 @@
-<!-- markdownlint-disable MD013 -->
+<!-- markdownlint-disable MD013 MD033 -->
+
+<div align="center">
+
+  <h1>Old-School Essentials Character Creator</h1>
+
+  <p>Build an adventurer from the first roll to a print-ready OSE sheet.</p>
+
+  <p>
+    <a href="#what-you-can-do"><img src="https://img.shields.io/badge/Type-Web%20app-555" alt="Type: Web app"></a>
+    <a href="./package.json"><img src="https://img.shields.io/badge/Language-TypeScript-555" alt="Language: TypeScript"></a>
+    <a href="https://github.com/apoapostolov/Old-School-Essentials-Character-Creator/releases/latest"><img src="https://img.shields.io/github/v/release/apoapostolov/Old-School-Essentials-Character-Creator" alt="Latest stable release version"></a>
+    <a href="https://github.com/apoapostolov/Old-School-Essentials-Character-Creator/releases/latest"><img src="https://img.shields.io/github/release-date/apoapostolov/Old-School-Essentials-Character-Creator?display_date=published_at&amp;label=last%20release" alt="Published date of latest stable release"></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-green" alt="License: MIT"></a>
+  </p>
+
+</div>
 
 <div align="center">
   <a href="https://github.com/apoapostolov/Old-School-Essentials-Character-Creator">
     <img src="images/hero.png" width="100%" alt="Old-School Essentials Character Creator hero with a character sheet, equipment, and an adventurer">
   </a>
 </div>
-
-# Old-School Essentials Character Creator
-
-*Build an OSE character from first roll to print-ready sheet, with source packs, house rules, equipment, saves, and optional AI details.*
-
-![Version](https://img.shields.io/badge/version-1.1.3-blue)
-![Node](https://img.shields.io/badge/node-18%2B-339933)
-![React](https://img.shields.io/badge/react-18.2-61DAFB)
-![Vite](https://img.shields.io/badge/vite-6.x-646CFF)
-![TypeScript](https://img.shields.io/badge/typescript-5.8-3178C6)
-![License](https://img.shields.io/badge/license-MIT-green)
 
 This browser-based creator keeps the full character-building journey in one guided workspace. Roll or enter abilities, choose a race and class, manage progression and equipment, add final details, save the result, and print a filled OSE sheet. The default rules follow this project's OSE Reforged house rules, while optional source packs can expand the available content.
 
