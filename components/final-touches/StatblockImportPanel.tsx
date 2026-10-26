@@ -72,6 +72,30 @@ const computeAac = (armorItems: Item[]): number => {
 const WORN = (item: Item): string =>
     `${item.name} ${item.carry_type === 'stowed' ? '{stowed}' : '{worn}'}`;
 
+/**
+ * Format the HP development as compact per-roll text for the statblock's
+ * {HP Development} feature block. Breakdown entries come from the campaign
+ * Starting Health rule: one racial roll plus max/rolled class dice per level.
+ */
+const formatHpDevelopment = (
+    breakdown: { source: string; calculation: string; result: number }[] | undefined,
+    racialDie: number,
+    classHitDie: number
+): string => {
+    if (!breakdown?.length) return '';
+    const racial = breakdown.find((e) => e.source === 'Racial HP');
+    const levelEntries = breakdown.filter((e) => e.source !== 'Racial HP');
+    const rolls: string[] = [];
+    if (racial) rolls.push(`racial 1d${racialDie}=${racial.result}`);
+    for (const e of levelEntries) {
+        const m = /^Level (\d+)$/.exec(e.source);
+        if (!m) continue;
+        const lv = Number(m[1]);
+        rolls.push(lv === 1 ? `class max 1d${classHitDie}=${e.result}` : `L${lv} 1d${classHitDie}=${e.result}`);
+    }
+    return rolls.join(', ');
+};
+
 export const StatblockImportPanel: React.FC = () => {
     const { ai, selectedClass, selectedRace, characterRoll, aggregatedData, progression, equipment, karameikos } = useCharacterExtras();
     const { selectedSources } = useSourceContext();
@@ -207,6 +231,10 @@ export const StatblockImportPanel: React.FC = () => {
         if (selectedClass.name === 'Sage') {
             features.push('{Sage} Saves as Magic-User.');
         }
+        // Per-roll HP development (racial + class dice), so the imported actor
+        // records the result of every die, not just the HP total.
+        const hpDev = formatHpDevelopment(progression.hpResult?.breakdown, selectedRace?.racialHpDie ?? 4, selectedClass.hitDie);
+        if (hpDev) features.push(`{HP Development} ${hpDev}`);
         if (features.length) parts.push(`Feature: ${features.join(' ')}`);
 
         const languageNotes = (languages.length > 1 || (languages.length === 1 && languages[0] !== 'Common Tongue'))

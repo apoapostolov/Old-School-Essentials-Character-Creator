@@ -127,7 +127,11 @@ export const useGrog = (showToast: (msg: string) => void) => {
 
         const conModifier = getModifier(scores.Constitution);
         const racialHp = rollDie(4);
-        const classHpRoll = rollDie(8); // Per rule: "rolls once and he doesn't reroll on 1 or 2"
+        // L0 class rule: roll the first class die, reroll when it lands on the
+        // maximum. The grog never takes a maximized die (that is the L1 hireling
+        // conversion at 100 XP) and has no 1-2 level-up reroll.
+        let classHpRoll = rollDie(8);
+        if (classHpRoll === 8) classHpRoll = rollDie(8);
         const totalHp = racialHp + Math.max(1, classHpRoll + conModifier);
 
         const cheapWeapons = Object.keys(ITEMS).filter(key => {

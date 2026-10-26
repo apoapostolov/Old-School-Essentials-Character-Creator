@@ -126,8 +126,8 @@ export const ClassInfoModal: React.FC<ClassInfoModalProps> = ({ classInfo, onClo
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     <DetailItem label="Prime Requisite(s)" value={primeReqs} />
                     <DetailItem label="Requirements" value={reqValue} />
-                    <DetailItem label="Racial Hit Die" value={`1d${racialHpDieInfo.die}${racialHpDieInfo.source ? ` (${racialHpDieInfo.source})` : ''}`} />
-                    <DetailItem label="Hit Die" value={`1d${classInfo.hitDie}`} />
+                    <DetailItem label="Racial Hit Die" value={`1d${racialHpDieInfo.die}${racialHpDieInfo.source ? ` (${racialHpDieInfo.source})` : ''}, result 1-${racialHpDieInfo.die}, min 1 hp`} />
+                    <DetailItem label="Hit Die" value={`1d${classInfo.hitDie}, L1 max ${classInfo.hitDie}, L0 reroll ${classInfo.hitDie}, L2+ reroll 1-2`} />
                     <DetailItem label="Max Level" value={maxLevelDisplay} />
                     <DetailItem label="Alignment" value={classInfo.alignment} />
                 </div>
