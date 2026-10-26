@@ -1,4 +1,20 @@
-<!-- markdownlint-disable MD013 -->
+<!-- markdownlint-disable MD013 MD033 -->
+
+<div align="center">
+
+  <h1>Old-School Essentials Character Creator</h1>
+
+  <p>Build an adventurer from the first roll to a print-ready OSE sheet.</p>
+
+  <p>
+    <a href="#what-you-can-do"><img src="https://img.shields.io/badge/Type-Web%20app-555" alt="Type: Web app"></a>
+    <a href="./package.json"><img src="https://img.shields.io/badge/Language-TypeScript-555" alt="Language: TypeScript"></a>
+    <a href="https://github.com/apoapostolov/Old-School-Essentials-Character-Creator/releases/latest"><img src="https://img.shields.io/github/v/release/apoapostolov/Old-School-Essentials-Character-Creator" alt="Latest stable release version"></a>
+    <a href="https://github.com/apoapostolov/Old-School-Essentials-Character-Creator/releases/latest"><img src="https://img.shields.io/github/release-date/apoapostolov/Old-School-Essentials-Character-Creator?display_date=published_at&amp;label=last%20release" alt="Published date of latest stable release"></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-green" alt="License: MIT"></a>
+  </p>
+
+</div>
 
 <div align="center">
   <a href="https://github.com/apoapostolov/Old-School-Essentials-Character-Creator">
@@ -6,29 +22,20 @@
   </a>
 </div>
 
-# Old-School Essentials Character Creator
-
-*Build an OSE character from first roll to print-ready sheet, with source packs, house rules, equipment, saves, and optional AI details.*
-
-![Version](https://img.shields.io/badge/version-1.1.0-blue)
-![Node](https://img.shields.io/badge/node-18%2B-339933)
-![React](https://img.shields.io/badge/react-18.2-61DAFB)
-![Vite](https://img.shields.io/badge/vite-6.x-646CFF)
-![TypeScript](https://img.shields.io/badge/typescript-5.8-3178C6)
-![License](https://img.shields.io/badge/license-MIT-green)
-
 This browser-based creator keeps the full character-building journey in one guided workspace. Roll or enter abilities, choose a race and class, manage progression and equipment, add final details, save the result, and print a filled OSE sheet. The default rules follow this project's OSE Reforged house rules, while optional source packs can expand the available content.
 
 ![Old-School Essentials Character Creator interface with character saves, final details, and portrait controls](images/SCREENSHOT_20.png)
 
-## What's New in 1.1.0
+## What's New in 1.1.3
 
-- Assign separate providers and models to creative writing, short text, vision, and image generation.
-- Use OpenAI, Anthropic, Gemini, OpenRouter, xAI, Z.ai, DeepSeek, or OpenCode Go, including xAI device-code sign-in.
-- Load heavy catalogs and print tooling only when needed for a faster first visit.
-- Import, copy, download, and restore character JSON with clearer save and load errors.
+Exported statblocks now preserve more of the character you made: Half-Elf and
+Half-Orc saves, armor class, missile attacks, weapon bonuses, and languages
+carry through to the importer. Acrobat, Gnome, and Svirfneblin also use their
+correct Advanced Fantasy hit dice.
 
-See the full [changelog](./CHANGELOG.md).
+The current source includes additional work for Mystara characters and LAN
+table hosts. Those changes are listed under [Unreleased](CHANGELOG.md#unreleased)
+and were not part of 1.1.3. See the full [changelog](./CHANGELOG.md).
 
 ## What You Can Do
 
